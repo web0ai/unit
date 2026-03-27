@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Getting Started</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: 24px 24px 0;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* ── PROGRESS ── */
+    .progress-wrap {
+      padding: 20px 24px 0;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .progress-bar-track {
+      background: var(--border);
+      border-radius: 100px;
+      height: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 100px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .step-label {
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .step-count {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 24px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── STEPS CONTAINER ── */
+    .steps-container {
+      position: relative;
+      flex: 1;
+    }
+
+    .step {
+      display: none;
+      opacity: 0;
+      animation: none;
+    }
+
+    .step.active {
+      display: block;
+      animation: fadeIn 0.35s ease forwards;
+    }
+
+    .step.exit {
+      display: block;
+      animation: fadeOut 0.2s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(-8px); }
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .step-heading {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .step-sub {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* ── INPUTS ── */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 7px;
+    }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field input[type="number"],
+    .field input[type="date"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input::placeholder {
+      color: #b8b39a;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.12);
+    }
+
+    /* ── PARTNER INVITE ── */
+    .invite-block {
+      margin-top: 24px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .invite-block .invite-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .invite-block .invite-hint {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 12px;
+    }
+
+    .invite-block input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .invite-block input::placeholder { color: #b8b39a; }
+    .invite-block input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.12);
+    }
+
+    /* ── TOGGLE CHIPS ── */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .chip.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .chip .chip-icon {
+      font-size: 15px;
+    }
+
+    /* ── PILLAR CARDS ── */
+    .pillar-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .pillar-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .pillar-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(96,108,56,0.08);
+    }
+
+    .pillar-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .pillar-icon {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .pillar-text {
+      flex: 1;
+    }
+
+    .pillar-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .pillar-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .pillar-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .pillar-card.selected .pillar-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .pillar-check::after {
+      content: '';
+      width: 5px;
+      height: 9px;
+      border: 2px solid transparent;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+      display: block;
+    }
+
+    .pillar-card.selected .pillar-check::after {
+      border-color: #fff;
+    }
+
+    /* ── CADENCE PILLS ── */
+    .cadence-pills {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .cadence-pill {
+      flex: 1;
+      text-align: center;
+      padding: 11px 8px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .cadence-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .cadence-pill.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* ── KEY DATES ── */
+    .dates-section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .dates-section-hint {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 14px;
+    }
+
+    .date-add-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .date-add-row input[type="text"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .date-add-row input[type="date"] {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      min-width: 0;
+      flex: 1.1;
+    }
+
+    .date-add-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96,108,56,0.12);
+    }
+
+    .date-add-row input::placeholder { color: #b8b39a; }
+
+    .btn-add-date {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 18px;
+      cursor: pointer;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-add-date:hover { background: #4e5a2c; }
+
+    .date-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .date-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .date-chip-remove {
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1;
+      transition: color 0.15s;
+      background: none;
+      border: none;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .date-chip-remove:hover { color: var(--deep-warm); }
+
+    /* ── THEME CARDS ── */
+    .themes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .theme-card {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .theme-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .theme-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96,108,56,0.2);
+    }
+
+    .theme-preview {
+      height: 90px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .theme-preview-bar {
+      height: 6px;
+      border-radius: 3px;
+      width: 60%;
+    }
+
+    .theme-preview-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .theme-preview-line {
+      height: 4px;
+      border-radius: 2px;
+      opacity: 0.4;
+    }
+
+    .theme-preview-line.short { width: 40%; }
+    .theme-preview-line.long  { width: 70%; }
+
+    .theme-preview-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      align-self: flex-end;
+    }
+
+    .theme-label-row {
+      padding: 8px 12px 10px;
+    }
+
+    .theme-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .theme-check-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-card.selected .theme-check-badge {
+      display: flex;
+    }
+
+    .theme-check-badge svg {
+      width: 11px;
+      height: 11px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    /* ── MINIMAL LIGHT THEME ── */
+    .preview-minimal-light {
+      background: #FAFAF8;
+    }
+    .preview-minimal-light .theme-preview-bar  { background: #1A1A1A; }
+    .preview-minimal-light .theme-preview-line  { background: #1A1A1A; }
+    .preview-minimal-light .theme-preview-dot   { background: #DADADA; }
+
+    /* ── MINIMAL DARK THEME ── */
+    .preview-minimal-dark {
+      background: #0F0F0F;
+    }
+    .preview-minimal-dark .theme-preview-bar  { background: #F5F5F0; }
+    .preview-minimal-dark .theme-preview-line { background: #F5F5F0; }
+    .preview-minimal-dark .theme-preview-dot  { background: #D4845A; }
+
+    /* ── FUNKY & FUN THEME ── */
+    .preview-funky {
+      background: #FFF3E0;
+    }
+    .preview-funky .theme-preview-bar  { background: #FF6B2B; }
+    .preview-funky .theme-preview-line { background: #FF6B2B; }
+    .preview-funky .theme-preview-dot  { background: #FFB347; }
+
+    /* ── SOPHISTICATED THEME ── */
+    .preview-sophisticated {
+      background: #0D1B2A;
+    }
+    .preview-sophisticated .theme-preview-bar  { background: #C9A84C; }
+    .preview-sophisticated .theme-preview-line { background: #C9A84C; }
+    .preview-sophisticated .theme-preview-dot  { background: #4A7FA5; }
+
+    /* ── STEP 4: WHY ARE YOU HERE — GOAL CARDS ── */
+    .goal-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .goal-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .goal-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(96,108,56,0.08);
+    }
+
+    .goal-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .goal-icon {
+      font-size: 24px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .goal-text {
+      flex: 1;
+    }
+
+    .goal-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .goal-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .goal-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .goal-card.selected .goal-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .goal-check::after {
+      content: '';
+      width: 5px;
+      height: 9px;
+      border: 2px solid transparent;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+      display: block;
+    }
+
+    .goal-card.selected .goal-check::after {
+      border-color: #fff;
+    }
+
+    /* ── PRODUCT INTRO BLOCK ── */
+    .product-intro {
+      background: var(--accent-light);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.65;
+      font-weight: 400;
+    }
+
+    /* ── SECTION HEADING (within step) ── */
+    .section-heading {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    /* ── STEP 5: GOALS TEXT INPUTS ── */
+    .goals-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .skip-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 400;
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: color 0.2s, text-decoration-color 0.2s;
+    }
+
+    .skip-link:hover {
+      color: var(--accent);
+      text-decoration-color: var(--accent);
+    }
+
+    /* ── STEP 6: FAMILY THEME GRID ── */
+    .family-theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .family-theme-card {
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 16px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+      text-align: center;
+      background: var(--surface);
+    }
+
+    .family-theme-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    .family-theme-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(96,108,56,0.2);
+    }
+
+    .family-theme-emoji {
+      font-size: 36px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .family-theme-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .family-theme-examples {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .family-theme-check {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .family-theme-card.selected .family-theme-check {
+      display: flex;
+    }
+
+    .family-theme-check svg {
+      width: 11px;
+      height: 11px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+    }
+
+    /* ── STEP 8: MONEY PRIVACY RADIO CARDS ── */
+    .money-radio-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .money-radio-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+
+    .money-radio-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(96,108,56,0.08);
+    }
+
+    .money-radio-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .money-radio-icon {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .money-radio-text {
+      flex: 1;
+    }
+
+    .money-radio-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .money-radio-desc {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .money-radio-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .money-radio-card.selected .money-radio-dot {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .money-radio-dot::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .money-radio-card.selected .money-radio-dot::after {
+      opacity: 1;
+    }
+
+    /* ── FOOTER NAV ── */
+    .footer {
+      padding: 16px 24px 32px;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .footer-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-continue {
+      flex: 1;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-continue:hover {
+      background: #4e5a2c;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(96,108,56,0.25);
+    }
+
+    .btn-continue:active {
+      transform: translateY(0);
+    }
+
+    /* ── COMPLETION SCREEN ── */
+    #completion-screen {
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+      text-align: center;
+      padding: 60px 24px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    #completion-screen.active {
+      display: block;
+    }
+
+    .completion-emoji {
+      font-size: 56px;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .completion-heading {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .completion-sub {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+
+    .btn-dashboard {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-dashboard:hover {
+      background: #4e5a2c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(96,108,56,0.25);
+    }
+
+    .completion-details {
+      margin-top: 28px;
+      padding: 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      text-align: left;
+    }
+
+    .completion-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 5px 0;
+    }
+
+    .completion-detail-item span.icon {
+      font-size: 16px;
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── INTRO SCREEN ── */
+    #intro-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 48px 24px 40px;
+      text-align: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    #intro-screen.hidden {
+      display: none;
+    }
+
+    .intro-logo {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .intro-graphic {
+      margin-bottom: 36px;
+    }
+
+    .intro-tagline {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 10px;
+      max-width: 380px;
+    }
+
+    .intro-secondary {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .intro-description {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 400px;
+      margin-bottom: 36px;
+    }
+
+    .btn-get-started {
+      background: var(--accent);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      padding: 16px 40px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+      margin-bottom: 14px;
+    }
+
+    .btn-get-started:hover {
+      background: #4e5a2c;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(96,108,56,0.25);
+    }
+
+    .btn-get-started:active {
+      transform: translateY(0);
+    }
+
+    .intro-time-hint {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #b8b39a;
+      font-weight: 300;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (min-width: 600px) {
+      .step-heading { font-size: 30px; }
+      .themes-grid { gap: 14px; }
+      .theme-preview { height: 100px; }
+      .family-theme-grid { gap: 14px; }
+      .intro-tagline { font-size: 34px; }
+    }
+
+    @media (max-width: 400px) {
+      .intro-tagline { font-size: 24px; }
+      .btn-get-started { font-size: 15px; padding: 14px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── INTRO / SPLASH SCREEN ── -->
+  <div id="intro-screen">
+    <div class="intro-logo">Unit</div>
+
+    <!-- Illustrated graphic: two soft circles (people) with a leaf/heart above -->
+    <div class="intro-graphic">
+      <svg width="120" height="110" viewBox="0 0 120 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Left circle (person) -->
+        <circle cx="42" cy="72" r="28" fill="#DDA15E" opacity="0.85"/>
+        <!-- Right circle (person) -->
+        <circle cx="78" cy="72" r="28" fill="#606C38" opacity="0.75"/>
+        <!-- Overlap blend -->
+        <circle cx="60" cy="72" r="10" fill="#c4873e" opacity="0.5"/>
+        <!-- Leaf / heart above, centered -->
+        <path d="M60 12 C55 6, 45 10, 47 20 C49 28, 58 34, 60 38 C62 34, 71 28, 73 20 C75 10, 65 6, 60 12 Z" fill="#606C38" opacity="0.9"/>
+        <!-- Small stem -->
+        <line x1="60" y1="38" x2="60" y2="46" stroke="#606C38" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+    </div>
+
+    <h1 class="intro-tagline">Your unit, organized your way.</h1>
+    <p class="intro-secondary">The operating system for your unit.</p>
+    <p class="intro-description">Unit helps couples and families manage their life together — from check-ins and goals to finances, travel, and important documents. Everything in one place, designed around how you actually live.</p>
+
+    <button class="btn-get-started" id="btn-get-started">Get started →</button>
+    <span class="intro-time-hint">Takes about 5 minutes</span>
+  </div>
+
+  <div class="header" id="main-header" style="display:none;">
+    <span class="logo">Unit</span>
+  </div>
+
+  <div class="progress-wrap" id="progress-wrap" style="display:none;">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill" style="width: 12.5%"></div>
+    </div>
+    <div class="progress-meta">
+      <span class="step-label" id="step-label-text">Who are you?</span>
+      <span class="step-count" id="step-count-text">Step 1 of 8</span>
+    </div>
+  </div>
+
+  <div class="main" id="main-content" style="display:none;">
+    <div class="steps-container">
+
+      <!-- ── STEP 1: Who are you ── -->
+      <div class="step active" id="step-1">
+        <h1 class="step-heading">Let's start with you.</h1>
+        <p class="step-sub">Your family space begins here. Just you for now — you'll invite the rest in a moment.</p>
+
+        <div class="field">
+          <label for="first-name">First name</label>
+          <input type="text" id="first-name" placeholder="e.g. Sarah" autocomplete="given-name" />
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+
+        <div class="invite-block">
+          <div class="invite-title">Invite your partner</div>
+          <div class="invite-hint">Your space is waiting for them.</div>
+          <input type="email" id="partner-email" placeholder="partner@example.com" autocomplete="off" />
+        </div>
+      </div>
+
+      <!-- ── STEP 2: Your unit ── -->
+      <div class="step" id="step-2">
+        <h1 class="step-heading">Who's in your unit?</h1>
+        <p class="step-sub">Select everyone who's part of your world. You can always update this later.</p>
+
+        <div class="chips-grid" id="unit-chips">
+          <div class="chip selected" data-value="partner">
+            <span class="chip-icon">💑</span> Partner
+          </div>
+          <div class="chip" data-value="kids">
+            <span class="chip-icon">🧒</span> Kids
+          </div>
+          <div class="chip" data-value="pets">
+            <span class="chip-icon">🐾</span> Pets
+          </div>
+          <div class="chip" data-value="extended">
+            <span class="chip-icon">🏡</span> Extended family
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="people-count">How many people total?</label>
+          <input type="number" id="people-count" placeholder="e.g. 4" min="1" max="20" />
+        </div>
+      </div>
+
+      <!-- ── STEP 3: What matters most (pillars) ── -->
+      <div class="step" id="step-3">
+        <h1 class="step-heading">What matters most?</h1>
+        <p class="step-sub">Pick the pillars you want to start with. You can add more later.</p>
+
+        <div class="pillar-grid" id="pillar-grid">
+          <div class="pillar-card selected" data-value="us">
+            <span class="pillar-icon">👥</span>
+            <div class="pillar-text">
+              <div class="pillar-name">Us</div>
+              <div class="pillar-desc">Your family identity and profiles</div>
+            </div>
+            <div class="pillar-check"></div>
+          </div>
+          <div class="pillar-card selected" data-value="connect">
+            <span class="pillar-icon">💬</span>
+            <div class="pillar-text">
+              <div class="pillar-name">Connect</div>
+              <div class="pillar-desc">Check-ins, goals, communication</div>
+            </div>
+            <div class="pillar-check"></div>
+          </div>
+          <div class="pillar-card selected" data-value="life">
+            <span class="pillar-icon">🌍</span>
+            <div class="pillar-text">
+              <div class="pillar-name">Life</div>
+              <div class="pillar-desc">Travel, bucket list, date ideas</div>
+            </div>
+            <div class="pillar-check"></div>
+          </div>
+          <div class="pillar-card selected" data-value="money">
+            <span class="pillar-icon">💰</span>
+            <div class="pillar-text">
+              <div class="pillar-name">Money</div>
+              <div class="pillar-desc">Budgeting, investments, financial goals</div>
+            </div>
+            <div class="pillar-check"></div>
+          </div>
+          <div class="pillar-card selected" data-value="vault">
+            <span class="pillar-icon">🗂️</span>
+            <div class="pillar-text">
+              <div class="pillar-name">Vault</div>
+              <div class="pillar-desc">Documents, passports, important files</div>
+            </div>
+            <div class="pillar-check"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 4: Why are you here? (NEW) ── -->
+      <div class="step" id="step-4">
+        <h1 class="step-heading">Why are you here?</h1>
+
+        <div class="product-intro">
+          Unit is your couple's operating system — one place to stay connected, manage your life together, and grow as a team. Think of it as a home base for your relationship.
+        </div>
+
+        <div class="section-heading">What matters most to you right now?</div>
+        <p class="step-sub" style="margin-bottom: 16px;">Pick up to 3 — we'll personalise your experience around these.</p>
+
+        <div class="goal-grid" id="goal-grid">
+          <div class="goal-card" data-value="connect">
+            <span class="goal-icon">💬</span>
+            <div class="goal-text">
+              <div class="goal-name">Stay connected</div>
+              <div class="goal-desc">Better communication, regular check-ins</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+          <div class="goal-card" data-value="finances">
+            <span class="goal-icon">💰</span>
+            <div class="goal-text">
+              <div class="goal-name">Manage finances together</div>
+              <div class="goal-desc">Budgets, goals, investments</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+          <div class="goal-card" data-value="life">
+            <span class="goal-icon">🌍</span>
+            <div class="goal-text">
+              <div class="goal-name">Plan our life</div>
+              <div class="goal-desc">Trips, bucket list, experiences</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+          <div class="goal-card" data-value="organize">
+            <span class="goal-icon">🗂️</span>
+            <div class="goal-text">
+              <div class="goal-name">Get organized</div>
+              <div class="goal-desc">Documents, schedules, important dates</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+          <div class="goal-card" data-value="habits">
+            <span class="goal-icon">🌱</span>
+            <div class="goal-text">
+              <div class="goal-name">Build healthy habits</div>
+              <div class="goal-desc">Personal growth, routines, goals</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+          <div class="goal-card" data-value="all">
+            <span class="goal-icon">✨</span>
+            <div class="goal-text">
+              <div class="goal-name">All of the above</div>
+              <div class="goal-desc">We want the full picture</div>
+            </div>
+            <div class="goal-check"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 5: Your first goals (NEW) ── -->
+      <div class="step" id="step-5">
+        <h1 class="step-heading">Let's start with something real.</h1>
+        <p class="step-sub">No pressure — these are just for you. You can always update them later.</p>
+
+        <div class="goals-fields">
+          <div class="field">
+            <label for="shared-goal">Our shared goal</label>
+            <input type="text" id="shared-goal" placeholder="e.g. Buy a home, travel more, start a business together..." />
+          </div>
+
+          <div class="field">
+            <label for="dream-destination">A dream destination or experience</label>
+            <input type="text" id="dream-destination" placeholder="e.g. Japan, Northern Lights, road trip across the US..." />
+          </div>
+        </div>
+
+        <a class="skip-link" id="skip-goals-link">Skip for now</a>
+      </div>
+
+      <!-- ── STEP 6: Family theme (NEW) ── -->
+      <div class="step" id="step-6">
+        <h1 class="step-heading">Choose your family theme.</h1>
+        <p class="step-sub">Every member of your unit gets a character. Pick the theme that fits your vibe 🌿</p>
+
+        <div class="family-theme-grid" id="family-theme-grid">
+
+          <!-- Fruits -->
+          <div class="family-theme-card" data-value="fruits">
+            <div class="family-theme-check">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <span class="family-theme-emoji">🍋</span>
+            <div class="family-theme-name">Fruits</div>
+            <div class="family-theme-examples">Lemon, Grape, Seedling...</div>
+          </div>
+
+          <!-- Flowers -->
+          <div class="family-theme-card" data-value="flowers">
+            <div class="family-theme-check">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <span class="family-theme-emoji">🌸</span>
+            <div class="family-theme-name">Flowers</div>
+            <div class="family-theme-examples">Cherry blossom, Sunflower, Bud...</div>
+          </div>
+
+          <!-- Plants -->
+          <div class="family-theme-card" data-value="plants">
+            <div class="family-theme-check">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <span class="family-theme-emoji">🌿</span>
+            <div class="family-theme-name">Plants</div>
+            <div class="family-theme-examples">Pothos, Cactus, Sprout...</div>
+          </div>
+
+          <!-- Stars -->
+          <div class="family-theme-card" data-value="stars">
+            <div class="family-theme-check">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <span class="family-theme-emoji">⭐</span>
+            <div class="family-theme-name">Stars</div>
+            <div class="family-theme-examples">North Star, Shooting Star, Sparkle...</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── STEP 7: Your cadence (was step 4) ── -->
+      <div class="step" id="step-7">
+        <h1 class="step-heading">Set your rhythm.</h1>
+        <p class="step-sub">Consistent check-ins are the backbone of a strong family system.</p>
+
+        <div style="margin-bottom:10px;">
+          <div class="dates-section-title" style="font-size:15px; margin-bottom:14px;">How often do you want a couple check-in?</div>
+          <div class="cadence-pills" id="cadence-pills">
+            <div class="cadence-pill selected" data-value="weekly">Weekly</div>
+            <div class="cadence-pill" data-value="biweekly">Biweekly</div>
+            <div class="cadence-pill" data-value="monthly">Monthly</div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="dates-section-title">Key dates to remember</div>
+        <div class="dates-section-hint">Birthdays, anniversaries, things that matter — never miss them again.</div>
+
+        <div class="date-add-row">
+          <input type="text" id="date-label" placeholder="e.g. Anniversary" />
+          <input type="date" id="date-input" />
+          <button class="btn-add-date" id="btn-add-date" title="Add date">+</button>
+        </div>
+
+        <div class="date-chips" id="date-chips"></div>
+      </div>
+
+      <!-- ── STEP 8: A couple more things (money privacy + theme combined) ── -->
+      <div class="step" id="step-8">
+        <h1 class="step-heading">A couple more things.</h1>
+        <p class="step-sub">Almost there — just two final touches to make this space feel right.</p>
+
+        <!-- Section 1: Money privacy -->
+        <div class="section-heading">How would you like to handle finances?</div>
+
+        <div class="money-radio-grid" id="money-radio-grid">
+          <div class="money-radio-card selected" data-value="transparent">
+            <span class="money-radio-icon">🤝</span>
+            <div class="money-radio-text">
+              <div class="money-radio-name">Full transparency</div>
+              <div class="money-radio-desc">Both partners see everything</div>
+            </div>
+            <div class="money-radio-dot"></div>
+          </div>
+          <div class="money-radio-card" data-value="shared">
+            <span class="money-radio-icon">🫧</span>
+            <div class="money-radio-text">
+              <div class="money-radio-name">Shared overview</div>
+              <div class="money-radio-desc">See totals together, details stay private</div>
+            </div>
+            <div class="money-radio-dot"></div>
+          </div>
+          <div class="money-radio-card" data-value="private">
+            <span class="money-radio-icon">🔐</span>
+            <div class="money-radio-text">
+              <div class="money-radio-name">Fully private</div>
+              <div class="money-radio-desc">Manage separately, share goals only</div>
+            </div>
+            <div class="money-radio-dot"></div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <!-- Section 2: UI Theme -->
+        <div class="section-heading">How should your space look?</div>
+
+        <div class="themes-grid" id="themes-grid">
+
+          <!-- Minimal Light -->
+          <div class="theme-card selected" data-value="minimal-light">
+            <div class="theme-check-badge">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <div class="theme-preview preview-minimal-light">
+              <div class="theme-preview-bar"></div>
+              <div class="theme-preview-lines">
+                <div class="theme-preview-line long"></div>
+                <div class="theme-preview-line short"></div>
+              </div>
+              <div class="theme-preview-dot"></div>
+            </div>
+            <div class="theme-label-row">
+              <div class="theme-name">Minimal Light</div>
+            </div>
+          </div>
+
+          <!-- Minimal Dark -->
+          <div class="theme-card" data-value="minimal-dark">
+            <div class="theme-check-badge">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <div class="theme-preview preview-minimal-dark">
+              <div class="theme-preview-bar"></div>
+              <div class="theme-preview-lines">
+                <div class="theme-preview-line long"></div>
+                <div class="theme-preview-line short"></div>
+              </div>
+              <div class="theme-preview-dot"></div>
+            </div>
+            <div class="theme-label-row">
+              <div class="theme-name">Minimal Dark</div>
+            </div>
+          </div>
+
+          <!-- Funky & Fun -->
+          <div class="theme-card" data-value="funky">
+            <div class="theme-check-badge">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <div class="theme-preview preview-funky">
+              <div class="theme-preview-bar"></div>
+              <div class="theme-preview-lines">
+                <div class="theme-preview-line long"></div>
+                <div class="theme-preview-line short"></div>
+              </div>
+              <div class="theme-preview-dot"></div>
+            </div>
+            <div class="theme-label-row">
+              <div class="theme-name">Funky &amp; Fun</div>
+            </div>
+          </div>
+
+          <!-- Sophisticated -->
+          <div class="theme-card" data-value="sophisticated">
+            <div class="theme-check-badge">
+              <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,9 11,1"/></svg>
+            </div>
+            <div class="theme-preview preview-sophisticated">
+              <div class="theme-preview-bar"></div>
+              <div class="theme-preview-lines">
+                <div class="theme-preview-line long"></div>
+                <div class="theme-preview-line short"></div>
+              </div>
+              <div class="theme-preview-dot"></div>
+            </div>
+            <div class="theme-label-row">
+              <div class="theme-name">Sophisticated</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /steps-container -->
+  </div><!-- /main -->
+
+  <!-- Completion screen -->
+  <div id="completion-screen">
+    <span class="completion-emoji">🎉</span>
+    <h1 class="completion-heading" id="completion-heading">You're all set!</h1>
+    <p class="completion-sub">Your family space is ready. Everything you need to stay connected, organized, and intentional — in one place.</p>
+
+    <a href="dashboard.html" class="btn-dashboard">Go to your dashboard →</a>
+
+    <div class="completion-details" id="completion-details">
+      <div class="completion-detail-item">
+        <span class="icon">✅</span>
+        <span id="summary-name">Your profile is ready</span>
+      </div>
+      <div class="completion-detail-item">
+        <span class="icon">✅</span>
+        <span id="summary-unit">Your unit is set up</span>
+      </div>
+      <div class="completion-detail-item">
+        <span class="icon">✅</span>
+        <span id="summary-pillars">5 pillars activated</span>
+      </div>
+      <div class="completion-detail-item">
+        <span class="icon">✅</span>
+        <span id="summary-family-theme">Your family theme is set</span>
+      </div>
+      <div class="completion-detail-item" id="summary-goal-row" style="display:none;">
+        <span class="icon">🎯</span>
+        <span id="summary-goal"></span>
+      </div>
+      <div class="completion-detail-item" id="summary-destination-row" style="display:none;">
+        <span class="icon">🌍</span>
+        <span id="summary-destination"></span>
+      </div>
+      <div class="completion-detail-item">
+        <span class="icon">✅</span>
+        <span id="summary-cadence">Weekly check-ins scheduled</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer nav -->
+  <div class="footer" id="footer-nav" style="display:none;">
+    <div class="footer-buttons">
+      <button class="btn-back" id="btn-back" style="display:none;">← Back</button>
+      <button class="btn-continue" id="btn-continue">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const TOTAL_STEPS = 8;
+      let currentStep = 1;
+
+      const stepLabels = [
+        'Who are you?',
+        'Your unit',
+        'What matters most?',
+        'Why are you here?',
+        'Your first goals',
+        'Family theme',
+        'Your cadence',
+        'A couple more things'
+      ];
+
+      const keyDates = [];
+
+      // ── Elements ──
+      const progressFill   = document.getElementById('progress-fill');
+      const stepLabelText  = document.getElementById('step-label-text');
+      const stepCountText  = document.getElementById('step-count-text');
+      const btnBack        = document.getElementById('btn-back');
+      const btnContinue    = document.getElementById('btn-continue');
+      const mainContent    = document.getElementById('main-content');
+      const footerNav      = document.getElementById('footer-nav');
+      const completionScrn = document.getElementById('completion-screen');
+      const progressWrap   = document.getElementById('progress-wrap');
+      const introScreen    = document.getElementById('intro-screen');
+      const mainHeader     = document.getElementById('main-header');
+      const btnGetStarted  = document.getElementById('btn-get-started');
+
+      // ── Intro → Step 1 ──
+      btnGetStarted.addEventListener('click', () => {
+        introScreen.style.opacity = '0';
+        introScreen.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+          introScreen.classList.add('hidden');
+          mainHeader.style.display = '';
+          progressWrap.style.display = '';
+          mainContent.style.display = '';
+          footerNav.style.display = '';
+          updateProgress(1);
+        }, 280);
+      });
+
+      function updateProgress(step) {
+        progressFill.style.width = (step / TOTAL_STEPS * 100) + '%';
+        stepLabelText.textContent = stepLabels[step - 1];
+        stepCountText.textContent = 'Step ' + step + ' of ' + TOTAL_STEPS;
+        btnBack.style.display = step === 1 ? 'none' : 'block';
+        btnContinue.textContent = step === TOTAL_STEPS ? 'Let\'s go →' : 'Continue';
+      }
+
+      function showStep(next, direction) {
+        const current = document.getElementById('step-' + currentStep);
+        const target  = document.getElementById('step-' + next);
+
+        current.classList.add('exit');
+        setTimeout(() => {
+          current.classList.remove('active', 'exit');
+          current.style.display = 'none';
+          target.style.display = 'block';
+          target.classList.add('active');
+          currentStep = next;
+          updateProgress(currentStep);
+        }, 180);
+      }
+
+      function getFamilyThemeLabel(value) {
+        const map = {
+          fruits: '🍋 Fruits family',
+          flowers: '🌸 Flowers family',
+          plants: '🌿 Plants family',
+          stars: '⭐ Stars family'
+        };
+        return map[value] || value;
+      }
+
+      function showCompletion() {
+        // Save all selections to localStorage
+        const name = document.getElementById('first-name').value.trim();
+        const sharedGoal = document.getElementById('shared-goal').value.trim();
+        const dreamDest  = document.getElementById('dream-destination').value.trim();
+
+        const familyThemeCard = document.querySelector('#family-theme-grid .family-theme-card.selected');
+        const familyThemeVal  = familyThemeCard ? familyThemeCard.dataset.value : '';
+
+        const moneyCard = document.querySelector('#money-radio-grid .money-radio-card.selected');
+        const moneyVal  = moneyCard ? moneyCard.dataset.value : 'transparent';
+
+        if (familyThemeVal) localStorage.setItem('unit_family_theme', familyThemeVal);
+        if (moneyVal)       localStorage.setItem('unit_money_privacy', moneyVal);
+        if (sharedGoal)     localStorage.setItem('unit_shared_goal', sharedGoal);
+        if (dreamDest)      localStorage.setItem('unit_dream_destination', dreamDest);
+
+        // Update completion heading
+        if (name) {
+          document.getElementById('completion-heading').textContent = name + ', you\'re all set!';
+        }
+
+        // Update summary items
+        if (name) {
+          document.getElementById('summary-name').textContent = name + '\'s profile is ready';
+        }
+
+        const unitChips = [...document.querySelectorAll('#unit-chips .chip.selected')];
+        const unitLabels = unitChips.map(c => c.textContent.trim());
+        if (unitLabels.length) {
+          document.getElementById('summary-unit').textContent = unitLabels.join(', ') + ' in your unit';
+        }
+
+        const pillars = document.querySelectorAll('#pillar-grid .pillar-card.selected');
+        document.getElementById('summary-pillars').textContent = pillars.length + ' pillar' + (pillars.length !== 1 ? 's' : '') + ' activated';
+
+        if (familyThemeVal) {
+          document.getElementById('summary-family-theme').textContent = getFamilyThemeLabel(familyThemeVal);
+        }
+
+        if (sharedGoal) {
+          document.getElementById('summary-goal').textContent = 'Goal: ' + sharedGoal;
+          document.getElementById('summary-goal-row').style.display = 'flex';
+        }
+
+        if (dreamDest) {
+          document.getElementById('summary-destination').textContent = 'Dream: ' + dreamDest;
+          document.getElementById('summary-destination-row').style.display = 'flex';
+        }
+
+        const cadencePill = document.querySelector('#cadence-pills .cadence-pill.selected');
+        if (cadencePill) {
+          document.getElementById('summary-cadence').textContent = cadencePill.textContent + ' check-ins scheduled';
+        }
+
+        // Hide onboarding, show completion
+        mainContent.style.display = 'none';
+        footerNav.style.display = 'none';
+        progressWrap.style.display = 'none';
+        completionScrn.classList.add('active');
+      }
+
+      // ── Navigation ──
+      btnContinue.addEventListener('click', () => {
+        // Validation per step
+        if (currentStep === 4) {
+          const selected = document.querySelectorAll('#goal-grid .goal-card.selected');
+          if (selected.length === 0) {
+            // Briefly highlight grid to indicate selection needed
+            const grid = document.getElementById('goal-grid');
+            grid.style.outline = '2px solid var(--warm)';
+            grid.style.borderRadius = '12px';
+            setTimeout(() => { grid.style.outline = ''; }, 1000);
+            return;
+          }
+        }
+
+        if (currentStep === 6) {
+          const selected = document.querySelector('#family-theme-grid .family-theme-card.selected');
+          if (!selected) {
+            const grid = document.getElementById('family-theme-grid');
+            grid.style.outline = '2px solid var(--warm)';
+            grid.style.borderRadius = '16px';
+            setTimeout(() => { grid.style.outline = ''; }, 1000);
+            return;
+          }
+        }
+
+        if (currentStep < TOTAL_STEPS) {
+          showStep(currentStep + 1, 'forward');
+        } else {
+          showCompletion();
+        }
+      });
+
+      btnBack.addEventListener('click', () => {
+        if (currentStep > 1) {
+          showStep(currentStep - 1, 'back');
+        }
+      });
+
+      // ── Toggle Chips (Step 2) ──
+      document.getElementById('unit-chips').addEventListener('click', e => {
+        const chip = e.target.closest('.chip');
+        if (chip) chip.classList.toggle('selected');
+      });
+
+      // ── Pillar Cards (Step 3) ──
+      document.getElementById('pillar-grid').addEventListener('click', e => {
+        const card = e.target.closest('.pillar-card');
+        if (card) card.classList.toggle('selected');
+      });
+
+      // ── Goal Cards (Step 4) — multi-select up to 3 ──
+      document.getElementById('goal-grid').addEventListener('click', e => {
+        const card = e.target.closest('.goal-card');
+        if (!card) return;
+
+        const isAll = card.dataset.value === 'all';
+
+        if (card.classList.contains('selected')) {
+          // Deselect
+          card.classList.remove('selected');
+          // If deselecting "all", no cascade needed
+        } else {
+          if (isAll) {
+            // Selecting "all" clears everything else and selects only "all"
+            document.querySelectorAll('#goal-grid .goal-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+          } else {
+            // Deselect "all" if it was selected
+            const allCard = document.querySelector('#goal-grid .goal-card[data-value="all"]');
+            if (allCard) allCard.classList.remove('selected');
+
+            const alreadySelected = document.querySelectorAll('#goal-grid .goal-card.selected');
+            if (alreadySelected.length >= 3) return; // max 3
+            card.classList.add('selected');
+          }
+        }
+      });
+
+      // ── Skip goals (Step 5) ──
+      document.getElementById('skip-goals-link').addEventListener('click', () => {
+        document.getElementById('shared-goal').value = '';
+        document.getElementById('dream-destination').value = '';
+        showStep(currentStep + 1, 'forward');
+      });
+
+      // ── Family Theme Cards (Step 6) — single select ──
+      document.getElementById('family-theme-grid').addEventListener('click', e => {
+        const card = e.target.closest('.family-theme-card');
+        if (card) {
+          document.querySelectorAll('.family-theme-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        }
+      });
+
+      // ── Cadence Pills (Step 7) ──
+      document.getElementById('cadence-pills').addEventListener('click', e => {
+        const pill = e.target.closest('.cadence-pill');
+        if (pill) {
+          document.querySelectorAll('.cadence-pill').forEach(p => p.classList.remove('selected'));
+          pill.classList.add('selected');
+        }
+      });
+
+      // ── Key Dates (Step 7) ──
+      function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return months[parseInt(month,10)-1] + ' ' + parseInt(day,10);
+      }
+
+      function renderDateChips() {
+        const container = document.getElementById('date-chips');
+        container.innerHTML = '';
+        keyDates.forEach((d, idx) => {
+          const chip = document.createElement('div');
+          chip.className = 'date-chip';
+          chip.innerHTML = `
+            <span>📅 ${d.label}${d.date ? ' — ' + formatDate(d.date) : ''}</span>
+            <button class="date-chip-remove" data-idx="${idx}" title="Remove">×</button>
+          `;
+          container.appendChild(chip);
+        });
+
+        container.querySelectorAll('.date-chip-remove').forEach(btn => {
+          btn.addEventListener('click', () => {
+            keyDates.splice(parseInt(btn.dataset.idx, 10), 1);
+            renderDateChips();
+          });
+        });
+      }
+
+      document.getElementById('btn-add-date').addEventListener('click', () => {
+        if (keyDates.length >= 3) return;
+        const label = document.getElementById('date-label').value.trim();
+        const date  = document.getElementById('date-input').value;
+        if (!label) return;
+        keyDates.push({ label, date });
+        document.getElementById('date-label').value = '';
+        document.getElementById('date-input').value = '';
+        renderDateChips();
+      });
+
+      // Allow pressing Enter on date label to add
+      document.getElementById('date-label').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('btn-add-date').click();
+      });
+
+      // ── Money Privacy Cards (Step 8) — single select ──
+      document.getElementById('money-radio-grid').addEventListener('click', e => {
+        const card = e.target.closest('.money-radio-card');
+        if (card) {
+          document.querySelectorAll('.money-radio-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        }
+      });
+
+      // ── UI Theme Cards (Step 8) ──
+      document.getElementById('themes-grid').addEventListener('click', e => {
+        const card = e.target.closest('.theme-card');
+        if (card) {
+          document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        }
+      });
+
+      // ── Init ──
+      updateProgress(1);
+    })();
+  </script>
+
+</body>
+</html>

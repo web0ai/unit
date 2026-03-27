@@ -1,0 +1,3142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ────────────────────────────────────── */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ───────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 12px 4px;
+    }
+
+    .sidebar-schedule-link {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-schedule-link:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--deep-warm) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── Main Content ──────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: calc(var(--sidebar-width) + 960px);
+    }
+
+    /* ─── Page Header ───────────────────────────────── */
+    .page-header {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .page-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .twofa-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .upload-header-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .upload-header-btn:hover {
+      background: var(--muted);
+    }
+
+    /* ─── Missing Docs Banner ───────────────────────── */
+    .missing-banner {
+      background: linear-gradient(135deg, #fffbf0 0%, #fff8e8 100%);
+      border: 1px solid #e8d8b0;
+      border-radius: var(--radius-lg);
+      padding: 18px 20px 16px;
+      margin-bottom: 24px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .missing-banner-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .missing-banner-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .missing-banner-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .missing-banner-dismiss {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.15s;
+      flex-shrink: 0;
+      margin-top: -2px;
+    }
+
+    .missing-banner-dismiss:hover {
+      color: var(--text);
+    }
+
+    .missing-chips-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .missing-chips-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .missing-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 10px 7px 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .missing-chip:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.12);
+    }
+
+    .missing-chip.added {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .missing-chip-label {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .missing-chip-add {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .missing-chip-add:hover {
+      background: var(--muted);
+    }
+
+    .missing-chip.added .missing-chip-add {
+      background: var(--muted);
+      cursor: default;
+    }
+
+    /* ─── Category Tabs ─────────────────────────────── */
+    .category-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .category-tab:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .category-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 500;
+    }
+
+    /* ─── Member Filter Pills ───────────────────────── */
+    .member-filter-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .member-filter-pill {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.4;
+    }
+
+    .member-filter-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .member-filter-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 500;
+    }
+
+    /* ─── Document Grid ─────────────────────────────── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .doc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+
+    .doc-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #cec8a4;
+    }
+
+    .doc-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .doc-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .doc-menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+      line-height: 1;
+      position: relative;
+    }
+
+    .doc-menu-btn:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .doc-menu-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 26px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 24px rgba(40, 54, 24, 0.12);
+      z-index: 50;
+      min-width: 160px;
+      overflow: hidden;
+    }
+
+    .doc-menu-dropdown.open {
+      display: block;
+    }
+
+    .doc-menu-item {
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .doc-menu-item:hover {
+      background: var(--accent-light);
+    }
+
+    .doc-menu-item.danger {
+      color: var(--deep-warm);
+    }
+
+    .doc-menu-item.danger:hover {
+      background: #fef5ef;
+    }
+
+    .doc-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .doc-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .doc-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .doc-meta-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .doc-owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--accent-light);
+      border-radius: 100px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .doc-expiry {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 100px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .doc-expiry.green {
+      background: rgba(96, 108, 56, 0.1);
+      color: var(--accent);
+    }
+
+    .doc-expiry.amber {
+      background: rgba(221, 161, 94, 0.15);
+      color: #b07d3a;
+    }
+
+    .doc-expiry.red {
+      background: rgba(188, 108, 37, 0.12);
+      color: var(--deep-warm);
+    }
+
+    .doc-import-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f0f4ff;
+      border: 1px solid #d0d8f0;
+      border-radius: 100px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: #5060a0;
+      font-weight: 500;
+    }
+
+    .doc-new-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(96, 108, 56, 0.12);
+      border: 1px solid var(--accent);
+      border-radius: 100px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      transition: opacity 0.5s;
+    }
+
+    .doc-new-badge.fade-out {
+      opacity: 0;
+    }
+
+    .doc-card-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .doc-file-type {
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-weight: 500;
+    }
+
+    .doc-view-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .doc-view-btn:hover {
+      background: var(--muted);
+    }
+
+    .doc-view-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ─── Expiry Alerts ─────────────────────────────── */
+    .section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      letter-spacing: -0.2px;
+    }
+
+    .expiry-alerts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .expiry-alert-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .expiry-alert-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .expiry-alert-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .expiry-alert-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .expiry-alert-text strong {
+      font-weight: 500;
+    }
+
+    .expiry-alert-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .set-reminder-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .set-reminder-btn:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    /* ─── Upload Card (bottom section) ─────────────── */
+    .upload-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .upload-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .dropzone.processing {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      pointer-events: none;
+    }
+
+    .dropzone-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .dropzone-text {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .dropzone-text span {
+      color: var(--accent);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dropzone-processing {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dropzone.processing .dropzone-idle {
+      display: none;
+    }
+
+    .dropzone.processing .dropzone-processing {
+      display: flex;
+    }
+
+    .processing-spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .upload-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .form-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      width: 100%;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .form-textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      width: 100%;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .form-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      width: 100%;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6342' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+
+    .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .radio-option input[type="radio"] {
+      accent-color: var(--accent);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    .radio-option span {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    /* Radio card style for modal */
+    .radio-cards {
+      display: flex;
+      gap: 10px;
+    }
+
+    .radio-card {
+      flex: 1;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg);
+    }
+
+    .radio-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .radio-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .radio-card input[type="radio"] {
+      display: none;
+    }
+
+    .radio-card-emoji {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .radio-card-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .pill-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-option {
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .pill-option:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .pill-option.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 500;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 100px;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      left: 3px;
+      top: 3px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(18px);
+    }
+
+    .save-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: 'Inter', sans-serif;
+      margin-top: 18px;
+    }
+
+    .save-btn:hover {
+      background: var(--muted);
+    }
+
+    .save-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ─── 2FA Modal ─────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.4);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px 26px;
+      max-width: 400px;
+      width: 92%;
+      box-shadow: 0 16px 56px rgba(40, 54, 24, 0.2);
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.22s;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-lock-icon {
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 7px;
+      text-align: center;
+    }
+
+    .modal-desc {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 24px;
+      line-height: 1.55;
+    }
+
+    .otp-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .otp-input {
+      width: 46px;
+      height: 54px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+      font-family: 'Sora', sans-serif;
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      caret-color: var(--accent);
+    }
+
+    .otp-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.15);
+    }
+
+    .otp-input.filled {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .modal-verify-btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 12px;
+    }
+
+    .modal-verify-btn:hover {
+      background: var(--muted);
+    }
+
+    .modal-cancel-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .modal-cancel-link:hover {
+      color: var(--text);
+    }
+
+    /* ─── Upload Document Modal ─────────────────────── */
+    .upload-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 0;
+      max-width: 520px;
+      width: 92%;
+      box-shadow: 0 16px 56px rgba(40, 54, 24, 0.2);
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.22s;
+      overflow: hidden;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.open .upload-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .upload-modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 2;
+    }
+
+    .upload-modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .upload-modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: background 0.15s;
+      line-height: 1;
+    }
+
+    .upload-modal-close:hover {
+      background: var(--accent-light);
+    }
+
+    .upload-modal-body {
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .upload-modal-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-modal-dropzone:hover,
+    .upload-modal-dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .upload-modal-dropzone.has-file {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .upload-modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-cancel:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-primary:hover {
+      background: var(--muted);
+    }
+
+    /* ─── Document Viewer Panel (slide from right) ──── */
+    .viewer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      z-index: 900;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+
+    .viewer-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .viewer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 420px;
+      max-width: 96vw;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -8px 0 40px rgba(40, 54, 24, 0.15);
+      z-index: 910;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .viewer-panel.open {
+      transform: translateX(0);
+    }
+
+    .viewer-panel-header {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .viewer-panel-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .viewer-panel-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0 4px;
+      border-radius: 6px;
+      transition: background 0.15s;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: -2px;
+    }
+
+    .viewer-panel-close:hover {
+      background: var(--accent-light);
+    }
+
+    .viewer-panel-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 0 20px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .viewer-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 100px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .viewer-tag.category {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .viewer-tag.member {
+      background: #f0f4ff;
+      color: #5060a0;
+      border: 1px solid #d0d8f0;
+    }
+
+    .viewer-expiry-row {
+      padding: 10px 20px 0;
+      flex-shrink: 0;
+    }
+
+    .viewer-expiry-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .viewer-expiry-pill.green {
+      background: rgba(96, 108, 56, 0.1);
+      color: var(--accent);
+    }
+
+    .viewer-expiry-pill.amber {
+      background: rgba(221, 161, 94, 0.15);
+      color: #b07d3a;
+    }
+
+    .viewer-expiry-pill.red {
+      background: rgba(188, 108, 37, 0.12);
+      color: var(--deep-warm);
+    }
+
+    .viewer-expiry-pill.none {
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .viewer-panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Document preview card */
+    .doc-preview-card {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: 0 2px 12px rgba(40, 54, 24, 0.10), 0 1px 3px rgba(40,54,24,0.07);
+      padding: 32px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #f0ead4;
+    }
+
+    .doc-preview-icon {
+      font-size: 52px;
+      line-height: 1;
+    }
+
+    .doc-preview-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .doc-preview-note {
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .doc-preview-download {
+      margin-top: 8px;
+      background: #e8e8e8;
+      color: #aaa;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: not-allowed;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+    }
+
+    .doc-preview-download:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* Viewer form fields */
+    .viewer-field-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+
+    .viewer-notes {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      width: 100%;
+      min-height: 80px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .viewer-notes:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .viewer-date-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .viewer-date-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .viewer-share-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .viewer-share-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .viewer-share-item + .viewer-share-item {
+      border-top: 1px solid var(--border);
+    }
+
+    .viewer-share-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .viewer-panel-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .viewer-delete-btn {
+      width: 100%;
+      background: rgba(188, 108, 37, 0.08);
+      color: var(--deep-warm);
+      border: 1px solid rgba(188, 108, 37, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 11px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .viewer-delete-btn:hover {
+      background: rgba(188, 108, 37, 0.15);
+    }
+
+    /* ─── Toast ─────────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--text);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Mobile Bottom Tab ──────────────────────────── */
+    .mobile-tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    }
+
+    .mobile-tab-bar-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .mobile-tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 12px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--muted);
+      transition: color 0.15s;
+      min-width: 50px;
+    }
+
+    .mobile-tab-item.active {
+      color: var(--accent);
+    }
+
+    .mobile-tab-icon {
+      font-size: 20px;
+    }
+
+    .mobile-tab-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 900px) {
+      .doc-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .upload-fields {
+        grid-template-columns: 1fr;
+      }
+      .upload-fields .form-group.full-width {
+        grid-column: 1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .sidebar {
+        display: none;
+      }
+      .main {
+        margin-left: 0;
+        padding: 20px 16px 80px;
+        max-width: 100%;
+      }
+      .mobile-tab-bar {
+        display: block;
+      }
+      .doc-grid {
+        grid-template-columns: 1fr;
+      }
+      .page-header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .upload-fields {
+        grid-template-columns: 1fr;
+      }
+      .viewer-panel {
+        width: 100vw;
+      }
+      .radio-cards {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .doc-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+
+    /* ─── Search Bar ─────────────────────────────────── */
+    .doc-search-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .doc-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      pointer-events: none;
+      line-height: 1;
+      color: var(--muted);
+    }
+
+    .doc-search-input {
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 36px 10px 36px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    .doc-search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .doc-search-input::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    .doc-search-clear {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 5px;
+      line-height: 1;
+      display: none;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .doc-search-clear:hover {
+      color: var(--text);
+      background: var(--accent-light);
+    }
+
+    .doc-search-clear.visible {
+      display: block;
+    }
+
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li>
+        <a href="connect.html" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" class="active" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+          <span id="vaultExpiryBadge" style="display:none;background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;"></span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" data-nav="us">
+          <span class="nav-icon">👥</span>
+          My Unit
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main ─────────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1 class="page-title">Vault</h1>
+        <p class="page-subtitle">Your important documents, safe and always findable.</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="upload-header-btn" onclick="openUploadModal()">+ Upload document</button>
+        <div class="twofa-badge">🔐 Secured with 2FA</div>
+      </div>
+    </div>
+
+    <!-- Section 1: Missing Document Nudges -->
+    <div class="missing-banner" id="missingBanner">
+      <div class="missing-banner-header">
+        <div>
+          <div class="missing-banner-title">A few things worth adding</div>
+          <div class="missing-banner-sub">We noticed some important documents are missing from your vault.</div>
+        </div>
+        <button class="missing-banner-dismiss" onclick="dismissBanner()" aria-label="Dismiss">×</button>
+      </div>
+      <div class="missing-chips-scroll" id="missingChips">
+        <!-- chips injected by JS -->
+      </div>
+    </div>
+
+    <!-- Section 2: Category Tabs -->
+    <div class="category-tabs" id="categoryTabs">
+      <button class="category-tab active" data-cat="all" onclick="filterDocs(this, 'all')">All</button>
+      <button class="category-tab" data-cat="identity" onclick="filterDocs(this, 'identity')">Identity</button>
+      <button class="category-tab" data-cat="property" onclick="filterDocs(this, 'property')">Property</button>
+      <button class="category-tab" data-cat="finance" onclick="filterDocs(this, 'finance')">Finance</button>
+      <button class="category-tab" data-cat="health" onclick="filterDocs(this, 'health')">Health</button>
+      <button class="category-tab" data-cat="other" onclick="filterDocs(this, 'other')">Other</button>
+    </div>
+
+    <!-- Member Filter Pills -->
+    <div class="member-filter-row" id="memberFilterRow">
+      <button class="member-filter-pill active" data-member="all" onclick="filterByMember(this, 'all')">All</button>
+      <button class="member-filter-pill" data-member="zein" onclick="filterByMember(this, 'zein')">Zein</button>
+      <button class="member-filter-pill" data-member="ala" onclick="filterByMember(this, 'ala')">Ala</button>
+      <button class="member-filter-pill" data-member="shared" onclick="filterByMember(this, 'shared')">Shared</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="doc-search-wrap">
+      <span class="doc-search-icon">🔍</span>
+      <input
+        type="text"
+        class="doc-search-input"
+        id="docSearchInput"
+        placeholder="Search documents..."
+        oninput="handleDocSearch(this)"
+        autocomplete="off"
+      />
+      <button class="doc-search-clear" id="docSearchClear" onclick="clearDocSearch()" aria-label="Clear search">×</button>
+    </div>
+
+    <!-- Section 3: Document Grid -->
+    <div class="doc-grid" id="docGrid">
+      <!-- cards injected by JS -->
+    </div>
+
+    <!-- Expiry Alerts -->
+    <div class="section-title" style="margin-top: 8px;">Expiry alerts</div>
+    <div class="expiry-alerts">
+      <div class="expiry-alert-card">
+        <div class="expiry-alert-left">
+          <span class="expiry-alert-icon">⚠️</span>
+          <div>
+            <div class="expiry-alert-text"><strong>Ala's Residency Card</strong> expires in 11 months</div>
+            <div class="expiry-alert-sub">March 2027 — consider renewing soon</div>
+          </div>
+        </div>
+        <button class="set-reminder-btn" onclick="showToast('Reminder set ✓')">Set reminder</button>
+      </div>
+      <div class="expiry-alert-card">
+        <div class="expiry-alert-left">
+          <span class="expiry-alert-icon">🟢</span>
+          <div>
+            <div class="expiry-alert-text"><strong>Ala's Passport</strong> — 2 years remaining</div>
+            <div class="expiry-alert-sub">June 2028 — No action needed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Upload Card (bottom drag & drop) -->
+    <div class="upload-card" id="uploadCard">
+      <div class="upload-card-title">Quick add a document</div>
+
+      <div class="dropzone" id="dropzone"
+        ondragover="handleDropzoneDragOver(event)"
+        ondragleave="handleDropzoneDragLeave(event)"
+        ondrop="handleDropzoneDrop(event)"
+        onclick="document.getElementById('fileInputBottom').click()">
+        <div class="dropzone-idle">
+          <div class="dropzone-icon">📂</div>
+          <div class="dropzone-text">Drag your file here or <span>browse</span></div>
+          <div class="dropzone-sub">PDF, JPG, PNG — up to 25MB</div>
+        </div>
+        <div class="dropzone-processing">
+          <div class="processing-spinner"></div>
+          <div style="font-size:14px;font-weight:500;color:var(--accent);">Processing...</div>
+        </div>
+        <input type="file" id="fileInputBottom" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileInputChange(this, 'bottom')" />
+      </div>
+
+      <div class="upload-fields">
+        <div class="form-group full-width">
+          <label class="form-label">Document name</label>
+          <input type="text" class="form-input" id="docName" placeholder="e.g. Ala's Passport" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="docCategory">
+            <option value="identity">Identity</option>
+            <option value="property">Property</option>
+            <option value="finance">Finance</option>
+            <option value="health">Health</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Expiry date (optional)</label>
+          <input type="date" class="form-input" id="docExpiry" />
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Owner</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="docOwner" value="shared" checked />
+              <span>Shared</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="docOwner" value="zein" />
+              <span>Personal — Zein</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="docOwner" value="ala" />
+              <span>Personal — Ala</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <div class="toggle-row">
+            <span class="toggle-label">🔐 Require 2FA to view</span>
+            <label class="toggle">
+              <input type="checkbox" id="twoFaToggle" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="saveDocument()">Save to Vault</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Bottom Tab Bar ──────────────────────────── -->
+<nav class="mobile-tab-bar">
+  <div class="mobile-tab-bar-inner">
+    <a href="dashboard.html" class="mobile-tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="mobile-tab-item" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="mobile-tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="mobile-tab-item" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="mobile-tab-item active" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ─── 2FA Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" id="twoFaModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal" id="twoFaModalInner">
+    <div class="modal-lock-icon">🔐</div>
+    <div class="modal-title">Verify it's you</div>
+    <p class="modal-desc">This document is protected. Enter your 6-digit code to continue.</p>
+    <div class="otp-row" id="otpRow">
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp0" />
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp1" />
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp2" />
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp3" />
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp4" />
+      <input class="otp-input" type="text" inputmode="numeric" maxlength="1" id="otp5" />
+    </div>
+    <button class="modal-verify-btn" onclick="verifyOTP()">Verify</button>
+    <a class="modal-cancel-link" onclick="closeModal()">Cancel</a>
+  </div>
+</div>
+
+<!-- ─── Upload Document Modal ─────────────────────────── -->
+<div class="modal-overlay" id="uploadModal" onclick="handleUploadModalOverlayClick(event)">
+  <div class="upload-modal" id="uploadModalInner">
+    <div class="upload-modal-header">
+      <div class="upload-modal-title">Upload document</div>
+      <button class="upload-modal-close" onclick="closeUploadModal()">×</button>
+    </div>
+    <div class="upload-modal-body">
+
+      <!-- Dropzone -->
+      <div class="upload-modal-dropzone" id="modalDropzone"
+        ondragover="handleModalDragOver(event)"
+        ondragleave="handleModalDragLeave(event)"
+        ondrop="handleModalDrop(event)"
+        onclick="document.getElementById('fileInputModal').click()">
+        <div id="modalDropzoneContent">
+          <div style="font-size:30px;margin-bottom:8px;">📂</div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">
+            Drag your file here or <span style="color:var(--accent);text-decoration:underline;cursor:pointer;">browse</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);">PDF, JPG, PNG — up to 25MB</div>
+        </div>
+        <input type="file" id="fileInputModal" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileInputChange(this, 'modal')" />
+      </div>
+
+      <!-- Doc Name -->
+      <div class="form-group">
+        <label class="form-label">Document name</label>
+        <input type="text" class="form-input" id="modalDocName" placeholder="e.g. Ala's Passport" />
+      </div>
+
+      <!-- Category -->
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <div class="pill-selector" id="modalCategoryPills">
+          <button class="pill-option selected" data-cat="identity" onclick="selectModalCategory(this)">🪪 Identity</button>
+          <button class="pill-option" data-cat="property" onclick="selectModalCategory(this)">🏠 Property</button>
+          <button class="pill-option" data-cat="finance" onclick="selectModalCategory(this)">💳 Finance</button>
+          <button class="pill-option" data-cat="health" onclick="selectModalCategory(this)">🏥 Health</button>
+          <button class="pill-option" data-cat="other" onclick="selectModalCategory(this)">📄 Other</button>
+        </div>
+      </div>
+
+      <!-- Owner -->
+      <div class="form-group">
+        <label class="form-label">Owner</label>
+        <div class="radio-cards" id="modalOwnerCards">
+          <div class="radio-card selected" data-owner="zein" onclick="selectModalOwner(this)">
+            <div class="radio-card-emoji">👩</div>
+            <div class="radio-card-label">Zein</div>
+          </div>
+          <div class="radio-card" data-owner="ala" onclick="selectModalOwner(this)">
+            <div class="radio-card-emoji">👨</div>
+            <div class="radio-card-label">Ala</div>
+          </div>
+          <div class="radio-card" data-owner="shared" onclick="selectModalOwner(this)">
+            <div class="radio-card-emoji">👥</div>
+            <div class="radio-card-label">Shared</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expiry -->
+      <div class="form-group">
+        <label class="form-label">Expiry date (optional)</label>
+        <input type="date" class="form-input" id="modalDocExpiry" />
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <textarea class="form-textarea" id="modalDocNotes" placeholder="Add any notes about this document..."></textarea>
+      </div>
+
+    </div>
+    <div class="upload-modal-footer">
+      <button class="btn-cancel" onclick="closeUploadModal()">Cancel</button>
+      <button class="btn-primary" onclick="addDocumentFromModal()">Add to Vault</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Document Viewer Panel ─────────────────────────── -->
+<div class="viewer-overlay" id="viewerOverlay" onclick="closeViewer()"></div>
+<div class="viewer-panel" id="viewerPanel">
+  <div class="viewer-panel-header">
+    <div class="viewer-panel-title" id="viewerTitle">Document</div>
+    <button class="viewer-panel-close" onclick="closeViewer()">×</button>
+  </div>
+  <div class="viewer-panel-tags" id="viewerTags">
+    <!-- injected by JS -->
+  </div>
+  <div class="viewer-expiry-row" id="viewerExpiryRow">
+    <!-- injected by JS -->
+  </div>
+  <div class="viewer-panel-scroll">
+    <!-- Document preview card -->
+    <div class="doc-preview-card">
+      <div class="doc-preview-icon" id="viewerDocIcon">📄</div>
+      <div class="doc-preview-name" id="viewerDocPreviewName">Document</div>
+      <div class="doc-preview-note">Original file not available in prototype</div>
+      <button class="doc-preview-download" data-tooltip="Available in full version" disabled>⬇ Download</button>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <div class="viewer-field-label">Notes</div>
+      <textarea class="viewer-notes" id="viewerNotes" placeholder="Add notes about this document..."></textarea>
+    </div>
+
+    <!-- Expiry date edit -->
+    <div>
+      <div class="viewer-field-label">Expiry date</div>
+      <input type="date" class="viewer-date-input" id="viewerExpiryEdit" />
+    </div>
+
+    <!-- Share with member -->
+    <div>
+      <div class="viewer-field-label" style="margin-bottom:8px;">Share with member</div>
+      <div class="viewer-share-row">
+        <div class="viewer-share-item">
+          <div class="viewer-share-name">
+            <span>👩</span>
+            <span>Zein</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="viewerShareZein" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="viewer-share-item">
+          <div class="viewer-share-name">
+            <span>👨</span>
+            <span>Ala</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="viewerShareAla" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="viewer-panel-footer">
+    <button class="viewer-delete-btn" id="viewerDeleteBtn" onclick="deleteViewedDoc()">🗑 Delete document</button>
+  </div>
+</div>
+
+<!-- ─── Toast Container ───────────────────────────────── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ─── Data ──────────────────────────────────────────────────────────
+  const documents = [
+    {
+      id: 1,
+      icon: '🛂',
+      name: "Ala's Passport",
+      category: 'identity',
+      fileType: 'PDF',
+      owner: 'shared',
+      expiry: '2028-06-30',
+      expiryLabel: 'Expires June 2028',
+      expiryStatus: 'green',
+      expiryNote: '2 years left',
+      added: null,
+      importBadge: false,
+      notes: '',
+    },
+    {
+      id: 2,
+      icon: '🪪',
+      name: "Ala's Residency Card",
+      category: 'identity',
+      fileType: 'PDF',
+      owner: 'ala',
+      expiry: '2027-03-31',
+      expiryLabel: 'Expires March 2027',
+      expiryStatus: 'amber',
+      expiryNote: '⚠️ Expiring in 11 months',
+      added: null,
+      importBadge: false,
+      notes: '',
+    },
+    {
+      id: 3,
+      icon: '🏦',
+      name: 'Joint Bank Account',
+      category: 'finance',
+      fileType: 'PDF',
+      owner: 'shared',
+      expiry: null,
+      expiryLabel: null,
+      expiryStatus: null,
+      expiryNote: null,
+      added: 'Jan 2026',
+      importBadge: false,
+      notes: '',
+    },
+    {
+      id: 4,
+      icon: '📊',
+      name: 'Investment Statement Q1',
+      category: 'finance',
+      fileType: 'PDF',
+      owner: 'shared',
+      expiry: null,
+      expiryLabel: null,
+      expiryStatus: null,
+      expiryNote: null,
+      added: 'Mar 2026',
+      importBadge: true,
+      notes: '',
+    },
+    {
+      id: 5,
+      icon: '💊',
+      name: "Zein's Health Insurance",
+      category: 'health',
+      fileType: 'PDF',
+      owner: 'zein',
+      expiry: '2026-12-31',
+      expiryLabel: 'Expires Dec 2026',
+      expiryStatus: 'amber',
+      expiryNote: '9 months left',
+      added: null,
+      importBadge: false,
+      notes: '',
+    },
+  ];
+
+  const missingDocs = [
+    { emoji: '🛂', name: 'Passport (Zein)', category: 'identity' },
+    { emoji: '🛂', name: 'Passport (Ala)', category: 'identity' },
+    { emoji: '🪪', name: 'Residency card (Zein)', category: 'identity' },
+    { emoji: '🪪', name: 'Residency card (Ala)', category: 'identity' },
+    { emoji: '🏦', name: 'Bank account details', category: 'finance' },
+    { emoji: '📋', name: 'Will / Estate document', category: 'other' },
+    { emoji: '🚗', name: 'Car insurance', category: 'property' },
+    { emoji: '🏠', name: 'Property insurance', category: 'property' },
+    { emoji: '💊', name: 'Health insurance cards', category: 'health' },
+    { emoji: '📄', name: 'Employment contract', category: 'other' },
+  ];
+
+  let currentFilter = 'all';
+  let currentMemberFilter = 'all';
+  let currentSearchQuery = '';
+  let currentViewDocName = '';
+  let currentViewDocId = null;
+  let openMenuId = null;
+
+  // Category icon map
+  const categoryIconMap = {
+    identity: '🪪',
+    property: '🏠',
+    finance: '💳',
+    health: '🏥',
+    other: '📄'
+  };
+
+  // Category label map
+  const categoryLabelMap = {
+    identity: 'Identity',
+    property: 'Property',
+    finance: 'Finance',
+    health: 'Health',
+    other: 'Other'
+  };
+
+  // ─── Auto-detect category from filename ───────────────────────────
+  function detectCategory(filename) {
+    const lower = filename.toLowerCase();
+    if (/passport|(\bid\b)|visa/.test(lower)) return 'identity';
+    if (/lease|deed|property/.test(lower)) return 'property';
+    if (/bank|invoice|tax|salary/.test(lower)) return 'finance';
+    if (/insurance|medical|health/.test(lower)) return 'health';
+    return 'other';
+  }
+
+  // ─── Compute expiry info ──────────────────────────────────────────
+  function computeExpiry(expiryDateStr) {
+    if (!expiryDateStr) return { expiryLabel: null, expiryStatus: null, expiryNote: null };
+    const expDate = new Date(expiryDateStr);
+    const now = new Date();
+    const monthsDiff = (expDate.getFullYear() - now.getFullYear()) * 12 + (expDate.getMonth() - now.getMonth());
+    const label = `Expires ${expDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+    let status, note;
+    if (monthsDiff < 6) {
+      status = 'red';
+      note = `🔴 Expiring in ${monthsDiff} month${monthsDiff !== 1 ? 's' : ''}`;
+    } else if (monthsDiff < 12) {
+      status = 'amber';
+      note = `⚠️ ${monthsDiff} months left`;
+    } else {
+      const years = Math.floor(monthsDiff / 12);
+      status = 'green';
+      note = `${years} year${years !== 1 ? 's' : ''} left`;
+    }
+    return { expiryLabel: label, expiryStatus: status, expiryNote: note };
+  }
+
+  // ─── Render Missing Chips ─────────────────────────────────────────
+  function renderMissingChips() {
+    const container = document.getElementById('missingChips');
+    // Determine which categories are covered
+    const coveredCategories = new Set(documents.map(d => d.category));
+
+    const chips = missingDocs.map((doc, i) => {
+      const alreadyCovered = coveredCategories.has(doc.category);
+      return `
+        <div class="missing-chip${alreadyCovered ? ' added' : ''}" id="chip-${i}">
+          <span class="missing-chip-label">${doc.emoji} ${doc.name}</span>
+          <button class="missing-chip-add" onclick="handleChipAdd(${i})" id="chip-btn-${i}"${alreadyCovered ? ' disabled' : ''}>${alreadyCovered ? '✓ Added' : '+ Add'}</button>
+        </div>
+      `;
+    });
+    container.innerHTML = chips.join('');
+  }
+
+  function refreshMissingChips() {
+    // After adding a doc, re-check each chip
+    const coveredCategories = new Set(documents.map(d => d.category));
+    missingDocs.forEach((doc, i) => {
+      const chip = document.getElementById(`chip-${i}`);
+      const btn = document.getElementById(`chip-btn-${i}`);
+      if (!chip || !btn) return;
+      if (coveredCategories.has(doc.category) && !chip.classList.contains('added')) {
+        chip.classList.add('added');
+        btn.textContent = '✓ Added';
+        btn.disabled = true;
+      }
+    });
+  }
+
+  function handleChipAdd(i) {
+    const chip = document.getElementById(`chip-${i}`);
+    const btn = document.getElementById(`chip-btn-${i}`);
+    const doc = missingDocs[i];
+    chip.classList.add('added');
+    btn.textContent = '✓ Added';
+    btn.disabled = true;
+
+    // Pre-fill upload form
+    document.getElementById('docName').value = doc.name;
+    const catSel = document.getElementById('docCategory');
+    for (let opt of catSel.options) {
+      if (opt.value === doc.category) { opt.selected = true; break; }
+    }
+    document.getElementById('uploadCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('docName').focus();
+  }
+
+  // ─── Render Doc Cards ─────────────────────────────────────────────
+  function ownerLabel(owner) {
+    if (owner === 'shared') return '👥 Shared';
+    if (owner === 'zein') return '👤 Personal (Zein)';
+    if (owner === 'ala') return '👤 Personal (Ala)';
+    return owner;
+  }
+
+  function renderDocs(filter) {
+    const grid = document.getElementById('docGrid');
+    let filtered = filter === 'all' ? documents : documents.filter(d => d.category === filter);
+
+    if (currentMemberFilter !== 'all') {
+      filtered = filtered.filter(d => d.owner === currentMemberFilter);
+    }
+
+    if (currentSearchQuery) {
+      const q = currentSearchQuery.toLowerCase();
+      const memberNameMap = { zein: 'zein', ala: 'ala', shared: 'shared' };
+      filtered = filtered.filter(d =>
+        d.name.toLowerCase().includes(q) ||
+        (categoryLabelMap[d.category] || d.category).toLowerCase().includes(q) ||
+        (memberNameMap[d.owner] || d.owner).toLowerCase().includes(q)
+      );
+    }
+
+    if (filtered.length === 0) {
+      const emptyMsg = currentSearchQuery
+        ? `No documents match your search`
+        : `No documents found.`;
+      grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding: 40px 20px; color: var(--muted); font-size:14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);">${emptyMsg}</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(doc => {
+      const expiryBadge = doc.expiryNote ? `<span class="doc-expiry ${doc.expiryStatus}">${doc.expiryNote}</span>` : '';
+      const importBadge = doc.importBadge ? `<span class="doc-import-badge">📎 from import</span>` : '';
+      const newBadge = doc._isNew ? `<span class="doc-new-badge" id="new-badge-${doc.id}">New ✓</span>` : '';
+      const addedLine = doc.added ? `<div class="doc-meta-row"><span>Added ${doc.added}</span></div>` : '';
+      const expiryLine = doc.expiryLabel ? `<div class="doc-meta-row"><span>${doc.expiryLabel}</span></div>` : '';
+      return `
+        <div class="doc-card" data-id="${doc.id}" data-cat="${doc.category}" onclick="handleCardClick(event, ${doc.id})">
+          <div class="doc-card-header">
+            <span class="doc-icon">${doc.icon}</span>
+            <div style="position:relative;">
+              <button class="doc-menu-btn" onclick="toggleMenu(${doc.id}, event)" aria-label="Options">⋯</button>
+              <div class="doc-menu-dropdown" id="menu-${doc.id}">
+                <div class="doc-menu-item" onclick="showToast('Rename coming soon'); closeMenu()">✏️ Rename</div>
+                <div class="doc-menu-item" onclick="showToast('Move to category coming soon'); closeMenu()">📁 Move to category</div>
+                <div class="doc-menu-item danger" onclick="confirmDelete(${doc.id}); closeMenu()">🗑 Delete</div>
+              </div>
+            </div>
+          </div>
+          <div class="doc-name">${doc.name}</div>
+          <div class="doc-meta">
+            <div class="doc-meta-row">
+              <span class="doc-owner-badge">${ownerLabel(doc.owner)}</span>
+            </div>
+            ${expiryLine}
+            ${addedLine}
+            <div class="doc-meta-row" style="gap:6px; flex-wrap:wrap; margin-top:2px;">
+              ${expiryBadge}
+              ${importBadge}
+              ${newBadge}
+            </div>
+          </div>
+          <div class="doc-card-footer">
+            <span class="doc-file-type">📄 ${doc.fileType}</span>
+            <button class="doc-view-btn" onclick="openTwoFa('${doc.name.replace(/'/g, "\\'")}', ${doc.id}, event)">View</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Schedule fade-out of new badges
+    filtered.forEach(doc => {
+      if (doc._isNew) {
+        setTimeout(() => {
+          const badge = document.getElementById(`new-badge-${doc.id}`);
+          if (badge) {
+            badge.classList.add('fade-out');
+            setTimeout(() => {
+              doc._isNew = false;
+              if (badge.parentNode) badge.remove();
+            }, 500);
+          }
+        }, 3000);
+      }
+    });
+  }
+
+  function filterDocs(btn, cat) {
+    currentFilter = cat;
+    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderDocs(cat);
+  }
+
+  function filterByMember(btn, member) {
+    currentMemberFilter = member;
+    document.querySelectorAll('.member-filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    renderDocs(currentFilter);
+  }
+
+  // Handle card click — opens viewer (but not if clicking on menu area)
+  function handleCardClick(event, docId) {
+    // Don't open viewer if clicking menu button or dropdown
+    if (event.target.closest('.doc-menu-btn') || event.target.closest('.doc-menu-dropdown') || event.target.closest('.doc-view-btn')) return;
+    const doc = documents.find(d => d.id === docId);
+    if (doc) openViewerForDoc(doc);
+  }
+
+  // ─── Menu ─────────────────────────────────────────────────────────
+  function toggleMenu(id, e) {
+    e.stopPropagation();
+    const menu = document.getElementById(`menu-${id}`);
+    const isOpen = menu.classList.contains('open');
+    closeMenu();
+    if (!isOpen) {
+      menu.classList.add('open');
+      openMenuId = id;
+    }
+  }
+
+  function closeMenu() {
+    if (openMenuId !== null) {
+      const m = document.getElementById(`menu-${openMenuId}`);
+      if (m) m.classList.remove('open');
+      openMenuId = null;
+    }
+  }
+
+  document.addEventListener('click', closeMenu);
+
+  function confirmDelete(id) {
+    const idx = documents.findIndex(d => d.id === id);
+    if (idx !== -1) {
+      documents.splice(idx, 1);
+      renderDocs(currentFilter);
+      showToast('Document deleted');
+    }
+  }
+
+  // ─── 2FA Modal ────────────────────────────────────────────────────
+  function openTwoFa(docName, docId, event) {
+    if (event) event.stopPropagation();
+    currentViewDocName = docName;
+    currentViewDocId = docId;
+    clearOTP();
+    document.getElementById('twoFaModal').classList.add('open');
+    setTimeout(() => document.getElementById('otp0').focus(), 120);
+  }
+
+  function closeModal() {
+    document.getElementById('twoFaModal').classList.remove('open');
+    clearOTP();
+  }
+
+  function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('twoFaModal')) closeModal();
+  }
+
+  function clearOTP() {
+    for (let i = 0; i < 6; i++) {
+      const inp = document.getElementById(`otp${i}`);
+      inp.value = '';
+      inp.classList.remove('filled');
+    }
+  }
+
+  function verifyOTP() {
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += document.getElementById(`otp${i}`).value;
+    }
+    if (code.length < 6) {
+      showToast('Enter all 6 digits');
+      return;
+    }
+    closeModal();
+    showToast('Access granted ✓');
+    setTimeout(() => {
+      const doc = documents.find(d => d.id === currentViewDocId);
+      if (doc) openViewerForDoc(doc);
+    }, 400);
+  }
+
+  // OTP input navigation
+  for (let i = 0; i < 6; i++) {
+    const inp = document.getElementById(`otp${i}`);
+    inp.addEventListener('input', function() {
+      const val = this.value.replace(/\D/g, '');
+      this.value = val;
+      if (val) {
+        this.classList.add('filled');
+        if (i < 5) document.getElementById(`otp${i+1}`).focus();
+        else this.blur();
+      } else {
+        this.classList.remove('filled');
+      }
+    });
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && !this.value && i > 0) {
+        const prev = document.getElementById(`otp${i-1}`);
+        prev.value = '';
+        prev.classList.remove('filled');
+        prev.focus();
+      }
+      if (e.key === 'Enter') verifyOTP();
+    });
+    inp.addEventListener('keypress', function(e) {
+      if (!/[0-9]/.test(e.key)) e.preventDefault();
+    });
+  }
+
+  // ─── Document Viewer Panel ────────────────────────────────────────
+  function openViewerForDoc(doc) {
+    currentViewDocId = doc.id;
+
+    // Title
+    document.getElementById('viewerTitle').textContent = doc.name;
+    document.getElementById('viewerDocPreviewName').textContent = doc.name;
+
+    // Icon based on category
+    const iconMap = { identity: '🪪', property: '🏠', finance: '💳', health: '🏥', other: '📄' };
+    document.getElementById('viewerDocIcon').textContent = iconMap[doc.category] || '📄';
+
+    // Tags
+    const memberStr = doc.owner === 'shared' ? '👥 Shared' : doc.owner === 'zein' ? '👤 Zein' : '👤 Ala';
+    document.getElementById('viewerTags').innerHTML = `
+      <span class="viewer-tag category">${categoryIconMap[doc.category] || '📄'} ${categoryLabelMap[doc.category] || 'Other'}</span>
+      <span class="viewer-tag member">${memberStr}</span>
+    `;
+
+    // Expiry
+    const expiryRow = document.getElementById('viewerExpiryRow');
+    if (doc.expiryNote) {
+      expiryRow.innerHTML = `<span class="viewer-expiry-pill ${doc.expiryStatus}">📅 ${doc.expiryNote}</span>`;
+      expiryRow.style.paddingBottom = '14px';
+    } else {
+      expiryRow.innerHTML = `<span class="viewer-expiry-pill none">📅 No expiry date</span>`;
+      expiryRow.style.paddingBottom = '14px';
+    }
+
+    // Notes
+    document.getElementById('viewerNotes').value = doc.notes || '';
+
+    // Expiry date edit
+    document.getElementById('viewerExpiryEdit').value = doc.expiry || '';
+
+    // Share toggles — default both on for shared, or relevant one
+    document.getElementById('viewerShareZein').checked = doc.owner === 'zein' || doc.owner === 'shared';
+    document.getElementById('viewerShareAla').checked = doc.owner === 'ala' || doc.owner === 'shared';
+
+    // Open
+    document.getElementById('viewerOverlay').classList.add('open');
+    document.getElementById('viewerPanel').classList.add('open');
+  }
+
+  function closeViewer() {
+    document.getElementById('viewerOverlay').classList.remove('open');
+    document.getElementById('viewerPanel').classList.remove('open');
+  }
+
+  function deleteViewedDoc() {
+    if (currentViewDocId === null) return;
+    const idx = documents.findIndex(d => d.id === currentViewDocId);
+    if (idx !== -1) {
+      documents.splice(idx, 1);
+      renderDocs(currentFilter);
+      showToast('Document deleted');
+    }
+    closeViewer();
+  }
+
+  // ─── Upload Modal ─────────────────────────────────────────────────
+  let selectedModalCategory = 'identity';
+  let selectedModalOwner = 'zein';
+
+  function openUploadModal() {
+    // Reset form
+    document.getElementById('modalDocName').value = '';
+    document.getElementById('modalDocExpiry').value = '';
+    document.getElementById('modalDocNotes').value = '';
+    selectedModalCategory = 'identity';
+    selectedModalOwner = 'zein';
+    // Reset pills
+    document.querySelectorAll('#modalCategoryPills .pill-option').forEach(p => {
+      p.classList.toggle('selected', p.dataset.cat === 'identity');
+    });
+    // Reset owner cards
+    document.querySelectorAll('#modalOwnerCards .radio-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.owner === 'zein');
+    });
+    // Reset dropzone
+    const dz = document.getElementById('modalDropzone');
+    dz.classList.remove('has-file');
+    document.getElementById('modalDropzoneContent').innerHTML = `
+      <div style="font-size:30px;margin-bottom:8px;">📂</div>
+      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;">
+        Drag your file here or <span style="color:var(--accent);text-decoration:underline;cursor:pointer;">browse</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);">PDF, JPG, PNG — up to 25MB</div>
+    `;
+    document.getElementById('fileInputModal').value = '';
+
+    document.getElementById('uploadModal').classList.add('open');
+  }
+
+  function closeUploadModal() {
+    document.getElementById('uploadModal').classList.remove('open');
+  }
+
+  function handleUploadModalOverlayClick(e) {
+    if (e.target === document.getElementById('uploadModal')) closeUploadModal();
+  }
+
+  function selectModalCategory(btn) {
+    selectedModalCategory = btn.dataset.cat;
+    document.querySelectorAll('#modalCategoryPills .pill-option').forEach(p => p.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function selectModalOwner(card) {
+    selectedModalOwner = card.dataset.owner;
+    document.querySelectorAll('#modalOwnerCards .radio-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  function handleModalDragOver(e) {
+    e.preventDefault();
+    document.getElementById('modalDropzone').classList.add('dragover');
+  }
+
+  function handleModalDragLeave(e) {
+    document.getElementById('modalDropzone').classList.remove('dragover');
+  }
+
+  function handleModalDrop(e) {
+    e.preventDefault();
+    const dz = document.getElementById('modalDropzone');
+    dz.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) applyFileToModal(file);
+  }
+
+  function applyFileToModal(file) {
+    const nameWithoutExt = file.name.replace(/\.[^.]+$/, '');
+    // Pre-fill name
+    document.getElementById('modalDocName').value = nameWithoutExt;
+    // Auto-detect category
+    const cat = detectCategory(nameWithoutExt);
+    selectedModalCategory = cat;
+    document.querySelectorAll('#modalCategoryPills .pill-option').forEach(p => {
+      p.classList.toggle('selected', p.dataset.cat === cat);
+    });
+    // Show file selected state in dropzone
+    const dz = document.getElementById('modalDropzone');
+    dz.classList.add('has-file');
+    dz.classList.remove('dragover');
+    document.getElementById('modalDropzoneContent').innerHTML = `
+      <div style="font-size:24px;margin-bottom:6px;">✅</div>
+      <div style="font-size:14px;font-weight:500;color:var(--accent);margin-bottom:2px;">${file.name}</div>
+      <div style="font-size:12px;color:var(--muted);">Click to change file</div>
+    `;
+  }
+
+  function addDocumentFromModal() {
+    const name = document.getElementById('modalDocName').value.trim();
+    if (!name) {
+      showToast('Please enter a document name');
+      document.getElementById('modalDocName').focus();
+      return;
+    }
+
+    const expiryInput = document.getElementById('modalDocExpiry').value;
+    const notes = document.getElementById('modalDocNotes').value.trim();
+    const { expiryLabel, expiryStatus, expiryNote } = computeExpiry(expiryInput);
+
+    const newDoc = {
+      id: Date.now(),
+      icon: categoryIconMap[selectedModalCategory] || '📄',
+      name,
+      category: selectedModalCategory,
+      fileType: 'PDF',
+      owner: selectedModalOwner,
+      expiry: expiryInput || null,
+      expiryLabel,
+      expiryStatus,
+      expiryNote,
+      added: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      importBadge: false,
+      notes,
+      _isNew: true,
+    };
+
+    documents.unshift(newDoc);
+    closeUploadModal();
+
+    // Switch to correct category tab if needed
+    if (currentFilter !== 'all' && currentFilter !== selectedModalCategory) {
+      currentFilter = 'all';
+      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.category-tab[data-cat="all"]').classList.add('active');
+    }
+
+    renderDocs(currentFilter);
+    refreshMissingChips();
+    showToast('Document added to vault ✓');
+  }
+
+  // ─── Bottom dropzone handlers ────────────────────────────────────
+  function handleDropzoneDragOver(e) {
+    e.preventDefault();
+    document.getElementById('dropzone').classList.add('dragover');
+  }
+
+  function handleDropzoneDragLeave(e) {
+    document.getElementById('dropzone').classList.remove('dragover');
+  }
+
+  function handleDropzoneDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropzone').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) processBottomFile(file);
+  }
+
+  function handleFileInputChange(input, source) {
+    const file = input.files[0];
+    if (!file) return;
+    if (source === 'bottom') {
+      processBottomFile(file);
+    } else if (source === 'modal') {
+      applyFileToModal(file);
+    }
+  }
+
+  function processBottomFile(file) {
+    const dropzone = document.getElementById('dropzone');
+    dropzone.classList.add('processing');
+
+    setTimeout(() => {
+      dropzone.classList.remove('processing');
+      // Build new doc from file
+      const nameWithoutExt = file.name.replace(/\.[^.]+$/, '');
+      const category = detectCategory(nameWithoutExt);
+      const { expiryLabel, expiryStatus, expiryNote } = computeExpiry(null);
+
+      const newDoc = {
+        id: Date.now(),
+        icon: categoryIconMap[category] || '📄',
+        name: nameWithoutExt,
+        category,
+        fileType: file.name.split('.').pop().toUpperCase() || 'PDF',
+        owner: 'shared',
+        expiry: null,
+        expiryLabel,
+        expiryStatus,
+        expiryNote,
+        added: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        importBadge: false,
+        notes: '',
+        _isNew: true,
+      };
+
+      // Pre-fill the form below
+      document.getElementById('docName').value = nameWithoutExt;
+      const catSel = document.getElementById('docCategory');
+      for (let opt of catSel.options) {
+        if (opt.value === category) { opt.selected = true; break; }
+      }
+
+      documents.unshift(newDoc);
+
+      // Switch to all if needed
+      if (currentFilter !== 'all' && currentFilter !== category) {
+        currentFilter = 'all';
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.category-tab[data-cat="all"]').classList.add('active');
+      }
+
+      renderDocs(currentFilter);
+      refreshMissingChips();
+      showToast('Document added ✓');
+
+      // Reset file input
+      document.getElementById('fileInputBottom').value = '';
+    }, 800);
+  }
+
+  // ─── Save Document (bottom form button) ──────────────────────────
+  function saveDocument() {
+    const name = document.getElementById('docName').value.trim();
+    if (!name) {
+      showToast('Please enter a document name');
+      document.getElementById('docName').focus();
+      return;
+    }
+    const category = document.getElementById('docCategory').value;
+    const ownerVal = document.querySelector('input[name="docOwner"]:checked').value;
+    const expiryInput = document.getElementById('docExpiry').value;
+    const { expiryLabel, expiryStatus, expiryNote } = computeExpiry(expiryInput);
+
+    const newDoc = {
+      id: Date.now(),
+      icon: categoryIconMap[category] || '📄',
+      name,
+      category,
+      fileType: 'PDF',
+      owner: ownerVal,
+      expiry: expiryInput || null,
+      expiryLabel,
+      expiryStatus,
+      expiryNote,
+      added: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      importBadge: false,
+      notes: '',
+      _isNew: true,
+    };
+
+    documents.unshift(newDoc);
+
+    if (currentFilter !== 'all' && currentFilter !== category) {
+      currentFilter = 'all';
+      document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.category-tab[data-cat="all"]').classList.add('active');
+    }
+
+    renderDocs(currentFilter);
+    refreshMissingChips();
+    showToast('Document saved to Vault ✓');
+
+    // Reset form
+    document.getElementById('docName').value = '';
+    document.getElementById('docCategory').selectedIndex = 0;
+    document.getElementById('docExpiry').value = '';
+    document.querySelector('input[name="docOwner"][value="shared"]').checked = true;
+    document.getElementById('twoFaToggle').checked = true;
+  }
+
+  // ─── Banner Dismiss ───────────────────────────────────────────────
+  function dismissBanner() {
+    const banner = document.getElementById('missingBanner');
+    banner.style.transition = 'opacity 0.25s, transform 0.25s';
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-8px)';
+    setTimeout(() => { banner.style.display = 'none'; }, 280);
+  }
+
+  // ─── Toast ────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    container.appendChild(toast);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { toast.classList.add('show'); });
+    });
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  // Escape key to close viewer / modals
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (document.getElementById('viewerPanel').classList.contains('open')) closeViewer();
+      if (document.getElementById('twoFaModal').classList.contains('open')) closeModal();
+      if (document.getElementById('uploadModal').classList.contains('open')) closeUploadModal();
+    }
+  });
+
+  // ─── Document Search ──────────────────────────────────────────────
+  function handleDocSearch(input) {
+    currentSearchQuery = input.value;
+    const clearBtn = document.getElementById('docSearchClear');
+    if (currentSearchQuery) {
+      clearBtn.classList.add('visible');
+    } else {
+      clearBtn.classList.remove('visible');
+    }
+    renderDocs(currentFilter);
+  }
+
+  function clearDocSearch() {
+    currentSearchQuery = '';
+    const input = document.getElementById('docSearchInput');
+    input.value = '';
+    document.getElementById('docSearchClear').classList.remove('visible');
+    input.focus();
+    renderDocs(currentFilter);
+  }
+
+  // ─── Vault Expiry Badge ───────────────────────────────────────────
+  function updateVaultExpiryBadge() {
+    const badge = document.getElementById('vaultExpiryBadge');
+    if (!badge) return;
+    const today = new Date();
+    const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 6, today.getDate());
+    let count = 0;
+    documents.forEach(doc => {
+      if (doc.expiry) {
+        const expDate = new Date(doc.expiry);
+        if (expDate <= sixMonthsLater && expDate >= today) {
+          count++;
+        }
+      }
+    });
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────────
+  renderMissingChips();
+  renderDocs('all');
+  updateVaultExpiryBadge();
+</script>
+</body>
+</html>

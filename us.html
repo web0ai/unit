@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — My Unit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+
+    /* ─── Main Content ───────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: calc(var(--sidebar-width) + 820px);
+    }
+
+    /* ─── Page Header ────────────────────────────────── */
+    .page-header {
+      margin-bottom: 36px;
+    }
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-top: 6px;
+    }
+
+    /* ─── Section ────────────────────────────────────── */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    /* ─── Buttons ────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.12s, background 0.15s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .btn-ghost:hover {
+      color: var(--accent);
+      background: var(--accent-light);
+      transform: none;
+      opacity: 1;
+    }
+
+    /* ─── Unit Name + Theme Row ──────────────────────── */
+    .unit-name-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .unit-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .unit-edit-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+
+    .unit-edit-btn:hover {
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .theme-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .theme-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, transform 0.12s;
+      min-width: 64px;
+      position: relative;
+      user-select: none;
+    }
+
+    .theme-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      transform: translateY(-1px);
+    }
+
+    .theme-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 0 2px rgba(96,108,56,0.18);
+    }
+
+    .theme-card-check {
+      position: absolute;
+      top: 5px;
+      right: 6px;
+      font-size: 10px;
+      color: var(--accent);
+      display: none;
+    }
+
+    .theme-card.selected .theme-card-check {
+      display: block;
+    }
+
+    .theme-card-emoji {
+      font-size: 18px;
+    }
+
+    .theme-card-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ─── Full Profile Cards ─────────────────────────── */
+    .profile-cards-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .full-profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s, border-color 0.2s;
+      max-width: 680px;
+    }
+
+    .full-profile-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .full-profile-card.edit-mode {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(96,108,56,0.12), var(--shadow-md);
+    }
+
+    .full-profile-card.baby-card {
+      background: #f9f6ee;
+    }
+
+    /* Card Header */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 22px;
+      position: relative;
+    }
+
+    .card-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .card-identity {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .card-role-tag {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .card-bday-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .card-bday-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--accent-light);
+      padding: 3px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+      user-select: none;
+      position: relative;
+    }
+
+    .card-bday-tag:hover {
+      border-color: var(--accent);
+      background: #e6ebd2;
+    }
+
+    .card-bday-tag input[type="date"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      cursor: pointer;
+      font-size: 0;
+      border: none;
+      background: transparent;
+    }
+
+    .schedule-synced-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 500;
+      background: var(--accent-light);
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(96,108,56,0.2);
+    }
+
+    .card-edit-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-edit-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* Edit-mode inputs */
+    .card-name-input {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--accent);
+      border-radius: 8px;
+      padding: 4px 10px;
+      outline: none;
+      width: 100%;
+      display: none;
+    }
+
+    .card-role-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      outline: none;
+      width: 100%;
+      margin-top: 4px;
+      display: none;
+      transition: border-color 0.15s;
+    }
+
+    .card-role-input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Card Divider */
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    /* Card Section */
+    .card-section {
+      margin-bottom: 20px;
+    }
+
+    .card-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-section-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .north-star-text {
+      font-size: 15px;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.65;
+      background: rgba(221, 161, 94, 0.08);
+      border-left: 3px solid var(--warm);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .north-star-textarea {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--text);
+      background: rgba(221, 161, 94, 0.08);
+      border: 1.5px solid var(--warm);
+      border-left: 3px solid var(--warm);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      outline: none;
+      width: 100%;
+      min-height: 80px;
+      resize: none;
+      line-height: 1.65;
+      display: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Chips */
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 400;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--bg);
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .chip-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1;
+      padding: 0;
+      margin-left: 2px;
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chip-remove:hover {
+      background: rgba(96,108,56,0.15);
+      color: var(--accent);
+    }
+
+    .chip-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 400;
+      border: 1.5px dashed var(--border);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chip-add:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* Document Pills */
+    .docs-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .doc-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 400;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .doc-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 1px 4px rgba(96,108,56,0.10);
+    }
+
+    .doc-pill-icon {
+      font-size: 14px;
+    }
+
+    .doc-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 400;
+      border: 1.5px dashed var(--border);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+    }
+
+    .doc-link-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* Doc link dropdown */
+    .doc-link-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      z-index: 300;
+      min-width: 200px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .doc-link-dropdown.open {
+      display: block;
+    }
+
+    .doc-link-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .doc-link-option:hover:not(.doc-link-option-disabled) {
+      background: var(--accent-light);
+    }
+
+    .doc-link-option-disabled {
+      color: var(--muted);
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .doc-link-option-check {
+      margin-left: auto;
+      color: var(--accent);
+      font-size: 12px;
+    }
+
+    /* Save bar */
+    .card-save-bar {
+      display: none;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-save-bar.visible {
+      display: flex;
+    }
+
+    /* Add Member Button */
+    .add-member-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      border: 1.5px dashed var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      max-width: 680px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .add-member-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* ─── Document Modal ─────────────────────────────── */
+    .doc-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .doc-modal-overlay.open {
+      display: flex;
+    }
+
+    .doc-modal-panel {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 28px 28px 24px;
+      width: 340px;
+      max-width: 90vw;
+      position: relative;
+      transform: scale(0.96);
+      opacity: 0;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .doc-modal-overlay.open .doc-modal-panel {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .doc-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .doc-modal-close:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .doc-modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-right: 32px;
+    }
+
+    .doc-modal-expiry {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .doc-modal-expiry.expiry-urgent {
+      color: #dc2626;
+      font-weight: 500;
+    }
+
+    .doc-modal-vault-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 7px 14px;
+      border-radius: 8px;
+      background: var(--accent-light);
+      border: 1px solid rgba(96,108,56,0.2);
+      transition: background 0.15s, opacity 0.15s;
+    }
+
+    .doc-modal-vault-link:hover {
+      background: #e0e8c8;
+      opacity: 0.9;
+    }
+
+    /* ─── Add Member Modal ───────────────────────────── */
+    .add-member-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 600;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-member-overlay.open {
+      display: flex;
+    }
+
+    .add-member-panel {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 32px 28px 28px;
+      width: 360px;
+      max-width: 90vw;
+      position: relative;
+      transform: scale(0.96);
+      opacity: 0;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .add-member-overlay.open .add-member-panel {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .add-member-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .add-member-avatar-preview {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .add-member-form-group {
+      margin-bottom: 14px;
+    }
+
+    .add-member-form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .add-member-form-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+
+    .add-member-form-input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-member-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    .add-member-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .add-member-close:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* ─── Mobile Tab Bar ─────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding: 0 4px env(safe-area-inset-bottom, 0);
+    }
+
+    .tab-bar-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 6px 8px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: color 0.15s;
+      flex: 1;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .tab-item-icon {
+      font-size: 18px;
+    }
+
+    .tab-item-label {
+      font-size: 10px;
+      font-weight: 400;
+    }
+
+    .tab-item.active {
+      color: var(--accent);
+    }
+
+    .tab-item.active .tab-item-label {
+      font-weight: 500;
+    }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .tab-bar {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 16px 100px;
+        max-width: 100%;
+      }
+
+      .page-title {
+        font-size: 26px;
+      }
+
+      .full-profile-card {
+        padding: 20px;
+        max-width: 100%;
+      }
+
+      .card-avatar {
+        width: 58px;
+        height: 58px;
+      }
+
+      .card-name {
+        font-size: 18px;
+      }
+
+      .unit-name {
+        font-size: 18px;
+      }
+
+      .doc-modal-panel {
+        width: 90vw;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .unit-name-row {
+        gap: 10px;
+      }
+
+      .theme-card {
+        min-width: 58px;
+        padding: 6px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li>
+        <a href="connect.html" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+          <span id="vaultExpiryBadge" style="background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;">1</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" class="active" data-nav="us">
+          <span class="nav-icon">👥</span>
+          My Unit
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div>🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────── -->
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">My Unit</h1>
+      <p class="page-subtitle">The people in your world.</p>
+    </div>
+
+    <!-- ─── Unit Name + Theme ─────────────────────────── -->
+    <div class="section">
+      <div class="unit-name-row">
+        <span class="unit-name" id="unitNameDisplay">The Haddad Unit</span>
+        <button class="unit-edit-btn" id="unitEditBtn" title="Edit unit name">
+          <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.586 1.586a2 2 0 0 1 2.828 2.828l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.264-1.264l1-3a1 1 0 0 1 .242-.39l9-9z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="theme-options" id="themeOptions">
+          <div class="theme-card" data-theme="fruits" onclick="selectTheme('fruits')">
+            <span class="theme-card-check">✓</span>
+            <span class="theme-card-emoji">🍋</span>
+            <span class="theme-card-name">Fruits</span>
+          </div>
+          <div class="theme-card" data-theme="flowers" onclick="selectTheme('flowers')">
+            <span class="theme-card-check">✓</span>
+            <span class="theme-card-emoji">🌸</span>
+            <span class="theme-card-name">Flowers</span>
+          </div>
+          <div class="theme-card" data-theme="plants" onclick="selectTheme('plants')">
+            <span class="theme-card-check">✓</span>
+            <span class="theme-card-emoji">🌿</span>
+            <span class="theme-card-name">Plants</span>
+          </div>
+          <div class="theme-card" data-theme="stars" onclick="selectTheme('stars')">
+            <span class="theme-card-check">✓</span>
+            <span class="theme-card-emoji">⭐</span>
+            <span class="theme-card-name">Stars</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Profile Cards Stack ───────────────────────── -->
+    <div class="profile-cards-stack" id="profileCardsStack">
+
+      <!-- ── Zein's Card ─────────────────────────────── -->
+      <div class="full-profile-card" id="card-zein" data-member="zein">
+        <div class="card-header">
+          <div class="card-avatar" id="avatar-zein">
+            <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+              <circle cx="36" cy="36" r="36" fill="#dde3c4"/>
+              <ellipse cx="36" cy="18" rx="18" ry="13" fill="#606C38"/>
+              <ellipse cx="16" cy="30" rx="5" ry="9" fill="#606C38"/>
+              <ellipse cx="56" cy="30" rx="5" ry="9" fill="#606C38"/>
+              <circle cx="36" cy="38" r="20" fill="#f5e6c8"/>
+              <ellipse cx="29" cy="34" rx="2.8" ry="3.2" fill="#283618"/>
+              <ellipse cx="43" cy="34" rx="2.8" ry="3.2" fill="#283618"/>
+              <circle cx="30.2" cy="32.8" r="1" fill="white"/>
+              <circle cx="44.2" cy="32.8" r="1" fill="white"/>
+              <ellipse cx="36" cy="40" rx="1.5" ry="1" fill="#c4a47a" opacity="0.6"/>
+              <path d="M29 44 Q36 50 43 44" stroke="#BC6C25" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <ellipse cx="24" cy="41" rx="4" ry="2.5" fill="#DDA15E" opacity="0.35"/>
+              <ellipse cx="48" cy="41" rx="4" ry="2.5" fill="#DDA15E" opacity="0.35"/>
+            </svg>
+          </div>
+          <div class="card-identity">
+            <div class="card-name" id="name-zein">Zein</div>
+            <input type="text" class="card-name-input" id="nameInput-zein" value="Zein" />
+            <div class="card-role-tag" id="role-zein">Partner · Mum-to-be</div>
+            <input type="text" class="card-role-input" id="roleInput-zein" value="Partner · Mum-to-be" />
+            <div class="card-bday-row">
+              <div class="card-bday-tag" id="bdayTag-zein" onclick="openBdayPicker('zein')">
+                🎂 <span id="bdayText-zein">November 3</span>
+                <input type="date" id="bdayInput-zein" value="2000-11-03" onchange="onBdayChange('zein')" onclick="event.stopPropagation()" />
+              </div>
+              <span class="schedule-synced-badge" id="schedBadge-zein" style="display:none;">📅 Synced to schedule</span>
+            </div>
+          </div>
+          <button class="card-edit-btn" id="editBtn-zein" onclick="toggleCardEdit('zein')">✏️ Edit</button>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <!-- North Star -->
+        <div class="card-section">
+          <div class="card-section-title">My north star</div>
+          <div class="north-star-text" id="northStar-zein">Slow down, be present. Prepare for motherhood with intention.</div>
+          <textarea class="north-star-textarea" id="northStarInput-zein">Slow down, be present. Prepare for motherhood with intention.</textarea>
+        </div>
+
+        <!-- Working On -->
+        <div class="card-section">
+          <div class="card-section-title">What I'm working on this week</div>
+          <div class="chips-row" id="workChips-zein">
+            <span class="chip">🌿 Rest &amp; recovery <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">📱 Wrapping up Thndr <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🏠 Unit <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <button class="chip-add" onclick="addChip('workChips-zein')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Habits -->
+        <div class="card-section">
+          <div class="card-section-title">Habits &amp; skills I'm learning</div>
+          <div class="chips-row" id="habitChips-zein">
+            <span class="chip">🚶 Morning walks <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🎹 Piano <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🌸 Slowing down <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <button class="chip-add" onclick="addChip('habitChips-zein')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="card-section">
+          <div class="card-section-title">My documents</div>
+          <div class="docs-row" id="docs-zein">
+            <span class="doc-pill" onclick="openDocModal('Passport', 'Mar 2028')"><span class="doc-pill-icon">🪪</span> Passport</span>
+            <span class="doc-pill" onclick="openDocModal('Residency Visa', 'Jun 2026')"><span class="doc-pill-icon">📄</span> Residency Visa</span>
+            <div class="doc-link-btn" id="docLinkBtn-zein" onclick="toggleDocDropdown('zein', event)">＋ Link document
+              <div class="doc-link-dropdown" id="docDropdown-zein">
+                <div class="doc-link-option doc-link-option-disabled">🪪 Passport <span class="doc-link-option-check">✓</span></div>
+                <div class="doc-link-option doc-link-option-disabled">📄 Residency Visa <span class="doc-link-option-check">✓</span></div>
+                <div class="doc-link-option" onclick="linkDoc('zein', '🏥 Insurance Card', 'Not set', event)">🏥 Insurance Card</div>
+                <div class="doc-link-option" onclick="linkDoc('zein', '🚗 Driver\'s License', 'Not set', event)">🚗 Driver's License</div>
+                <div class="doc-link-option" onclick="linkDoc('zein', '📋 Birth Certificate', 'Not set', event)">📋 Birth Certificate</div>
+                <div class="doc-link-option" onclick="linkDoc('zein', '📁 Other', 'Not set', event)">📁 Other</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Bar -->
+        <div class="card-save-bar" id="saveBar-zein">
+          <button class="btn btn-outline" onclick="cancelCardEdit('zein')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveCardEdit('zein')">Save</button>
+        </div>
+      </div>
+
+      <!-- ── Ala's Card ──────────────────────────────── -->
+      <div class="full-profile-card" id="card-ala" data-member="ala">
+        <div class="card-header">
+          <div class="card-avatar" id="avatar-ala">
+            <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+              <circle cx="36" cy="36" r="36" fill="#e6dfc4"/>
+              <rect x="15.5" y="10" width="41" height="16" rx="12" fill="#3d4a22"/>
+              <circle cx="36" cy="38" r="20" fill="#f0d9b5"/>
+              <ellipse cx="29" cy="34" rx="2.8" ry="3.2" fill="#283618"/>
+              <ellipse cx="43" cy="34" rx="2.8" ry="3.2" fill="#283618"/>
+              <circle cx="30.2" cy="32.8" r="1" fill="white"/>
+              <circle cx="44.2" cy="32.8" r="1" fill="white"/>
+              <ellipse cx="36" cy="54" rx="12" ry="5.5" fill="#c9a87a" opacity="0.22"/>
+              <ellipse cx="36" cy="40" rx="1.5" ry="1" fill="#b8935a" opacity="0.6"/>
+              <path d="M29 44.5 Q36 49 43 44.5" stroke="#a07040" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <ellipse cx="24" cy="41" rx="3.5" ry="2.2" fill="#DDA15E" opacity="0.28"/>
+              <ellipse cx="48" cy="41" rx="3.5" ry="2.2" fill="#DDA15E" opacity="0.28"/>
+            </svg>
+          </div>
+          <div class="card-identity">
+            <div class="card-name" id="name-ala">Ala</div>
+            <input type="text" class="card-name-input" id="nameInput-ala" value="Ala" />
+            <div class="card-role-tag" id="role-ala">Partner · Builder</div>
+            <input type="text" class="card-role-input" id="roleInput-ala" value="Partner · Builder" />
+            <div class="card-bday-row">
+              <div class="card-bday-tag" id="bdayTag-ala" onclick="openBdayPicker('ala')">
+                🎂 <span id="bdayText-ala">March 15</span>
+                <input type="date" id="bdayInput-ala" value="2000-03-15" onchange="onBdayChange('ala')" onclick="event.stopPropagation()" />
+              </div>
+              <span class="schedule-synced-badge" id="schedBadge-ala" style="display:none;">📅 Synced to schedule</span>
+            </div>
+          </div>
+          <button class="card-edit-btn" id="editBtn-ala" onclick="toggleCardEdit('ala')">✏️ Edit</button>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <!-- North Star -->
+        <div class="card-section">
+          <div class="card-section-title">My north star</div>
+          <div class="north-star-text" id="northStar-ala">Build things that last. Stay present for the family.</div>
+          <textarea class="north-star-textarea" id="northStarInput-ala">Build things that last. Stay present for the family.</textarea>
+        </div>
+
+        <!-- Working On -->
+        <div class="card-section">
+          <div class="card-section-title">What I'm working on this week</div>
+          <div class="chips-row" id="workChips-ala">
+            <span class="chip">🚀 Unit app <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🏡 Jello House <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🌊 Sri Lanka prep <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <button class="chip-add" onclick="addChip('workChips-ala')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Habits -->
+        <div class="card-section">
+          <div class="card-section-title">Habits &amp; skills I'm learning</div>
+          <div class="chips-row" id="habitChips-ala">
+            <span class="chip">☀️ Morning runs <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">📚 Reading <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <span class="chip">🧘 Less screen time <button class="chip-remove" onclick="removeChip(this)">×</button></span>
+            <button class="chip-add" onclick="addChip('habitChips-ala')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="card-section">
+          <div class="card-section-title">My documents</div>
+          <div class="docs-row" id="docs-ala">
+            <span class="doc-pill" onclick="openDocModal('Passport', 'Jan 2030')"><span class="doc-pill-icon">🪪</span> Passport</span>
+            <span class="doc-pill" onclick="openDocModal('Driver\'s License', 'Not set')"><span class="doc-pill-icon">🚗</span> Driver's License</span>
+            <div class="doc-link-btn" id="docLinkBtn-ala" onclick="toggleDocDropdown('ala', event)">＋ Link document
+              <div class="doc-link-dropdown" id="docDropdown-ala">
+                <div class="doc-link-option doc-link-option-disabled">🪪 Passport <span class="doc-link-option-check">✓</span></div>
+                <div class="doc-link-option" onclick="linkDoc('ala', '📄 Residency Visa', 'Not set', event)">📄 Residency Visa</div>
+                <div class="doc-link-option" onclick="linkDoc('ala', '🏥 Insurance Card', 'Not set', event)">🏥 Insurance Card</div>
+                <div class="doc-link-option doc-link-option-disabled">🚗 Driver's License <span class="doc-link-option-check">✓</span></div>
+                <div class="doc-link-option" onclick="linkDoc('ala', '📋 Birth Certificate', 'Not set', event)">📋 Birth Certificate</div>
+                <div class="doc-link-option" onclick="linkDoc('ala', '📁 Other', 'Not set', event)">📁 Other</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Bar -->
+        <div class="card-save-bar" id="saveBar-ala">
+          <button class="btn btn-outline" onclick="cancelCardEdit('ala')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveCardEdit('ala')">Save</button>
+        </div>
+      </div>
+
+      <!-- ── Baby's Card ─────────────────────────────── -->
+      <div class="full-profile-card baby-card" id="card-baby" data-member="baby">
+        <div class="card-header">
+          <div class="card-avatar" id="avatar-baby">
+            <svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
+              <circle cx="36" cy="36" r="36" fill="#f2f5e2"/>
+              <ellipse cx="36" cy="46" rx="16" ry="20" fill="#fffbe8" stroke="#e0d9b8" stroke-width="1.5"/>
+              <line x1="36" y1="48" x2="36" y2="32" stroke="#606C38" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M36 40 Q26 33 28 23" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+              <path d="M36 37 Q46 30 44 20" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+              <path d="M36 56 Q32 62 30 67" stroke="#c4a47a" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.5"/>
+              <path d="M36 56 Q40 62 42 67" stroke="#c4a47a" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="card-identity">
+            <div class="card-name" id="name-baby">Baby</div>
+            <input type="text" class="card-name-input" id="nameInput-baby" value="Baby" />
+            <div class="card-role-tag" id="role-baby">Coming soon 🌱</div>
+            <input type="text" class="card-role-input" id="roleInput-baby" value="Coming soon 🌱" />
+            <div class="card-bday-row">
+              <div class="card-bday-tag" id="bdayTag-baby" style="background: #f0eedd; cursor: default;">
+                🌱 Due: <span id="bdayText-baby">August 2026</span>
+              </div>
+              <span class="schedule-synced-badge" id="schedBadge-baby" style="display:none;">📅 Synced to schedule</span>
+            </div>
+          </div>
+          <button class="card-edit-btn" id="editBtn-baby" onclick="toggleCardEdit('baby')">✏️ Edit</button>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <!-- North Star -->
+        <div class="card-section">
+          <div class="card-section-title">My north star</div>
+          <div class="north-star-text" id="northStar-baby" style="opacity: 0.7;">We can't wait to meet you.</div>
+          <textarea class="north-star-textarea" id="northStarInput-baby">We can't wait to meet you.</textarea>
+        </div>
+
+        <!-- Working On -->
+        <div class="card-section">
+          <div class="card-section-title">What I'm working on this week</div>
+          <div class="chips-row" id="workChips-baby">
+            <button class="chip-add" onclick="addChip('workChips-baby')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Habits -->
+        <div class="card-section">
+          <div class="card-section-title">Habits &amp; skills I'm learning</div>
+          <div class="chips-row" id="habitChips-baby">
+            <button class="chip-add" onclick="addChip('habitChips-baby')">＋ Add</button>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="card-section">
+          <div class="card-section-title">My documents</div>
+          <div class="docs-row" id="docs-baby">
+            <div class="doc-link-btn" id="docLinkBtn-baby" onclick="toggleDocDropdown('baby', event)">＋ Link document
+              <div class="doc-link-dropdown" id="docDropdown-baby">
+                <div class="doc-link-option" onclick="linkDoc('baby', '🪪 Passport', 'Not set', event)">🪪 Passport</div>
+                <div class="doc-link-option" onclick="linkDoc('baby', '📄 Residency Visa', 'Not set', event)">📄 Residency Visa</div>
+                <div class="doc-link-option" onclick="linkDoc('baby', '🏥 Insurance Card', 'Not set', event)">🏥 Insurance Card</div>
+                <div class="doc-link-option" onclick="linkDoc('baby', '🚗 Driver\'s License', 'Not set', event)">🚗 Driver's License</div>
+                <div class="doc-link-option" onclick="linkDoc('baby', '📋 Birth Certificate', 'Not set', event)">📋 Birth Certificate</div>
+                <div class="doc-link-option" onclick="linkDoc('baby', '📁 Other', 'Not set', event)">📁 Other</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Bar -->
+        <div class="card-save-bar" id="saveBar-baby">
+          <button class="btn btn-outline" onclick="cancelCardEdit('baby')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveCardEdit('baby')">Save</button>
+        </div>
+      </div>
+
+    </div><!-- end .profile-cards-stack -->
+
+    <!-- ─── Add Member ─────────────────────────────────── -->
+    <div style="margin-top: 24px;">
+      <button class="add-member-btn" onclick="openAddMemberModal()">
+        <span style="font-size:18px; opacity: 0.6;">＋</span>
+        Add member
+      </button>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Tab Bar ──────────────────────────────── -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <a href="dashboard.html" class="tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="tab-item" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="tab-item" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="tab-item" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Document Detail Modal ───────────────────────── -->
+<div class="doc-modal-overlay" id="docModalOverlay" onclick="handleDocModalOverlayClick(event)">
+  <div class="doc-modal-panel">
+    <button class="doc-modal-close" onclick="closeDocModal()">×</button>
+    <div class="doc-modal-title" id="docModalTitle"></div>
+    <div class="doc-modal-expiry" id="docModalExpiry"></div>
+    <a href="vault.html" class="doc-modal-vault-link">View in Vault →</a>
+  </div>
+</div>
+
+<!-- ─── Add Member Modal ──────────────────────────────── -->
+<div class="add-member-overlay" id="addMemberOverlay" onclick="handleAddMemberOverlayClick(event)">
+  <div class="add-member-panel">
+    <button class="add-member-close" onclick="closeAddMemberModal()">×</button>
+    <div class="add-member-title">Add a member</div>
+    <div class="add-member-avatar-preview">
+      <div id="newMemberAvatarPreview" style="width:60px;height:60px;border-radius:50%;overflow:hidden;"></div>
+    </div>
+    <div class="add-member-form-group">
+      <label class="add-member-form-label" for="newMemberName">Name</label>
+      <input class="add-member-form-input" type="text" id="newMemberName" placeholder="e.g. Luna" autocomplete="off" />
+    </div>
+    <div class="add-member-form-group">
+      <label class="add-member-form-label" for="newMemberRole">Role</label>
+      <input class="add-member-form-input" type="text" id="newMemberRole" placeholder="e.g. Partner, Kid, Pet" autocomplete="off" />
+    </div>
+    <div class="add-member-actions">
+      <button class="btn btn-outline" onclick="closeAddMemberModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAddMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Sidebar nav active state
+  const sidebarLinks = document.querySelectorAll('#sidebarNav a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (link.getAttribute('href') === '#') e.preventDefault();
+    });
+  });
+
+  // ─── Inline edit for unit name
+  const unitNameEl = document.getElementById('unitNameDisplay');
+  const unitEditBtn = document.getElementById('unitEditBtn');
+
+  unitEditBtn.addEventListener('click', () => {
+    const current = unitNameEl.textContent.trim();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = current;
+    input.style.cssText = `
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      background: var(--accent-light);
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      padding: 2px 10px;
+      outline: none;
+      width: 220px;
+    `;
+    unitNameEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    const finish = () => {
+      const newSpan = document.createElement('span');
+      newSpan.id = 'unitNameDisplay';
+      newSpan.className = 'unit-name';
+      newSpan.textContent = input.value.trim() || current;
+      input.replaceWith(newSpan);
+    };
+    input.addEventListener('blur', finish);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') input.blur();
+      if (e.key === 'Escape') { input.value = current; input.blur(); }
+    });
+  });
+
+  // ─── Birthday helpers
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function formatBday(dateStr) {
+    if (!dateStr) return '';
+    const [, month, day] = dateStr.split('-');
+    return `${monthNames[parseInt(month,10)-1]} ${parseInt(day,10)}`;
+  }
+
+  function openBdayPicker(member) {
+    const input = document.getElementById('bdayInput-' + member);
+    if (!input) return;
+    try { input.showPicker(); } catch(e) { input.click(); }
+  }
+
+  function onBdayChange(member) {
+    const input = document.getElementById('bdayInput-' + member);
+    const textEl = document.getElementById('bdayText-' + member);
+    const badge = document.getElementById('schedBadge-' + member);
+    if (input && input.value) {
+      textEl.textContent = formatBday(input.value);
+      if (badge) badge.style.display = 'inline-flex';
+    }
+  }
+
+  // ─── Card Edit / Save / Cancel
+  const cardEditStates = {};
+
+  function toggleCardEdit(member) {
+    if (cardEditStates[member]) return;
+    enterCardEdit(member);
+  }
+
+  function enterCardEdit(member) {
+    cardEditStates[member] = true;
+    const card = document.getElementById('card-' + member);
+    card.classList.add('edit-mode');
+
+    // Name
+    document.getElementById('name-' + member).style.display = 'none';
+    const nameInput = document.getElementById('nameInput-' + member);
+    nameInput.style.display = 'block';
+    nameInput.value = document.getElementById('name-' + member).textContent.trim();
+
+    // Role
+    document.getElementById('role-' + member).style.display = 'none';
+    const roleInput = document.getElementById('roleInput-' + member);
+    roleInput.style.display = 'block';
+    roleInput.value = document.getElementById('role-' + member).textContent.trim();
+
+    // North star
+    const nsDisplay = document.getElementById('northStar-' + member);
+    const nsInput = document.getElementById('northStarInput-' + member);
+    nsInput.value = nsDisplay.textContent.trim();
+    nsDisplay.style.display = 'none';
+    nsInput.style.display = 'block';
+
+    // Save bar
+    const saveBar = document.getElementById('saveBar-' + member);
+    saveBar.classList.add('visible');
+
+    // Edit btn
+    document.getElementById('editBtn-' + member).style.display = 'none';
+
+    nameInput.focus();
+    nameInput.select();
+  }
+
+  function saveCardEdit(member) {
+    // Name
+    const nameDisplay = document.getElementById('name-' + member);
+    const nameInput = document.getElementById('nameInput-' + member);
+    const newName = nameInput.value.trim();
+    if (newName) nameDisplay.textContent = newName;
+    nameDisplay.style.display = '';
+    nameInput.style.display = 'none';
+
+    // Role
+    const roleDisplay = document.getElementById('role-' + member);
+    const roleInput = document.getElementById('roleInput-' + member);
+    const newRole = roleInput.value.trim();
+    if (newRole) roleDisplay.textContent = newRole;
+    roleDisplay.style.display = '';
+    roleInput.style.display = 'none';
+
+    // North star
+    const nsDisplay = document.getElementById('northStar-' + member);
+    const nsInput = document.getElementById('northStarInput-' + member);
+    const newNS = nsInput.value.trim();
+    if (newNS) nsDisplay.textContent = newNS;
+    nsDisplay.style.display = '';
+    nsInput.style.display = 'none';
+
+    // Save bar + edit btn
+    document.getElementById('saveBar-' + member).classList.remove('visible');
+    document.getElementById('editBtn-' + member).style.display = '';
+    document.getElementById('card-' + member).classList.remove('edit-mode');
+
+    cardEditStates[member] = false;
+    showToast('Saved ✓');
+  }
+
+  function cancelCardEdit(member) {
+    // Restore displays
+    document.getElementById('name-' + member).style.display = '';
+    document.getElementById('nameInput-' + member).style.display = 'none';
+
+    document.getElementById('role-' + member).style.display = '';
+    document.getElementById('roleInput-' + member).style.display = 'none';
+
+    document.getElementById('northStar-' + member).style.display = '';
+    document.getElementById('northStarInput-' + member).style.display = 'none';
+
+    document.getElementById('saveBar-' + member).classList.remove('visible');
+    document.getElementById('editBtn-' + member).style.display = '';
+    document.getElementById('card-' + member).classList.remove('edit-mode');
+
+    cardEditStates[member] = false;
+  }
+
+  // ─── Chip add/remove
+  function removeChip(btn) {
+    btn.closest('.chip').remove();
+  }
+
+  function addChip(containerId) {
+    const container = document.getElementById(containerId);
+    const addBtn = container.querySelector('.chip-add');
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Type & press Enter';
+    input.style.cssText = `
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1.5px solid var(--accent);
+      border-radius: 20px;
+      padding: 4px 14px;
+      outline: none;
+      width: 160px;
+    `;
+
+    container.insertBefore(input, addBtn);
+    input.focus();
+
+    const commit = () => {
+      const val = input.value.trim();
+      if (val) {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = `${val} <button class="chip-remove" onclick="removeChip(this)" title="Remove">×</button>`;
+        container.insertBefore(chip, input);
+      }
+      input.remove();
+    };
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); commit(); }
+      if (e.key === 'Escape') { input.remove(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  // ─── Document Modal
+  function openDocModal(docName, expiry) {
+    const overlay = document.getElementById('docModalOverlay');
+    const titleEl = document.getElementById('docModalTitle');
+    const expiryEl = document.getElementById('docModalExpiry');
+
+    titleEl.textContent = docName;
+
+    if (!expiry || expiry === 'Not set') {
+      expiryEl.textContent = 'Expiry: Not set';
+      expiryEl.className = 'doc-modal-expiry';
+    } else {
+      // Check if expiry is within 6 months
+      const expiryDate = parseExpiry(expiry);
+      const isUrgent = expiryDate && isWithin6Months(expiryDate);
+      expiryEl.textContent = 'Expires ' + expiry;
+      expiryEl.className = 'doc-modal-expiry' + (isUrgent ? ' expiry-urgent' : '');
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function parseExpiry(str) {
+    // e.g. "Mar 2028", "Jun 2026", "Jan 2030"
+    const monthMap = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const parts = str.split(' ');
+    if (parts.length === 2 && monthMap[parts[0]] !== undefined) {
+      return new Date(parseInt(parts[1]), monthMap[parts[0]], 1);
+    }
+    return null;
+  }
+
+  function isWithin6Months(date) {
+    const now = new Date();
+    const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate());
+    return date <= sixMonthsLater;
+  }
+
+  function closeDocModal() {
+    document.getElementById('docModalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleDocModalOverlayClick(e) {
+    if (e.target === document.getElementById('docModalOverlay')) closeDocModal();
+  }
+
+  // ─── Doc Link Dropdown
+  let openDropdownMember = null;
+
+  function toggleDocDropdown(member, e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('docDropdown-' + member);
+    const isOpen = dropdown.classList.contains('open');
+
+    // Close all other dropdowns
+    document.querySelectorAll('.doc-link-dropdown.open').forEach(d => d.classList.remove('open'));
+    openDropdownMember = null;
+
+    if (!isOpen) {
+      dropdown.classList.add('open');
+      openDropdownMember = member;
+    }
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.doc-link-dropdown.open').forEach(d => d.classList.remove('open'));
+    openDropdownMember = null;
+  });
+
+  function linkDoc(member, docLabel, expiry, e) {
+    e.stopPropagation();
+
+    // Close dropdown
+    const dropdown = document.getElementById('docDropdown-' + member);
+    dropdown.classList.remove('open');
+
+    // Parse icon and name
+    const parts = docLabel.match(/^(\S+)\s+(.+)$/);
+    const icon = parts ? parts[1] : '📄';
+    const name = parts ? parts[2] : docLabel;
+
+    // Add pill before the link button
+    const docsRow = document.getElementById('docs-' + member);
+    const linkBtn = document.getElementById('docLinkBtn-' + member);
+
+    const pill = document.createElement('span');
+    pill.className = 'doc-pill';
+    pill.innerHTML = `<span class="doc-pill-icon">${icon}</span> ${name}`;
+    pill.addEventListener('click', () => openDocModal(name, expiry));
+    docsRow.insertBefore(pill, linkBtn);
+
+    // Mark the option as disabled/checked in all dropdowns for this member
+    const option = Array.from(dropdown.querySelectorAll('.doc-link-option:not(.doc-link-option-disabled)')).find(o => {
+      return o.textContent.trim().startsWith(icon);
+    });
+    if (option) {
+      option.classList.add('doc-link-option-disabled');
+      option.innerHTML += `<span class="doc-link-option-check">✓</span>`;
+      option.onclick = null;
+    }
+
+    showToast('Document linked ✓');
+  }
+
+  // ─── Toast
+  function showToast(message) {
+    const existing = document.getElementById('toastNotif');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'toastNotif';
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--accent);
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 20px;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(40,54,24,0.18);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    `;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(8px)';
+      setTimeout(() => toast.remove(), 250);
+    }, 2000);
+  }
+
+  // ─── Family Theme
+  const themeAvatars = {
+    fruits: {
+      zein: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fffbe0"/><ellipse cx="36" cy="44" rx="20" ry="26" fill="#F5D547" stroke="#C8A800" stroke-width="2"/><ellipse cx="28" cy="32" rx="6" ry="4" fill="#ffe87a" opacity="0.55"/><ellipse cx="36" cy="13" rx="6" ry="9" fill="#606C38" transform="rotate(-18 36 13)"/><line x1="36" y1="13" x2="36" y2="19" stroke="#283618" stroke-width="1.5" stroke-linecap="round"/><circle cx="29" cy="41" r="2.4" fill="#283618"/><circle cx="43" cy="41" r="2.4" fill="#283618"/><circle cx="30" cy="39.8" r="0.9" fill="white"/><circle cx="44" cy="39.8" r="0.9" fill="white"/><path d="M27 50 Q36 57 45 50" stroke="#C8A800" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+      ala: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f3eeff"/><circle cx="22" cy="52" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="36" cy="52" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="50" cy="52" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="29" cy="39" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="43" cy="39" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="36" cy="26" r="10" fill="#8B5CF6" stroke="#6D28D9" stroke-width="1.5"/><circle cx="32" cy="22" r="3.5" fill="#c4a8ff" opacity="0.55"/><line x1="36" y1="16" x2="36" y2="11" stroke="#283618" stroke-width="2.2" stroke-linecap="round"/><ellipse cx="44" cy="10" rx="8" ry="5" fill="#606C38" transform="rotate(20 44 10)"/></svg>`,
+      baby: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fdf5ec"/><ellipse cx="36" cy="60" rx="20" ry="8" fill="#DDA15E" opacity="0.35"/><ellipse cx="36" cy="52" rx="11" ry="8.5" fill="#DDA15E" stroke="#BC6C25" stroke-width="1.8"/><line x1="36" y1="43" x2="36" y2="28" stroke="#606C38" stroke-width="2.5" stroke-linecap="round"/><path d="M36 36 Q24 28 26 18" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M36 32 Q48 24 46 14" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="31" cy="49" rx="3.5" ry="2" fill="#f0c080" opacity="0.5"/></svg>`
+    },
+    flowers: {
+      zein: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fff0f7"/><ellipse cx="36" cy="20" rx="8" ry="13" fill="#F9A8D4" stroke="#EC4899" stroke-width="1"/><ellipse cx="50" cy="25" rx="8" ry="13" fill="#F9A8D4" stroke="#EC4899" stroke-width="1" transform="rotate(72 50 25)"/><ellipse cx="46" cy="44" rx="8" ry="13" fill="#F9A8D4" stroke="#EC4899" stroke-width="1" transform="rotate(144 46 44)"/><ellipse cx="26" cy="44" rx="8" ry="13" fill="#F9A8D4" stroke="#EC4899" stroke-width="1" transform="rotate(216 26 44)"/><ellipse cx="22" cy="25" rx="8" ry="13" fill="#F9A8D4" stroke="#EC4899" stroke-width="1" transform="rotate(288 22 25)"/><circle cx="36" cy="36" r="12" fill="#EC4899"/><circle cx="32" cy="33" r="3.5" fill="#f9c4de" opacity="0.55"/></svg>`,
+      ala: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fffbe0"/><ellipse cx="36" cy="18" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1"/><ellipse cx="50" cy="22" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(45 50 22)"/><ellipse cx="54" cy="36" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(90 54 36)"/><ellipse cx="50" cy="50" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(135 50 50)"/><ellipse cx="36" cy="54" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(180 36 54)"/><ellipse cx="22" cy="50" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(225 22 50)"/><ellipse cx="18" cy="36" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(270 18 36)"/><ellipse cx="22" cy="22" rx="7" ry="12" fill="#FDE047" stroke="#CA8A04" stroke-width="1" transform="rotate(315 22 22)"/><circle cx="36" cy="36" r="12" fill="#92400E"/><circle cx="32" cy="32" r="3" fill="#b86030" opacity="0.55"/></svg>`,
+      baby: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f0fdf4"/><line x1="36" y1="62" x2="36" y2="38" stroke="#606C38" stroke-width="2.8" stroke-linecap="round"/><ellipse cx="27" cy="52" rx="9" ry="4.5" fill="#86EFAC" stroke="#606C38" stroke-width="1.2" transform="rotate(-30 27 52)"/><ellipse cx="45" cy="46" rx="9" ry="4.5" fill="#86EFAC" stroke="#606C38" stroke-width="1.2" transform="rotate(30 45 46)"/><ellipse cx="30" cy="30" rx="8" ry="13" fill="#86EFAC" stroke="#606C38" stroke-width="1.5" transform="rotate(-15 30 30)"/><ellipse cx="42" cy="30" rx="8" ry="13" fill="#86EFAC" stroke="#606C38" stroke-width="1.5" transform="rotate(15 42 30)"/><circle cx="35" cy="21" r="3" fill="#d1fae5" opacity="0.8"/></svg>`
+    },
+    plants: {
+      zein: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f0fdf4"/><path d="M36 58 C12 44 10 18 36 26 C62 18 60 44 36 58Z" fill="#4ADE80" stroke="#16A34A" stroke-width="2"/><path d="M36 56 Q30 43 33 28" stroke="#16A34A" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/><path d="M36 56 Q42 43 39 28" stroke="#16A34A" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.7"/><path d="M28 47 Q18 37 25 30" stroke="#16A34A" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.5"/><ellipse cx="28" cy="40" rx="5" ry="3" fill="#bbf7d0" opacity="0.5" transform="rotate(-30 28 40)"/></svg>`,
+      ala: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f2f5e4"/><path d="M26 62 Q36 67 46 62 L43 69 Q36 72 29 69Z" fill="#DDA15E" stroke="#BC6C25" stroke-width="1.2"/><rect x="27" y="28" width="18" height="34" rx="9" fill="#606C38" stroke="#283618" stroke-width="1.8"/><path d="M27 47 Q14 44 14 33" stroke="#606C38" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M45 43 Q58 40 58 29" stroke="#606C38" stroke-width="9" fill="none" stroke-linecap="round"/><line x1="33" y1="33" x2="29" y2="28" stroke="#283618" stroke-width="1.3" stroke-linecap="round"/><line x1="36" y1="32" x2="36" y2="27" stroke="#283618" stroke-width="1.3" stroke-linecap="round"/><line x1="39" y1="33" x2="43" y2="28" stroke="#283618" stroke-width="1.3" stroke-linecap="round"/></svg>`,
+      baby: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f0fdf4"/><ellipse cx="36" cy="62" rx="20" ry="7" fill="#DDA15E" opacity="0.5"/><line x1="36" y1="57" x2="36" y2="32" stroke="#606C38" stroke-width="2.5" stroke-linecap="round"/><path d="M36 44 Q22 34 25 22" fill="#86EFAC" stroke="#606C38" stroke-width="1.8" stroke-linecap="round"/><path d="M36 40 Q50 30 47 18" fill="#86EFAC" stroke="#606C38" stroke-width="1.8" stroke-linecap="round"/><circle cx="26" cy="26" r="2" fill="#d1fae5" opacity="0.7"/><circle cx="46" cy="22" r="2" fill="#d1fae5" opacity="0.7"/></svg>`
+    },
+    stars: {
+      zein: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fffde7"/><path d="M36 10 L40 32 L62 36 L40 40 L36 62 L32 40 L10 36 L32 32 Z" fill="#FDE047" stroke="#CA8A04" stroke-width="1.8" stroke-linejoin="round"/><circle cx="36" cy="36" r="5" fill="#fff9c4"/></svg>`,
+      ala: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#eff6ff"/><path d="M55 16 Q43 32 22 52" stroke="#93C5FD" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.55"/><path d="M55 16 L59 26 L69 26 L61 33 L64 43 L55 37 L46 43 L49 33 L41 26 L51 26 Z" fill="#93C5FD" stroke="#3B82F6" stroke-width="1.8" stroke-linejoin="round"/></svg>`,
+      baby: `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#fffde7"/><path d="M36 20 L39 32 L51 36 L39 40 L36 52 L33 40 L21 36 L33 32 Z" fill="#FDE68A" stroke="#F59E0B" stroke-width="1.5" stroke-linejoin="round"/><path d="M57 16 L59 21 L64 22 L59 23 L57 28 L55 23 L50 22 L55 21 Z" fill="#FDE68A" stroke="#F59E0B" stroke-width="1"/><path d="M16 52 L18 56 L22 57 L18 58 L16 62 L14 58 L10 57 L14 56 Z" fill="#FDE68A" stroke="#F59E0B" stroke-width="1"/></svg>`
+    }
+  };
+
+  let currentTheme = null;
+
+  function applyTheme(theme) {
+    currentTheme = theme;
+    document.querySelectorAll('.theme-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.theme === theme);
+    });
+    // Swap avatars
+    ['zein', 'ala', 'baby'].forEach(member => {
+      if (themeAvatars[theme] && themeAvatars[theme][member]) {
+        const el = document.getElementById('avatar-' + member);
+        if (el) el.innerHTML = themeAvatars[theme][member];
+      }
+    });
+  }
+
+  function selectTheme(theme) {
+    if (currentTheme === theme) {
+      currentTheme = null;
+      localStorage.removeItem('unit_family_theme');
+      document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('selected'));
+      // Restore original avatars
+      restoreOriginalAvatars();
+      return;
+    }
+    applyTheme(theme);
+    localStorage.setItem('unit_family_theme', theme);
+    showToast('Theme saved ✓');
+  }
+
+  function restoreOriginalAvatars() {
+    const origZein = `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#dde3c4"/><ellipse cx="36" cy="18" rx="18" ry="13" fill="#606C38"/><ellipse cx="16" cy="30" rx="5" ry="9" fill="#606C38"/><ellipse cx="56" cy="30" rx="5" ry="9" fill="#606C38"/><circle cx="36" cy="38" r="20" fill="#f5e6c8"/><ellipse cx="29" cy="34" rx="2.8" ry="3.2" fill="#283618"/><ellipse cx="43" cy="34" rx="2.8" ry="3.2" fill="#283618"/><circle cx="30.2" cy="32.8" r="1" fill="white"/><circle cx="44.2" cy="32.8" r="1" fill="white"/><ellipse cx="36" cy="40" rx="1.5" ry="1" fill="#c4a47a" opacity="0.6"/><path d="M29 44 Q36 50 43 44" stroke="#BC6C25" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="41" rx="4" ry="2.5" fill="#DDA15E" opacity="0.35"/><ellipse cx="48" cy="41" rx="4" ry="2.5" fill="#DDA15E" opacity="0.35"/></svg>`;
+    const origAla = `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#e6dfc4"/><rect x="15.5" y="10" width="41" height="16" rx="12" fill="#3d4a22"/><circle cx="36" cy="38" r="20" fill="#f0d9b5"/><ellipse cx="29" cy="34" rx="2.8" ry="3.2" fill="#283618"/><ellipse cx="43" cy="34" rx="2.8" ry="3.2" fill="#283618"/><circle cx="30.2" cy="32.8" r="1" fill="white"/><circle cx="44.2" cy="32.8" r="1" fill="white"/><ellipse cx="36" cy="54" rx="12" ry="5.5" fill="#c9a87a" opacity="0.22"/><ellipse cx="36" cy="40" rx="1.5" ry="1" fill="#b8935a" opacity="0.6"/><path d="M29 44.5 Q36 49 43 44.5" stroke="#a07040" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="41" rx="3.5" ry="2.2" fill="#DDA15E" opacity="0.28"/><ellipse cx="48" cy="41" rx="3.5" ry="2.2" fill="#DDA15E" opacity="0.28"/></svg>`;
+    const origBaby = `<svg viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" width="72" height="72"><circle cx="36" cy="36" r="36" fill="#f2f5e2"/><ellipse cx="36" cy="46" rx="16" ry="20" fill="#fffbe8" stroke="#e0d9b8" stroke-width="1.5"/><line x1="36" y1="48" x2="36" y2="32" stroke="#606C38" stroke-width="2.5" stroke-linecap="round"/><path d="M36 40 Q26 33 28 23" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M36 37 Q46 30 44 20" stroke="#606C38" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M36 56 Q32 62 30 67" stroke="#c4a47a" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.5"/><path d="M36 56 Q40 62 42 67" stroke="#c4a47a" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.5"/></svg>`;
+    const el = document.getElementById('avatar-zein');
+    if (el) el.innerHTML = origZein;
+    const el2 = document.getElementById('avatar-ala');
+    if (el2) el2.innerHTML = origAla;
+    const el3 = document.getElementById('avatar-baby');
+    if (el3) el3.innerHTML = origBaby;
+  }
+
+  // Restore saved theme on load
+  (function() {
+    const saved = localStorage.getItem('unit_family_theme');
+    if (saved && themeAvatars[saved]) applyTheme(saved);
+  })();
+
+  // ─── Add Member Modal
+  const avatarColors = [
+    { bg: '#dde3c4', hair: '#606C38', skin: '#f5e6c8', mouth: '#BC6C25' },
+    { bg: '#e6dfc4', hair: '#3d4a22', skin: '#f0d9b5', mouth: '#a07040' },
+    { bg: '#f2e0cc', hair: '#7a3b1e', skin: '#fde8c8', mouth: '#c06030' },
+    { bg: '#ccd8e6', hair: '#2a3d5a', skin: '#f0d9b5', mouth: '#5a7ab0' },
+    { bg: '#e0cce6', hair: '#4a2a5a', skin: '#f5e6c8', mouth: '#8a50a0' },
+    { bg: '#cce6d8', hair: '#2a5a3a', skin: '#f0e8d0', mouth: '#3a8060' },
+  ];
+
+  let currentNewMemberColor = null;
+
+  function randomAvatarColor() {
+    return avatarColors[Math.floor(Math.random() * avatarColors.length)];
+  }
+
+  function generateAvatarSVG(colors, size = 60) {
+    const { bg, hair, skin, mouth } = colors;
+    const h = size / 2;
+    return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+      <circle cx="${h}" cy="${h}" r="${h}" fill="${bg}"/>
+      <ellipse cx="${h}" cy="${size*.25}" rx="${size*.25}" ry="${size*.185}" fill="${hair}"/>
+      <ellipse cx="${size*.215}" cy="${size*.415}" rx="${size*.067}" ry="${size*.125}" fill="${hair}"/>
+      <ellipse cx="${size*.785}" cy="${size*.415}" rx="${size*.067}" ry="${size*.125}" fill="${hair}"/>
+      <circle cx="${h}" cy="${size*.535}" r="${size*.285}" fill="${skin}"/>
+      <ellipse cx="${size*.4}" cy="${size*.475}" rx="${size*.038}" ry="${size*.043}" fill="#283618"/>
+      <ellipse cx="${size*.6}" cy="${size*.475}" rx="${size*.038}" ry="${size*.043}" fill="#283618"/>
+      <circle cx="${size*.415}" cy="${size*.458}" r="${size*.013}" fill="white"/>
+      <circle cx="${size*.615}" cy="${size*.458}" r="${size*.013}" fill="white"/>
+      <path d="M${size*.4} ${size*.615} Q${h} ${size*.705} ${size*.6} ${size*.615}" stroke="${mouth}" stroke-width="${size*.028}" fill="none" stroke-linecap="round"/>
+      <ellipse cx="${size*.33}" cy="${size*.575}" rx="${size*.055}" ry="${size*.033}" fill="#DDA15E" opacity="0.35"/>
+      <ellipse cx="${size*.67}" cy="${size*.575}" rx="${size*.055}" ry="${size*.033}" fill="#DDA15E" opacity="0.35"/>
+    </svg>`;
+  }
+
+  function openAddMemberModal() {
+    currentNewMemberColor = randomAvatarColor();
+    document.getElementById('newMemberAvatarPreview').innerHTML = generateAvatarSVG(currentNewMemberColor, 60);
+    document.getElementById('newMemberName').value = '';
+    document.getElementById('newMemberRole').value = '';
+    document.getElementById('addMemberOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('newMemberName').focus(), 100);
+  }
+
+  function closeAddMemberModal() {
+    document.getElementById('addMemberOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleAddMemberOverlayClick(e) {
+    if (e.target === document.getElementById('addMemberOverlay')) closeAddMemberModal();
+  }
+
+  function confirmAddMember() {
+    const name = document.getElementById('newMemberName').value.trim();
+    const role = document.getElementById('newMemberRole').value.trim();
+
+    if (!name) {
+      const nameInput = document.getElementById('newMemberName');
+      nameInput.focus();
+      nameInput.style.borderColor = 'var(--deep-warm)';
+      setTimeout(() => { nameInput.style.borderColor = ''; }, 1200);
+      return;
+    }
+
+    const memberKey = 'custom_' + Date.now();
+    const avatarSVG72 = generateAvatarSVG(currentNewMemberColor, 72);
+
+    // Build new full profile card
+    const card = document.createElement('div');
+    card.className = 'full-profile-card';
+    card.id = 'card-' + memberKey;
+    card.dataset.member = memberKey;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-avatar" id="avatar-${memberKey}">${avatarSVG72}</div>
+        <div class="card-identity">
+          <div class="card-name" id="name-${memberKey}">${name}</div>
+          <input type="text" class="card-name-input" id="nameInput-${memberKey}" value="${name}" />
+          <div class="card-role-tag" id="role-${memberKey}">${role || ''}</div>
+          <input type="text" class="card-role-input" id="roleInput-${memberKey}" value="${role || ''}" />
+          <div class="card-bday-row">
+            <div class="card-bday-tag" id="bdayTag-${memberKey}" onclick="openBdayPicker('${memberKey}')">
+              🎂 <span id="bdayText-${memberKey}">Set birthday</span>
+              <input type="date" id="bdayInput-${memberKey}" onchange="onBdayChange('${memberKey}')" onclick="event.stopPropagation()" />
+            </div>
+            <span class="schedule-synced-badge" id="schedBadge-${memberKey}" style="display:none;">📅 Synced to schedule</span>
+          </div>
+        </div>
+        <button class="card-edit-btn" id="editBtn-${memberKey}" onclick="toggleCardEdit('${memberKey}')">✏️ Edit</button>
+      </div>
+      <div class="card-divider"></div>
+      <div class="card-section">
+        <div class="card-section-title">My north star</div>
+        <div class="north-star-text" id="northStar-${memberKey}" style="opacity:0.6; font-style:italic;">Add your north star...</div>
+        <textarea class="north-star-textarea" id="northStarInput-${memberKey}"></textarea>
+      </div>
+      <div class="card-section">
+        <div class="card-section-title">What I'm working on this week</div>
+        <div class="chips-row" id="workChips-${memberKey}">
+          <button class="chip-add" onclick="addChip('workChips-${memberKey}')">＋ Add</button>
+        </div>
+      </div>
+      <div class="card-section">
+        <div class="card-section-title">Habits &amp; skills I'm learning</div>
+        <div class="chips-row" id="habitChips-${memberKey}">
+          <button class="chip-add" onclick="addChip('habitChips-${memberKey}')">＋ Add</button>
+        </div>
+      </div>
+      <div class="card-section">
+        <div class="card-section-title">My documents</div>
+        <div class="docs-row" id="docs-${memberKey}">
+          <div class="doc-link-btn" id="docLinkBtn-${memberKey}" onclick="toggleDocDropdown('${memberKey}', event)">＋ Link document
+            <div class="doc-link-dropdown" id="docDropdown-${memberKey}">
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '🪪 Passport', 'Not set', event)">🪪 Passport</div>
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '📄 Residency Visa', 'Not set', event)">📄 Residency Visa</div>
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '🏥 Insurance Card', 'Not set', event)">🏥 Insurance Card</div>
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '🚗 Driver\\'s License', 'Not set', event)">🚗 Driver's License</div>
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '📋 Birth Certificate', 'Not set', event)">📋 Birth Certificate</div>
+              <div class="doc-link-option" onclick="linkDoc('${memberKey}', '📁 Other', 'Not set', event)">📁 Other</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-save-bar" id="saveBar-${memberKey}">
+        <button class="btn btn-outline" onclick="cancelCardEdit('${memberKey}')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCardEdit('${memberKey}')">Save</button>
+      </div>
+    `;
+
+    // Insert before the Add Member button
+    const addBtnWrapper = document.querySelector('.main > div[style]');
+    document.getElementById('profileCardsStack').appendChild(card);
+
+    closeAddMemberModal();
+    showToast(`${name} added ✓`);
+  }
+
+  // ─── Global Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeDocModal();
+      closeAddMemberModal();
+      // Cancel any open edits
+      Object.keys(cardEditStates).forEach(m => {
+        if (cardEditStates[m]) cancelCardEdit(m);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

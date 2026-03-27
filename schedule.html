@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Schedule</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ─────────────────────────────────────── */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 4px;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--deep-warm) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── Main Content ───────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: 900px;
+    }
+
+    /* ─── Page Header ────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .page-title-block {}
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.12s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .btn-green {
+      background: #3a7d44;
+      color: var(--white);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ─── View Toggle ────────────────────────────────── */
+    .view-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+      width: fit-content;
+    }
+
+    .view-tab {
+      padding: 7px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.18s;
+    }
+    .view-tab:hover { color: var(--accent); }
+    .view-tab.active {
+      background: var(--accent);
+      color: var(--white);
+    }
+
+    .manage-categories-btn {
+      font-size: 12px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .manage-categories-btn:hover {
+      color: var(--accent);
+      background: var(--accent-light);
+      text-decoration: none;
+    }
+
+    /* ─── This Week Banner ───────────────────────────── */
+    .this-week-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .this-week-banner.visible { display: block; }
+    .this-week-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .this-week-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .this-week-count {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .this-week-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .this-week-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .this-week-empty {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ─── AGENDA VIEW ────────────────────────────────── */
+    .agenda-view { display: block; }
+    .month-view { display: none; }
+    .week-view { display: none; }
+
+    .agenda-month-group {
+      margin-bottom: 28px;
+    }
+
+    .agenda-month-label {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .agenda-event-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+      position: relative;
+    }
+    .agenda-event-row:hover { background: var(--accent-light); }
+
+    .agenda-date-block {
+      min-width: 44px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .agenda-day-num {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+    .agenda-day-name {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .agenda-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-goal    { background: #606C38; }
+    .dot-life    { background: #4a9ebb; }
+    .dot-connect { background: #7a8b5c; }
+    .dot-key     { background: #5b8fd4; }
+    .dot-personal{ background: #9b7dd4; }
+    .dot-event   { background: #e07b4a; }
+    .dot-unit    { background: #e8a020; }
+
+    .agenda-event-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .agenda-event-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .agenda-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .badge-goal    { background: #e8f2e0; color: #4a5c28; }
+    .badge-connect { background: #edf2e8; color: #4a5c28; }
+    .badge-life    { background: #e0f2f8; color: #1a6880; }
+    .badge-key     { background: #e8f0fb; color: #3460a0; }
+    .badge-personal{ background: #f0ebfa; color: #6040a0; }
+    .badge-event   { background: #fdeee6; color: #8a3c18; }
+    .badge-unit    { background: #fef3e2; color: #8a5020; }
+
+    /* Recurrence badge */
+    .badge-recur {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 100px;
+      background: #e8ede0;
+      color: #3a5020;
+      white-space: nowrap;
+    }
+
+    /* ─── Attendee Avatars ───────────────────────────── */
+    .attendee-avatars {
+      display: flex;
+      align-items: center;
+      gap: -2px;
+    }
+    .attendee-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--white);
+      margin-left: -4px;
+      flex-shrink: 0;
+    }
+    .attendee-avatar:first-child { margin-left: 0; }
+    .avatar-zein  { background: #7a8b5c; color: #fff; }
+    .avatar-ala   { background: #DDA15E; color: #fff; }
+    .avatar-other { background: #9b7dd4; color: #fff; }
+
+    .agenda-event-action {
+      flex-shrink: 0;
+      font-size: 14px;
+      color: var(--muted);
+      opacity: 0.5;
+      cursor: pointer;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: opacity 0.15s, background 0.15s;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .agenda-event-action:hover {
+      opacity: 1;
+      background: rgba(188, 108, 37, 0.1);
+      color: var(--deep-warm);
+    }
+    .agenda-event-action.locked {
+      cursor: default;
+      opacity: 0.35;
+    }
+    .agenda-event-action.locked:hover {
+      background: none;
+      color: var(--muted);
+      opacity: 0.35;
+    }
+
+    /* ─── MONTH VIEW ─────────────────────────────────── */
+    .month-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .month-nav-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .month-nav-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+    .month-nav-btn:hover { background: var(--accent-light); color: var(--accent); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day-header {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 0;
+    }
+    .cal-day {
+      min-height: 80px;
+      padding: 8px 6px 6px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .cal-day:hover { background: var(--accent-light); border-color: var(--accent); }
+    .cal-day.empty {
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: default;
+    }
+    .cal-day.empty:hover { background: transparent; border-color: transparent; }
+    .cal-day.today {
+      border-color: var(--accent);
+      background: #e8f0dc;
+    }
+    .cal-day-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .cal-day.today .cal-day-num {
+      background: var(--accent);
+      color: var(--white);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .cal-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-bottom: 3px;
+    }
+    .cal-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .cal-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cal-pill {
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--accent-light);
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      font-weight: 500;
+    }
+
+    /* Day popover */
+    .cal-day-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 300;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      min-width: 200px;
+      max-width: 240px;
+      box-shadow: var(--shadow-md);
+    }
+    .cal-day.popover-open .cal-day-popover {
+      display: block;
+    }
+    .cal-day-popover-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .cal-day-popover-event {
+      font-size: 12px;
+      color: var(--text);
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cal-day-popover-event:last-child { border-bottom: none; }
+    .cal-day-popover-empty {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ─── WEEK VIEW ──────────────────────────────────── */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .week-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .week-col-header {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: var(--accent-light);
+    }
+    .week-col-day-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .week-col-day-num {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .week-col.today .week-col-header {
+      background: var(--accent);
+    }
+    .week-col.today .week-col-day-name,
+    .week-col.today .week-col-day-num {
+      color: var(--white);
+    }
+    .week-col-events {
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 120px;
+    }
+    .week-event-chip {
+      font-size: 11px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      color: var(--white);
+      line-height: 1.3;
+      font-weight: 500;
+    }
+    .chip-goal    { background: #606C38; }
+    .chip-life    { background: #4a9ebb; }
+    .chip-connect { background: #7a8b5c; }
+    .chip-key     { background: #5b8fd4; }
+    .chip-personal{ background: #9b7dd4; }
+
+    /* ─── Add Event Modal ────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.2s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 5px;
+    }
+    .modal-input {
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .modal-input:focus { border-color: var(--accent); }
+    .modal-select {
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+    .modal-textarea {
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 72px;
+      transition: border-color 0.15s;
+    }
+    .modal-textarea:focus { border-color: var(--accent); }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    /* ─── Invite Field ───────────────────────────────── */
+    .invite-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .invite-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px 4px 6px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: opacity 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .invite-chip.selected { opacity: 1; }
+    .invite-chip.deselected { opacity: 0.4; border-color: var(--border); }
+    .chip-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .chip-zein { background: #e8ede0; color: #4a5c28; border-color: #b5c89a; }
+    .chip-zein .chip-avatar { background: #7a8b5c; }
+    .chip-ala  { background: #fef3e2; color: #8a5020; border-color: #e8c78a; }
+    .chip-ala .chip-avatar  { background: #DDA15E; }
+
+    .invite-someone-link {
+      font-size: 12px;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .invite-someone-link:hover { opacity: 0.75; }
+
+    .invite-extra-input {
+      margin-top: 6px;
+      width: 100%;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .invite-extra-input:focus { border-color: var(--accent); }
+
+    /* ─── Toast ─────────────────────────────────────── */
+    .fos-toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text);
+      color: var(--bg);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .fos-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── Mobile Tab Bar ─────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 8px 0 env(safe-area-inset-bottom, 8px);
+      z-index: 200;
+    }
+    .tab-bar-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: color 0.15s;
+      color: var(--muted);
+    }
+    .tab-item.active { color: var(--accent); }
+    .tab-item-icon { font-size: 20px; line-height: 1; }
+    .tab-item-label { font-size: 10px; font-weight: 500; }
+
+    /* ─── Generic Modal ─────────────────────────────── */
+    .generic-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 9100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .generic-modal-overlay.open {
+      display: flex;
+    }
+    .generic-modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp 0.2s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .generic-modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .generic-modal-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .generic-modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .not-now-link {
+      font-size: 13px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      padding: 4px;
+    }
+    .not-now-link:hover { color: var(--accent); }
+
+    /* iCal modal */
+    .ical-option {
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ical-option:hover { background: #e2e6d0; border-color: var(--accent); }
+    .ical-option-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .ical-option-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .ical-url-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+    .ical-url-text {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--accent);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ical-copy-btn {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-light);
+      border: none;
+      border-radius: 5px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .ical-copy-btn:hover { background: var(--border); }
+    .ical-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    /* ─── Categories Modal ───────────────────────────── */
+    .cat-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-row:last-of-type { border-bottom: none; }
+    .cat-color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .cat-color-dot:hover { border-color: var(--accent); }
+    .cat-name-input {
+      flex: 1;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .cat-name-input:focus { background: var(--accent-light); }
+    .cat-delete-btn {
+      font-size: 14px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 5px;
+      transition: background 0.15s, color 0.15s;
+      opacity: 0.5;
+    }
+    .cat-delete-btn:hover { background: #fdeee6; color: #c0392b; opacity: 1; }
+    .cat-delete-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+    .add-cat-section {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .add-cat-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .add-cat-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .emoji-picker-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .emoji-opt {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      background: var(--accent-light);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .emoji-opt:hover, .emoji-opt.selected {
+      border-color: var(--accent);
+      background: #e0e6cc;
+    }
+    .color-picker-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .color-opt {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .color-opt:hover, .color-opt.selected {
+      border-color: var(--text);
+      transform: scale(1.15);
+    }
+    .add-cat-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .add-cat-input:focus { border-color: var(--accent); }
+    .add-cat-btn {
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      width: fit-content;
+    }
+    .add-cat-btn:hover { opacity: 0.85; }
+
+    /* Inline color picker popup */
+    .color-picker-popup {
+      display: none;
+      position: absolute;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: var(--shadow-md);
+      z-index: 9200;
+      gap: 6px;
+      flex-wrap: wrap;
+      width: 160px;
+    }
+    .color-picker-popup.open {
+      display: flex;
+    }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .tab-bar { display: block; }
+      .main { margin-left: 0; padding: 24px 18px 90px; }
+      .page-title { font-size: 22px; }
+      .week-grid { grid-template-columns: repeat(4, 1fr); }
+      .cal-grid { gap: 1px; }
+      .cal-day { min-height: 54px; }
+      .page-header { gap: 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .week-grid { grid-template-columns: repeat(3, 1fr); }
+      .header-actions { gap: 6px; }
+      .btn-sm { padding: 6px 10px; font-size: 11px; }
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li>
+        <a href="connect.html" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+          <span id="vaultExpiryBadge" style="background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;">1</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" data-nav="us">
+          <span class="nav-icon">👥</span>
+          My Unit
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" class="active" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────── -->
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-title-block">
+        <h1 class="page-title">Schedule 📅</h1>
+        <p class="page-subtitle">Your shared calendar — life, dates, and everything in between.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-sm btn-outline" onclick="openICalModal()">📤 Export iCal</button>
+        <button class="btn btn-sm btn-green" onclick="openGcalModal()">🗓️ Sync with Google Calendar</button>
+        <button class="btn btn-sm btn-primary" onclick="openAddEvent()">+ Add event</button>
+      </div>
+    </div>
+
+    <!-- View Toggle Row -->
+    <div class="view-toggle-row">
+      <div class="view-toggle">
+        <button class="view-tab" onclick="switchView('month', this)">Month</button>
+        <button class="view-tab" onclick="switchView('week', this)">Week</button>
+        <button class="view-tab active" onclick="switchView('agenda', this)">Agenda</button>
+      </div>
+      <button class="manage-categories-btn" onclick="openCategoriesModal()">⚙️ Manage categories</button>
+    </div>
+
+    <!-- This Week Banner -->
+    <div class="this-week-banner visible" id="thisWeekBanner">
+      <div class="this-week-header">
+        <span class="this-week-label">📆 This week</span>
+        <span class="this-week-count" id="thisWeekCount"></span>
+      </div>
+      <div class="this-week-pills" id="thisWeekPills"></div>
+    </div>
+
+    <!-- ─── AGENDA VIEW ─────────────────────────────── -->
+    <div class="agenda-view" id="agendaView">
+
+      <!-- March 2026 -->
+      <div class="agenda-month-group">
+        <div class="agenda-month-label">March 2026</div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">25</div>
+            <div class="agenda-day-name">Wed</div>
+          </div>
+          <span class="agenda-dot dot-personal"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🩺 Zein's physio appointment
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action" onclick="removeEvent(this)" title="Remove">×</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">26</div>
+            <div class="agenda-day-name">Thu</div>
+          </div>
+          <span class="agenda-dot dot-connect"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              💬 Weekly check-in
+              <span class="agenda-badge badge-connect">from Connect</span>
+              <span class="badge-recur">🔁 Weekly</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Auto-pulled from Connect">🔒</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">28</div>
+            <div class="agenda-day-name">Sat</div>
+          </div>
+          <span class="agenda-dot dot-goal"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🏥 Hospital bags deadline
+              <span class="agenda-badge badge-goal">from Goals</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Auto-pulled from Goals">🔒</button>
+        </div>
+      </div>
+
+      <!-- April 2026 -->
+      <div class="agenda-month-group">
+        <div class="agenda-month-label">April 2026</div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">2</div>
+            <div class="agenda-day-name">Thu</div>
+          </div>
+          <span class="agenda-dot dot-key"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🎂 Ala's Birthday
+              <span class="agenda-badge badge-unit">from My Unit</span>
+              <span class="badge-recur">🔁 Yearly</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from My Unit">🔒</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">5</div>
+            <div class="agenda-day-name">Sun</div>
+          </div>
+          <span class="agenda-dot dot-event"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🎉 Jello Day Party at Nasab
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action" onclick="removeEvent(this)" title="Remove">×</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">10</div>
+            <div class="agenda-day-name">Fri</div>
+          </div>
+          <span class="agenda-dot dot-life"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🌊 Sri Lanka Trip — Departure
+              <span class="agenda-badge badge-life">from Life</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from Life">🔒</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">15</div>
+            <div class="agenda-day-name">Wed</div>
+          </div>
+          <span class="agenda-dot dot-goal"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              💰 Jello House fundraise deadline
+              <span class="agenda-badge badge-goal">from Goals</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Auto-pulled from Goals">🔒</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">20</div>
+            <div class="agenda-day-name">Sun</div>
+          </div>
+          <span class="agenda-dot dot-life"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🌊 Sri Lanka Trip — Return
+              <span class="agenda-badge badge-life">from Life</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from Life">🔒</button>
+        </div>
+      </div>
+
+      <!-- May 2026 -->
+      <div class="agenda-month-group" id="mayGroup">
+        <div class="agenda-month-label">May 2026</div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">1</div>
+            <div class="agenda-day-name">Fri</div>
+          </div>
+          <span class="agenda-dot dot-goal"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🚗 Car decision deadline
+              <span class="agenda-badge badge-goal">from Goals</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Auto-pulled from Goals">🔒</button>
+        </div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">—</div>
+            <div class="agenda-day-name">May</div>
+          </div>
+          <span class="agenda-dot dot-life"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              ✈️ May 2026 — Amman visit
+              <span class="agenda-badge badge-life">from Life</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from Life">🔒</button>
+        </div>
+      </div>
+
+      <!-- August 2026 -->
+      <div class="agenda-month-group">
+        <div class="agenda-month-label">August 2026</div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">—</div>
+            <div class="agenda-day-name">Aug</div>
+          </div>
+          <span class="agenda-dot dot-unit"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              👶 Baby due date (est.)
+              <span class="agenda-badge badge-unit">from My Unit</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+                <span class="attendee-avatar avatar-ala">A</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from My Unit">🔒</button>
+        </div>
+      </div>
+
+      <!-- November 2026 -->
+      <div class="agenda-month-group">
+        <div class="agenda-month-label">November 2026</div>
+
+        <div class="agenda-event-row">
+          <div class="agenda-date-block">
+            <div class="agenda-day-num">3</div>
+            <div class="agenda-day-name">Tue</div>
+          </div>
+          <span class="agenda-dot dot-key"></span>
+          <div class="agenda-event-info">
+            <div class="agenda-event-name">
+              🎂 Zein's Birthday
+              <span class="agenda-badge badge-unit">from My Unit</span>
+              <span class="badge-recur">🔁 Yearly</span>
+              <div class="attendee-avatars">
+                <span class="attendee-avatar avatar-zein">Z</span>
+              </div>
+            </div>
+          </div>
+          <button class="agenda-event-action locked" title="Synced from My Unit">🔒</button>
+        </div>
+      </div>
+
+    </div><!-- /agenda-view -->
+
+    <!-- ─── MONTH VIEW ───────────────────────────────── -->
+    <div class="month-view" id="monthView">
+      <div class="month-nav">
+        <button class="month-nav-btn" onclick="prevMonth()">← Prev</button>
+        <div class="month-nav-title" id="monthTitle">March 2026</div>
+        <button class="month-nav-btn" onclick="nextMonth()">Next →</button>
+      </div>
+      <div class="cal-grid" id="calGrid">
+        <!-- generated by JS -->
+      </div>
+    </div>
+
+    <!-- ─── WEEK VIEW ────────────────────────────────── -->
+    <div class="week-view" id="weekView">
+      <div style="margin-bottom:16px; font-size:13px; color:var(--muted);">Week of March 23 – 29, 2026</div>
+      <div class="week-grid">
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Mon</div>
+            <div class="week-col-day-num">23</div>
+          </div>
+          <div class="week-col-events"></div>
+        </div>
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Tue</div>
+            <div class="week-col-day-num">24</div>
+          </div>
+          <div class="week-col-events"></div>
+        </div>
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Wed</div>
+            <div class="week-col-day-num">25</div>
+          </div>
+          <div class="week-col-events">
+            <div class="week-event-chip chip-personal">🩺 Zein's physio</div>
+          </div>
+        </div>
+
+        <div class="week-col today">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Thu</div>
+            <div class="week-col-day-num">26</div>
+          </div>
+          <div class="week-col-events">
+            <div class="week-event-chip chip-connect">💬 Weekly check-in</div>
+          </div>
+        </div>
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Fri</div>
+            <div class="week-col-day-num">27</div>
+          </div>
+          <div class="week-col-events"></div>
+        </div>
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Sat</div>
+            <div class="week-col-day-num">28</div>
+          </div>
+          <div class="week-col-events">
+            <div class="week-event-chip chip-goal">🏥 Hospital bags deadline</div>
+          </div>
+        </div>
+
+        <div class="week-col">
+          <div class="week-col-header">
+            <div class="week-col-day-name">Sun</div>
+            <div class="week-col-day-num">29</div>
+          </div>
+          <div class="week-col-events"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Tab Bar ──────────────────────────────── -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <a href="dashboard.html" class="tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="tab-item" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="tab-item" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="tab-item" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ─── Add Event Modal ─────────────────────────────── -->
+<div class="modal-overlay" id="addEventModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">+ Add event</div>
+
+    <div class="modal-field">
+      <label class="modal-label">Event name</label>
+      <input class="modal-input" id="newEventName" type="text" placeholder="e.g. Doctor appointment" />
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Date</label>
+      <input class="modal-input" id="newEventDate" type="date" value="2026-03-26" />
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Category</label>
+      <select class="modal-select" id="newEventCategory">
+        <option value="personal">Personal</option>
+        <option value="key">Key date</option>
+        <option value="event">Event</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Recurrence</label>
+      <select class="modal-select" id="newEventRecurrence">
+        <option value="none">None</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Biweekly</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select>
+    </div>
+
+    <!-- Invite field -->
+    <div class="modal-field">
+      <label class="modal-label">Invite</label>
+      <div class="invite-chips" id="inviteChips">
+        <div class="invite-chip chip-zein selected" data-name="Zein" onclick="toggleInviteChip(this)">
+          <span class="chip-avatar">Z</span>
+          Zein
+        </div>
+        <div class="invite-chip chip-ala selected" data-name="Ala" onclick="toggleInviteChip(this)">
+          <span class="chip-avatar">A</span>
+          Ala
+        </div>
+      </div>
+      <button class="invite-someone-link" id="inviteSomeoneBtn" onclick="showInviteInput()">+ Invite someone else</button>
+      <input class="invite-extra-input" id="inviteExtraInput" type="text" placeholder="Name or email..." style="display:none;" />
+    </div>
+
+    <div class="modal-field">
+      <label class="modal-label">Notes (optional)</label>
+      <textarea class="modal-textarea" id="newEventNotes" placeholder="Any extra details..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="addEvent()" style="flex:1; justify-content:center;">Add event</button>
+      <button class="btn btn-outline" onclick="closeAddEvent()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Google Calendar Modal ──────────────────────── -->
+<div class="generic-modal-overlay" id="gcalModal" onclick="handleGenericOverlayClick(event, 'gcalModal')">
+  <div class="generic-modal">
+    <div class="generic-modal-title">Connect Google Calendar</div>
+    <div class="generic-modal-body">
+      Sync your Unit schedule directly with Google Calendar. Events will appear automatically — no manual export needed.
+    </div>
+    <div class="generic-modal-actions">
+      <button class="btn btn-green" style="justify-content:center;" onclick="gcalConnectClick()">Connect with Google →</button>
+      <button class="not-now-link" onclick="closeModal('gcalModal')">Not now</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── iCal Modal ──────────────────────────────────── -->
+<div class="generic-modal-overlay" id="icalModal" onclick="handleGenericOverlayClick(event, 'icalModal')">
+  <div class="generic-modal">
+    <div class="generic-modal-title">Export Calendar</div>
+    <div style="margin-bottom:14px;">
+      <div class="ical-option" onclick="showSubscribeOption()">
+        <div class="ical-option-title">🔗 Subscribe to Calendar</div>
+        <div class="ical-option-desc">Add a live URL to any calendar app for automatic updates.</div>
+        <div id="subscribeDetails" style="display:none;">
+          <div class="ical-url-row">
+            <span class="ical-url-text">https://familyos.app/calendar/haddad-family.ics</span>
+            <button class="ical-copy-btn" onclick="copyICalUrl(event)">Copy</button>
+          </div>
+          <div class="ical-note">Add this URL to any calendar app for automatic updates</div>
+        </div>
+      </div>
+      <div class="ical-option" onclick="icalDownloadClick()">
+        <div class="ical-option-title">⬇️ Download .ics</div>
+        <div class="ical-option-desc">Download a snapshot of your calendar as an .ics file.</div>
+      </div>
+    </div>
+    <button class="not-now-link" onclick="closeModal('icalModal')">Close</button>
+  </div>
+</div>
+
+<!-- ─── Manage Categories Modal ─────────────────────── -->
+<div class="generic-modal-overlay" id="categoriesModal" onclick="handleGenericOverlayClick(event, 'categoriesModal')">
+  <div class="generic-modal" style="max-width:460px;">
+    <div class="generic-modal-title">Manage Categories</div>
+    <div id="catList"></div>
+    <div class="add-cat-section">
+      <div class="add-cat-title">+ Add category</div>
+      <div class="add-cat-form">
+        <div>
+          <div class="modal-label">Pick emoji</div>
+          <div class="emoji-picker-row" id="newCatEmojiPicker"></div>
+        </div>
+        <div>
+          <div class="modal-label">Name</div>
+          <input class="add-cat-input" id="newCatName" type="text" placeholder="Category name..." />
+        </div>
+        <div>
+          <div class="modal-label">Color</div>
+          <div class="color-picker-row" id="newCatColorPicker"></div>
+        </div>
+        <button class="add-cat-btn" onclick="addCategory()">Add category</button>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="not-now-link" onclick="closeModal('categoriesModal')">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Today reference: treat "today" as March 26, 2026 (page context)
+  const TODAY = new Date(2026, 2, 26); // month is 0-indexed
+
+  // ─── View switcher
+  function switchView(view, btn) {
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('agendaView').style.display = view === 'agenda' ? 'block' : 'none';
+    document.getElementById('monthView').style.display  = view === 'month'  ? 'block' : 'none';
+    document.getElementById('weekView').style.display   = view === 'week'   ? 'block' : 'none';
+    document.getElementById('thisWeekBanner').style.display = view === 'agenda' ? 'block' : 'none';
+    if (view === 'month') renderCalendar();
+  }
+
+  // ─── Generic modal helpers
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  function handleGenericOverlayClick(e, id) {
+    if (e.target === document.getElementById(id)) closeModal(id);
+  }
+
+  // ─── Google Calendar Modal
+  function openGcalModal() {
+    document.getElementById('gcalModal').classList.add('open');
+  }
+  function gcalConnectClick() {
+    closeModal('gcalModal');
+    showToast('Google Calendar sync coming soon — this will require OAuth in the full version');
+  }
+
+  // ─── iCal Modal
+  function openICalModal() {
+    document.getElementById('subscribeDetails').style.display = 'none';
+    document.getElementById('icalModal').classList.add('open');
+  }
+  function showSubscribeOption() {
+    const details = document.getElementById('subscribeDetails');
+    details.style.display = details.style.display === 'none' ? 'block' : 'none';
+  }
+  function copyICalUrl(e) {
+    e.stopPropagation();
+    navigator.clipboard.writeText('https://familyos.app/calendar/haddad-family.ics').catch(() => {});
+    showToast('Calendar URL copied ✓');
+  }
+  function icalDownloadClick() {
+    closeModal('icalModal');
+    showToast('Download coming soon');
+  }
+
+  // ─── Remove manually added event
+  function removeEvent(btn) {
+    const row = btn.closest('.agenda-event-row');
+    row.style.transition = 'opacity 0.25s, transform 0.25s';
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(20px)';
+    setTimeout(() => { row.remove(); buildThisWeek(); }, 260);
+    showToast('Event removed');
+  }
+
+  // ─── Add Event Modal
+  function openAddEvent() {
+    document.getElementById('addEventModal').classList.add('open');
+    document.getElementById('newEventName').focus();
+    document.querySelectorAll('.invite-chip').forEach(c => {
+      c.classList.remove('deselected');
+      c.classList.add('selected');
+    });
+    document.getElementById('inviteExtraInput').style.display = 'none';
+    document.getElementById('inviteExtraInput').value = '';
+    document.getElementById('inviteSomeoneBtn').style.display = 'inline';
+    document.getElementById('newEventRecurrence').value = 'none';
+  }
+  function closeAddEvent() {
+    document.getElementById('addEventModal').classList.remove('open');
+  }
+  function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('addEventModal')) closeAddEvent();
+  }
+
+  // ─── Invite chip toggle
+  function toggleInviteChip(chip) {
+    if (chip.classList.contains('selected')) {
+      chip.classList.replace('selected', 'deselected');
+    } else {
+      chip.classList.replace('deselected', 'selected');
+    }
+  }
+
+  function showInviteInput() {
+    const input = document.getElementById('inviteExtraInput');
+    const btn   = document.getElementById('inviteSomeoneBtn');
+    input.style.display = 'block';
+    btn.style.display = 'none';
+    input.focus();
+  }
+
+  function getSelectedAttendees() {
+    const attendees = [];
+    document.querySelectorAll('.invite-chip.selected').forEach(chip => attendees.push(chip.dataset.name));
+    const extra = document.getElementById('inviteExtraInput').value.trim();
+    if (extra) attendees.push(extra);
+    return attendees;
+  }
+
+  // Category config
+  const catConfig = {
+    personal: { dot: 'dot-personal', badge: null, emoji: '📌' },
+    key:      { dot: 'dot-key',      badge: null, emoji: '📌' },
+    event:    { dot: 'dot-event',    badge: null, emoji: '🎉' },
+    other:    { dot: 'dot-personal', badge: null, emoji: '📌' }
+  };
+
+  const dayNames   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // ─── Recurrence helpers
+  const recurLabels = {
+    daily:     'Daily',
+    weekly:    'Weekly',
+    biweekly:  'Biweekly',
+    monthly:   'Monthly',
+    yearly:    'Yearly'
+  };
+
+  function nextOccurrences(startDate, recur, count) {
+    const dates = [];
+    const d = new Date(startDate);
+    for (let i = 0; i < count; i++) {
+      switch (recur) {
+        case 'daily':    d.setDate(d.getDate() + 1); break;
+        case 'weekly':   d.setDate(d.getDate() + 7); break;
+        case 'biweekly': d.setDate(d.getDate() + 14); break;
+        case 'monthly':  d.setMonth(d.getMonth() + 1); break;
+        case 'yearly':   d.setFullYear(d.getFullYear() + 1); break;
+        default: return dates;
+      }
+      dates.push(new Date(d));
+    }
+    return dates;
+  }
+
+  function buildEventRow(dayNum, dayName, dotClass, name, badgeHtml, recurHtml, avatarsHtml, locked) {
+    return `
+      <div class="agenda-event-row" style="opacity:0;transform:translateY(-8px);">
+        <div class="agenda-date-block">
+          <div class="agenda-day-num">${dayNum}</div>
+          <div class="agenda-day-name">${dayName}</div>
+        </div>
+        <span class="agenda-dot ${dotClass}"></span>
+        <div class="agenda-event-info">
+          <div class="agenda-event-name">
+            ${name}
+            ${badgeHtml}
+            ${recurHtml}
+            ${avatarsHtml}
+          </div>
+        </div>
+        ${locked
+          ? '<button class="agenda-event-action locked" title="Recurring event">🔒</button>'
+          : '<button class="agenda-event-action" onclick="removeEvent(this)" title="Remove">×</button>'
+        }
+      </div>
+    `;
+  }
+
+  function insertRowInGroup(group, newRow, dayNum) {
+    const existingRows = [...group.querySelectorAll('.agenda-event-row')];
+    let inserted = false;
+    for (const r of existingRows) {
+      const rDay = parseInt(r.querySelector('.agenda-day-num').textContent) || 0;
+      if (!isNaN(dayNum) && dayNum <= rDay) {
+        group.insertBefore(newRow, r);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) group.appendChild(newRow);
+  }
+
+  function findOrCreateMonthGroup(monthKey, refDate) {
+    let group = null;
+    document.querySelectorAll('.agenda-month-group').forEach(g => {
+      if (g.querySelector('.agenda-month-label').textContent === monthKey) group = g;
+    });
+    if (!group) {
+      group = document.createElement('div');
+      group.className = 'agenda-month-group';
+      group.innerHTML = `<div class="agenda-month-label">${monthKey}</div>`;
+      const groups = [...document.querySelectorAll('.agenda-month-group')];
+      const agendaView = document.getElementById('agendaView');
+      let inserted = false;
+      for (const g of groups) {
+        const gLabel = g.querySelector('.agenda-month-label').textContent;
+        const gDate  = new Date('1 ' + gLabel);
+        if (refDate < gDate) {
+          agendaView.insertBefore(group, g);
+          inserted = true;
+          break;
+        }
+      }
+      if (!inserted) agendaView.appendChild(group);
+    }
+    return group;
+  }
+
+  function addEvent() {
+    const name      = document.getElementById('newEventName').value.trim();
+    const dateVal   = document.getElementById('newEventDate').value;
+    const cat       = document.getElementById('newEventCategory').value;
+    const recur     = document.getElementById('newEventRecurrence').value;
+    const attendees = getSelectedAttendees();
+
+    if (!name || !dateVal) { showToast('Please fill in name and date'); return; }
+
+    const d = new Date(dateVal + 'T00:00:00');
+    const conf = catConfig[cat] || catConfig.other;
+
+    const avatarMap = { 'Zein': 'avatar-zein', 'Ala': 'avatar-ala' };
+    const avatarsHtml = attendees.length > 0 ? `
+      <div class="attendee-avatars">
+        ${attendees.map(a => {
+          const cls = avatarMap[a] || 'avatar-other';
+          return `<span class="attendee-avatar ${cls}">${a[0].toUpperCase()}</span>`;
+        }).join('')}
+      </div>` : '';
+
+    const recurHtml = recur !== 'none'
+      ? `<span class="badge-recur">🔁 ${recurLabels[recur]}</span>` : '';
+
+    // All occurrences to add: the base date + next 2 if recurring
+    const allDates = [d];
+    if (recur !== 'none') {
+      allDates.push(...nextOccurrences(d, recur, 2));
+    }
+
+    allDates.forEach(dt => {
+      const dayNum    = dt.getDate();
+      const dayName   = dayNames[dt.getDay()];
+      const monthKey  = `${monthNames[dt.getMonth()]} ${dt.getFullYear()}`;
+      const rowHtml   = buildEventRow(
+        dayNum, dayName, conf.dot,
+        `${conf.emoji} ${name}`, '', recurHtml, avatarsHtml, false
+      );
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = rowHtml.trim();
+      const newRow = tempDiv.firstChild;
+      const group  = findOrCreateMonthGroup(monthKey, dt);
+      insertRowInGroup(group, newRow, dayNum);
+      requestAnimationFrame(() => {
+        newRow.style.transition = 'opacity 0.3s, transform 0.3s';
+        newRow.style.opacity    = '1';
+        newRow.style.transform  = 'translateY(0)';
+      });
+    });
+
+    document.getElementById('newEventName').value  = '';
+    document.getElementById('newEventNotes').value = '';
+    closeAddEvent();
+    buildThisWeek();
+    showToast(recur !== 'none'
+      ? `Event added with ${allDates.length} occurrences ✓`
+      : 'Event added ✓'
+    );
+  }
+
+  // ─── This Week Banner
+  function buildThisWeek() {
+    const start = new Date(TODAY);
+    const end   = new Date(TODAY);
+    end.setDate(end.getDate() + 7);
+
+    // Collect events from agenda rows
+    const pills = [];
+
+    document.querySelectorAll('.agenda-month-group').forEach(group => {
+      const labelText = group.querySelector('.agenda-month-label').textContent; // e.g. "March 2026"
+      const parts = labelText.split(' ');
+      const monthIdx = monthNames.indexOf(parts[0]);
+      const year = parseInt(parts[1]);
+      if (isNaN(monthIdx) || isNaN(year)) return;
+
+      group.querySelectorAll('.agenda-event-row').forEach(row => {
+        const dayNumEl = row.querySelector('.agenda-day-num');
+        const dayNum = parseInt(dayNumEl ? dayNumEl.textContent : '');
+        if (isNaN(dayNum)) return;
+        const evtDate = new Date(year, monthIdx, dayNum);
+        if (evtDate >= start && evtDate < end) {
+          const nameEl = row.querySelector('.agenda-event-name');
+          if (nameEl) {
+            // Get just the text (first text node)
+            let text = '';
+            nameEl.childNodes.forEach(n => {
+              if (n.nodeType === 3) text += n.textContent.trim();
+            });
+            if (!text) text = nameEl.textContent.trim().split('\n')[0].trim();
+            if (text) pills.push({ text: text.substring(0, 30) });
+          }
+        }
+      });
+    });
+
+    const pillsEl = document.getElementById('thisWeekPills');
+    const countEl = document.getElementById('thisWeekCount');
+
+    if (pills.length === 0) {
+      pillsEl.innerHTML = '<span class="this-week-empty">No events this week</span>';
+      countEl.textContent = '0 events';
+    } else {
+      pillsEl.innerHTML = pills.map(p =>
+        `<span class="this-week-pill">${p.text}</span>`
+      ).join('');
+      countEl.textContent = `${pills.length} event${pills.length !== 1 ? 's' : ''} this week`;
+    }
+  }
+
+  // ─── Month calendar data (comprehensive)
+  let calMonth = TODAY.getMonth();
+  let calYear  = TODAY.getFullYear();
+
+  // Events keyed by "YYYY-M-D" (month 1-indexed)
+  const calEvents = {
+    '2026-3-25': [{ dot: 'dot-personal', label: '🩺 Physio' }],
+    '2026-3-26': [{ dot: 'dot-connect',  label: '💬 Check-in' }],
+    '2026-3-28': [{ dot: 'dot-goal',     label: '🏥 Hospital bags' }],
+    '2026-4-2':  [{ dot: 'dot-key',      label: '🎂 Ala\'s Birthday' }],
+    '2026-4-5':  [{ dot: 'dot-event',    label: '🎉 Jello Day Party' }],
+    '2026-4-10': [{ dot: 'dot-life',     label: '🌊 Sri Lanka depart' }],
+    '2026-4-15': [{ dot: 'dot-goal',     label: '💰 Fundraise deadline' }],
+    '2026-4-20': [{ dot: 'dot-life',     label: '🌊 Sri Lanka return' }],
+    '2026-5-1':  [{ dot: 'dot-goal',     label: '🚗 Car decision' }],
+    '2026-11-3': [{ dot: 'dot-key',      label: '🎂 Zein\'s Birthday' }],
+  };
+
+  function renderCalendar() {
+    const grid  = document.getElementById('calGrid');
+    const title = document.getElementById('monthTitle');
+    title.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    const dayHeaders = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    let html = dayHeaders.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+    const firstDay   = new Date(calYear, calMonth, 1);
+    let startCol = firstDay.getDay() - 1;
+    if (startCol < 0) startCol = 6;
+
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+    for (let i = 0; i < startCol; i++) {
+      html += `<div class="cal-day empty"></div>`;
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key    = `${calYear}-${calMonth + 1}-${d}`;
+      const evts   = calEvents[key] || [];
+      const isToday = (calYear === TODAY.getFullYear() && calMonth === TODAY.getMonth() && d === TODAY.getDate());
+
+      const dotsHtml = evts.slice(0, 2).map(e =>
+        `<div class="cal-dot ${e.dot}"></div>`
+      ).join('');
+
+      const pillsHtml = evts.slice(0, 2).map(e =>
+        `<div class="cal-pill">${e.label}</div>`
+      ).join('');
+
+      const popoverEventsHtml = evts.length > 0
+        ? evts.map(e => `<div class="cal-day-popover-event"><span>${e.label}</span></div>`).join('')
+        : `<div class="cal-day-popover-empty">No events</div>`;
+
+      const monthLabel = monthNames[calMonth];
+
+      html += `
+        <div class="cal-day${isToday ? ' today' : ''}" onclick="toggleCalPopover(this, event)">
+          <div class="cal-day-num">${d}</div>
+          <div class="cal-pills">${pillsHtml || `<div class="cal-dots">${dotsHtml}</div>`}</div>
+          <div class="cal-day-popover">
+            <div class="cal-day-popover-title">${monthLabel} ${d}</div>
+            ${popoverEventsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    grid.innerHTML = html;
+  }
+
+  // Track open popover cell
+  let _openPopoverCell = null;
+
+  function toggleCalPopover(cell, e) {
+    e.stopPropagation();
+    if (_openPopoverCell && _openPopoverCell !== cell) {
+      _openPopoverCell.classList.remove('popover-open');
+    }
+    cell.classList.toggle('popover-open');
+    _openPopoverCell = cell.classList.contains('popover-open') ? cell : null;
+  }
+
+  document.addEventListener('click', () => {
+    if (_openPopoverCell) {
+      _openPopoverCell.classList.remove('popover-open');
+      _openPopoverCell = null;
+    }
+  });
+
+  function prevMonth() {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+  function nextMonth() {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  }
+
+  // ─── Categories Modal
+  const PRESET_COLORS = ['#606C38','#7a8b5c','#5b8fd4','#DDA15E','#BC6C25','#9b7dd4','#e07b4a','#c0392b'];
+  const PRESET_EMOJIS = ['🌟','⚡','💎','🔥','🌿','🎯','🎨','🏃'];
+
+  let categories = [
+    { id: 1, emoji: '🟢', name: 'Goals',     color: '#606C38', used: true  },
+    { id: 2, emoji: '🟡', name: 'Travel',    color: '#4a9ebb', used: true  },
+    { id: 3, emoji: '🔵', name: 'Key dates', color: '#5b8fd4', used: true  },
+    { id: 4, emoji: '🟤', name: 'Connect',   color: '#7a8b5c', used: true  },
+    { id: 5, emoji: '⚪', name: 'Personal',  color: '#9b7dd4', used: false },
+    { id: 6, emoji: '⚪', name: 'Event',     color: '#e07b4a', used: false },
+  ];
+
+  let newCatSelectedEmoji = PRESET_EMOJIS[0];
+  let newCatSelectedColor = PRESET_COLORS[0];
+
+  function renderCategoryList() {
+    const list = document.getElementById('catList');
+    list.innerHTML = categories.map(cat => `
+      <div class="cat-row" data-cat-id="${cat.id}">
+        <div class="cat-color-dot" style="background:${cat.color};" title="Change color"
+          onclick="openColorPickerFor(${cat.id}, this)"></div>
+        <input class="cat-name-input" type="text" value="${cat.name}"
+          onblur="updateCatName(${cat.id}, this.value)" />
+        <button class="cat-delete-btn" onclick="deleteCategory(${cat.id})"
+          ${cat.used ? 'disabled title="In use — remove events first"' : ''}>×</button>
+      </div>
+    `).join('');
+  }
+
+  function updateCatName(id, value) {
+    const cat = categories.find(c => c.id === id);
+    if (cat && value.trim()) cat.name = value.trim();
+  }
+
+  function deleteCategory(id) {
+    const cat = categories.find(c => c.id === id);
+    if (!cat || cat.used) return;
+    categories = categories.filter(c => c.id !== id);
+    renderCategoryList();
+    showToast('Category removed');
+  }
+
+  let _colorPickerCatId = null;
+
+  function openColorPickerFor(catId, dotEl) {
+    const existing = document.getElementById('_colorPickerPopup');
+    if (existing) existing.remove();
+    if (_colorPickerCatId === catId) { _colorPickerCatId = null; return; }
+    _colorPickerCatId = catId;
+
+    const popup = document.createElement('div');
+    popup.id = '_colorPickerPopup';
+    popup.className = 'color-picker-popup open';
+    popup.style.position = 'fixed';
+
+    PRESET_COLORS.forEach(col => {
+      const opt = document.createElement('div');
+      opt.className = 'color-opt';
+      opt.style.background = col;
+      opt.onclick = () => {
+        const cat = categories.find(c => c.id === catId);
+        if (cat) { cat.color = col; dotEl.style.background = col; }
+        popup.remove();
+        _colorPickerCatId = null;
+      };
+      popup.appendChild(opt);
+    });
+
+    document.body.appendChild(popup);
+    const rect = dotEl.getBoundingClientRect();
+    popup.style.top  = (rect.bottom + 4) + 'px';
+    popup.style.left = rect.left + 'px';
+
+    setTimeout(() => {
+      document.addEventListener('click', function handler(e) {
+        if (!popup.contains(e.target) && e.target !== dotEl) {
+          popup.remove();
+          _colorPickerCatId = null;
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 10);
+  }
+
+  function addCategory() {
+    const name = document.getElementById('newCatName').value.trim();
+    if (!name) { showToast('Enter a category name'); return; }
+    categories.push({ id: Date.now(), emoji: newCatSelectedEmoji, name, color: newCatSelectedColor, used: false });
+    document.getElementById('newCatName').value = '';
+    renderCategoryList();
+    showToast('Category added ✓');
+  }
+
+  function renderEmojiPicker() {
+    const row = document.getElementById('newCatEmojiPicker');
+    row.innerHTML = PRESET_EMOJIS.map(em =>
+      `<div class="emoji-opt ${em === newCatSelectedEmoji ? 'selected' : ''}" onclick="selectEmoji('${em}')">${em}</div>`
+    ).join('');
+  }
+
+  function selectEmoji(em) {
+    newCatSelectedEmoji = em;
+    renderEmojiPicker();
+  }
+
+  function renderColorPickerNew() {
+    const row = document.getElementById('newCatColorPicker');
+    row.innerHTML = PRESET_COLORS.map(col =>
+      `<div class="color-opt ${col === newCatSelectedColor ? 'selected' : ''}" style="background:${col};"
+        onclick="selectNewColor('${col}')"></div>`
+    ).join('');
+  }
+
+  function selectNewColor(col) {
+    newCatSelectedColor = col;
+    renderColorPickerNew();
+  }
+
+  function openCategoriesModal() {
+    renderCategoryList();
+    renderEmojiPicker();
+    renderColorPickerNew();
+    document.getElementById('categoriesModal').classList.add('open');
+  }
+
+  // ─── Toast
+  function showToast(message) {
+    const existing = document.querySelector('.fos-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'fos-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  }
+
+  // ─── Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeAddEvent();
+      closeModal('gcalModal');
+      closeModal('icalModal');
+      closeModal('categoriesModal');
+      const popup = document.getElementById('_colorPickerPopup');
+      if (popup) popup.remove();
+    }
+    if (e.key === 'Enter' && document.getElementById('addEventModal').classList.contains('open')) {
+      addEvent();
+    }
+  });
+
+  // ─── Init
+  renderCalendar();
+  buildThisWeek();
+</script>
+
+</body>
+</html>

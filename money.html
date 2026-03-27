@@ -1,0 +1,5221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Money</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ────────────────────────────────────── */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ───────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--deep-warm) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── Main Content ──────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: 980px;
+    }
+
+    /* ─── Page Header ───────────────────────────────── */
+    .page-header {
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .page-header-text {}
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    .header-btn {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+    }
+
+    .header-btn:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .header-btn.primary-btn {
+      background: var(--accent-light);
+      border-color: rgba(96, 108, 56, 0.25);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .header-btn.primary-btn:hover {
+      background: rgba(96, 108, 56, 0.2);
+    }
+
+    /* ─── Person Toggle ─────────────────────────────── */
+    .person-toggle-wrap {
+      margin-bottom: 28px;
+    }
+
+    .person-toggle {
+      display: inline-flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .person-pill {
+      padding: 8px 22px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+
+    .person-pill:hover:not(.active) {
+      color: var(--text);
+      background: var(--accent-light);
+    }
+
+    .person-pill.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.3);
+    }
+
+    .person-toggle-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+
+    /* ─── Section ───────────────────────────────────── */
+    .section {
+      margin-bottom: 36px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .section-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* ─── Overview Stats ────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 16px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-green {
+      background: rgba(96, 108, 56, 0.12);
+      color: var(--accent);
+    }
+
+    .badge-amber {
+      background: rgba(221, 161, 94, 0.18);
+      color: var(--deep-warm);
+    }
+
+    .badge-muted {
+      background: var(--accent-light);
+      color: var(--muted);
+    }
+
+    .badge-import {
+      background: rgba(96, 108, 56, 0.1);
+      color: var(--accent);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(96, 108, 56, 0.2);
+    }
+
+    .badge-recommended {
+      background: var(--warm);
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .stat-progress-bar-wrap {
+      height: 5px;
+      background: var(--border);
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .stat-progress-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: var(--accent);
+    }
+
+    .stat-progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .stat-icon {
+      font-size: 18px;
+      float: right;
+      opacity: 0.5;
+    }
+
+    .stat-link {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* ─── Data Sync Status Card ─────────────────────── */
+    .sync-status-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sync-status-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .sync-status-text {
+      flex: 1;
+    }
+
+    .sync-status-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .sync-status-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .sync-status-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .sync-btn {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .sync-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .sync-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    /* ─── Budget/Finances Tracker Section ───────────── */
+    .budget-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .tabs-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      background: var(--bg);
+      align-items: center;
+    }
+
+    .tab-btn {
+      padding: 14px 18px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tabs-bar-spacer {
+      flex: 1;
+    }
+
+    .tab-edit-btn {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      margin: 0 0 0 8px;
+    }
+
+    .tab-edit-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .tab-edit-btn.visible {
+      display: flex;
+    }
+
+    .tab-edit-btn.active-edit {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-color: rgba(96, 108, 56, 0.4);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 28px 28px 24px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Donut chart */
+    .donut-wrap {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      margin-bottom: 28px;
+    }
+
+    .donut-chart-container {
+      flex-shrink: 0;
+    }
+
+    .donut-legend {
+      flex: 1;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .legend-item:last-child {
+      border-bottom: none;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-name {
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .legend-pct {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      width: 36px;
+      text-align: right;
+    }
+
+    .legend-amount {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      width: 80px;
+      text-align: right;
+    }
+
+    .budget-used-bar {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    .budget-used-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .budget-used-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .budget-used-amount {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .budget-bar-wrap {
+      height: 8px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .budget-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--accent), #8FAF5A);
+      transition: width 0.5s ease;
+    }
+
+    /* Income tab */
+    .income-tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .income-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .income-col {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .income-col-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .income-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
+    }
+
+    .income-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .income-row-label {
+      font-size: 13px;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .income-row-pencil {
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+      padding: 2px;
+    }
+
+    .income-row:hover .income-row-pencil {
+      opacity: 0.6;
+    }
+
+    .income-row-pencil:hover {
+      opacity: 1 !important;
+    }
+
+    .income-row-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      margin-top: 4px;
+      border-top: 1.5px solid var(--border);
+    }
+
+    .income-total-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .income-total-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .income-add-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 6px 0;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .income-add-btn:hover {
+      color: var(--accent);
+    }
+
+    /* Editable amount */
+    .editable-amount {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.15s;
+      padding: 1px 2px;
+      border-radius: 3px;
+    }
+
+    .editable-amount:hover {
+      border-bottom-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .editable-input {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      padding: 2px 6px;
+      background: white;
+      width: 110px;
+      outline: none;
+    }
+
+    /* Expenses tab */
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .expense-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+    }
+
+    .expense-row:hover {
+      background: var(--accent-light);
+    }
+
+    .drag-handle {
+      color: var(--border);
+      font-size: 14px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .expense-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .expense-name {
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .expense-amount {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .expense-edit {
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+      padding: 2px;
+    }
+
+    .expense-row:hover .expense-edit {
+      opacity: 0.7;
+    }
+
+    .expense-edit:hover {
+      opacity: 1 !important;
+    }
+
+    .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 8px 14px;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .add-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ─── Goals (Redesigned) ────────────────────────── */
+    .goals-section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .goals-section-title-wrap {}
+
+    .goals-section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .goals-section-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .goals-section-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .goals-add-header-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .goals-add-header-btn:hover {
+      background: #505a2e;
+    }
+
+    .goals-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .goal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px 16px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+
+    .goal-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .goal-card-top-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .goal-type-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .goal-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .goal-owner-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      flex-shrink: 0;
+    }
+
+    .goal-owner-unit {
+      background: rgba(40, 54, 24, 0.1);
+      color: var(--text);
+    }
+
+    .goal-owner-zein {
+      background: rgba(96, 108, 56, 0.14);
+      color: var(--accent);
+    }
+
+    .goal-owner-ala {
+      background: rgba(221, 161, 94, 0.2);
+      color: var(--deep-warm);
+    }
+
+    .goal-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .goal-status-on-track {
+      background: rgba(96, 108, 56, 0.12);
+      color: var(--accent);
+    }
+
+    .goal-status-behind {
+      background: rgba(221, 161, 94, 0.22);
+      color: var(--deep-warm);
+    }
+
+    .goal-type-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .goal-bar-wrap {
+      height: 7px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .goal-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+
+    .goal-progress-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .goal-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .goal-stat-item {}
+
+    .goal-stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .goal-stat-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+    }
+
+    .goal-stat-value.urgent {
+      color: #c0392b;
+    }
+
+    .goal-days-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .goal-days-urgent {
+      background: rgba(192, 57, 43, 0.1);
+      color: #c0392b;
+    }
+
+    .goal-days-amber {
+      background: rgba(221, 161, 94, 0.2);
+      color: var(--deep-warm);
+    }
+
+    .goal-days-normal {
+      background: var(--accent-light);
+      color: var(--muted);
+    }
+
+    .goal-view-details-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .goal-view-details-toggle:hover {
+      color: var(--text);
+    }
+
+    .goal-details-section {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .goal-details-section.open {
+      display: block;
+    }
+
+    .goal-notes-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .goal-notes-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      resize: vertical;
+      min-height: 56px;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 10px;
+    }
+
+    .goal-notes-textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .goal-monthly-needed {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .goal-monthly-needed strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .goal-tracking-status {
+      font-size: 12px;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .goal-tracking-on {
+      background: rgba(96, 108, 56, 0.09);
+      color: var(--accent);
+    }
+
+    .goal-tracking-off {
+      background: rgba(221, 161, 94, 0.15);
+      color: var(--deep-warm);
+    }
+
+    .goal-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .goal-action-btn {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .goal-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .goal-action-btn.delete-btn:hover {
+      border-color: #c0392b;
+      color: #c0392b;
+      background: rgba(192, 57, 43, 0.06);
+    }
+
+    /* Goal Summary Card */
+    .goal-summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-top: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .goal-summary-stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .goal-summary-stat-item {}
+
+    .goal-summary-stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .goal-summary-stat-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .goal-summary-progress-wrap {
+      height: 6px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .goal-summary-progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: var(--accent);
+      transition: width 0.4s ease;
+    }
+
+    .goal-summary-progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Add Goal Modal */
+    .add-goal-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.4);
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .add-goal-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .add-goal-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      max-width: 520px;
+      width: 92%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+
+    .add-goal-modal-overlay.open .add-goal-modal {
+      transform: translateY(0);
+    }
+
+    .add-goal-modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .add-goal-form-group {
+      margin-bottom: 14px;
+    }
+
+    .add-goal-form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .add-goal-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .add-goal-input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-goal-input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .goal-type-pill-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .goal-type-pill-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .goal-type-pill-card:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .goal-type-pill-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .goal-type-pill-note {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    .add-goal-two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .add-goal-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .add-goal-submit-btn {
+      padding: 10px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .add-goal-submit-btn:hover {
+      background: #505a2e;
+    }
+
+    .add-goal-cancel-link {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .add-goal-cancel-link:hover {
+      color: var(--text);
+    }
+
+    .goals-add-wrap {
+      margin-top: 14px;
+    }
+
+    /* ─── Investments ────────────────────────────────── */
+    .investments-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .investment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .investment-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .investment-person {
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+    }
+
+    .investment-last-updated {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .investment-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .investment-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .investment-icon {
+      font-size: 16px;
+      width: 22px;
+      text-align: center;
+    }
+
+    .investment-name {
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .investment-name-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .investment-amount {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .investment-total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      margin-top: 6px;
+      border-top: 1.5px solid var(--border);
+    }
+
+    .investment-total-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .investment-total-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .investment-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .investment-add:hover {
+      color: var(--accent);
+    }
+
+    .investment-add-icon {
+      width: 20px;
+      height: 20px;
+      border: 1.5px dashed var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: border-color 0.15s;
+    }
+
+    .investment-add:hover .investment-add-icon {
+      border-color: var(--accent);
+    }
+
+    /* ─── Debt Tracker ──────────────────────────────── */
+    .debt-section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 6px;
+    }
+
+    .debt-section-title-wrap {}
+
+    .debt-section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .debt-section-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .debt-section-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .debt-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .debt-add-btn:hover {
+      background: #505a2e;
+    }
+
+    /* Debt Cards */
+    .debt-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .debt-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px 18px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+    }
+
+    .debt-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .debt-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .debt-card-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+    }
+
+    .debt-card-lender {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .debt-owner-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .debt-owner-ala {
+      background: rgba(221, 161, 94, 0.2);
+      color: var(--deep-warm);
+    }
+
+    .debt-owner-zein {
+      background: rgba(96, 108, 56, 0.14);
+      color: var(--accent);
+    }
+
+    .debt-owner-both {
+      background: rgba(40, 54, 24, 0.1);
+      color: var(--text);
+    }
+
+    .debt-type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+    }
+
+    .debt-card-spacer {
+      flex: 1;
+    }
+
+    /* Progress */
+    .debt-card-progress {
+      margin-bottom: 16px;
+    }
+
+    .debt-progress-bar-wrap {
+      height: 8px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .debt-progress-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      background: var(--accent);
+      transition: width 0.5s ease;
+    }
+
+    .debt-progress-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Key stats */
+    .debt-card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .debt-stat-item {}
+
+    .debt-stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .debt-stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+    }
+
+    /* Details toggle */
+    .debt-details-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .debt-details-toggle:hover {
+      color: var(--text);
+    }
+
+    .debt-details-section {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .debt-details-section.open {
+      display: block;
+    }
+
+    .debt-details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+      margin-bottom: 16px;
+    }
+
+    .debt-detail-row {}
+
+    .debt-detail-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .debt-detail-value {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Strategy pills */
+    .strategy-pills {
+      display: inline-flex;
+      gap: 4px;
+      background: var(--accent-light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px;
+    }
+
+    .strategy-pill {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .strategy-pill.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* What-if calculator */
+    .whatif-calc {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .whatif-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .whatif-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .whatif-text {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .whatif-input {
+      width: 90px;
+      padding: 6px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .whatif-input:focus {
+      border-color: var(--accent);
+    }
+
+    .whatif-result {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+    }
+
+    .debt-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .debt-action-btn {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .debt-action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .debt-action-btn.delete-btn:hover {
+      border-color: #c0392b;
+      color: #c0392b;
+      background: rgba(192, 57, 43, 0.06);
+    }
+
+    /* Repayment Strategy Summary Card */
+    .repayment-summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-top: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .repayment-summary-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .repayment-strategy-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .repayment-strategy-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .repayment-strategy-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    .repayment-summary-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .repayment-stat {}
+
+    .repayment-stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .repayment-stat-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Add Debt Modal */
+    .add-debt-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.4);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .add-debt-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .add-debt-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      max-width: 520px;
+      width: 92%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+
+    .add-debt-modal-overlay.open .add-debt-modal {
+      transform: translateY(0);
+    }
+
+    .add-debt-modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .add-debt-form-group {
+      margin-bottom: 14px;
+    }
+
+    .add-debt-form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .add-debt-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .add-debt-input:focus {
+      border-color: var(--accent);
+    }
+
+    .add-debt-input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    /* Owner radio cards */
+    .owner-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .owner-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 8px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      background: var(--bg);
+    }
+
+    .owner-card:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .owner-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* Loan type / strategy pill selector */
+    .pill-selector {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-select-btn {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+
+    .pill-select-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .pill-select-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .add-debt-two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .add-debt-modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .add-debt-submit-btn {
+      padding: 10px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .add-debt-submit-btn:hover {
+      background: #505a2e;
+    }
+
+    .add-debt-cancel-link {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .add-debt-cancel-link:hover {
+      color: var(--text);
+    }
+
+    .debt-last-updated {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .debt-add-wrap {
+      margin-top: 12px;
+    }
+
+    /* ─── Import Section ────────────────────────────── */
+    .import-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .import-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .import-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 36px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .drop-zone-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-zone-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .drop-zone-text {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .drop-zone-formats {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .drop-zone-browse {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .import-processing {
+      display: none;
+      text-align: center;
+      padding: 28px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .import-processing.visible {
+      display: block;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .processing-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .import-review {
+      display: none;
+    }
+
+    .import-review.visible {
+      display: block;
+    }
+
+    .review-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .review-group {
+      margin-bottom: 18px;
+    }
+
+    .review-group-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .review-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    .review-table th {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      padding: 9px 12px;
+      text-align: left;
+      background: var(--accent-light);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .review-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    .review-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .review-table input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .review-add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      padding: 11px 24px;
+      background: #3a7d44;
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .review-add-btn:hover {
+      background: #2e6336;
+    }
+
+    .import-synced-note {
+      display: none;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .import-synced-note.visible {
+      display: block;
+    }
+
+    /* ─── Google Sheets Redesigned ──────────────────── */
+    .sheets-full-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sheets-full-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .sheets-full-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .sheets-how-it-works {
+      margin-bottom: 28px;
+    }
+
+    .sheets-how-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .sheets-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .sheets-step {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      position: relative;
+    }
+
+    .sheets-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .sheets-step-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .sheets-step-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .sheets-connect-section {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .sheets-connect-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .sheets-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .sheets-input {
+      flex: 1;
+      padding: 11px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .sheets-input:focus {
+      border-color: var(--accent);
+    }
+
+    .sheets-input::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .sheets-connect-btn {
+      padding: 11px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .sheets-connect-btn:hover {
+      background: #505a2e;
+    }
+
+    .sheets-connect-btn:active {
+      transform: scale(0.97);
+    }
+
+    .sheets-tip {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--accent-light);
+      border: 1px solid rgba(96, 108, 56, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      line-height: 1.5;
+    }
+
+    /* ─── Privacy Modal ─────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 28px 24px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.55;
+    }
+
+    .modal-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .modal-option {
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg);
+    }
+
+    .modal-option:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .modal-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .modal-option-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+
+    .modal-option.selected .modal-option-radio {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .modal-option.selected .modal-option-radio::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .modal-option-body {}
+
+    .modal-option-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .modal-option-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-option-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .modal-save-btn {
+      padding: 10px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .modal-save-btn:hover {
+      background: #505a2e;
+    }
+
+    .modal-cancel-link {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .modal-cancel-link:hover {
+      color: var(--text);
+    }
+
+    /* ─── Setup Overlay ─────────────────────────────── */
+    .setup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.4);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.25s;
+    }
+
+    .setup-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 36px 28px;
+      max-width: 680px;
+      width: 92%;
+      box-shadow: 0 16px 60px rgba(40, 54, 24, 0.2);
+      transform: translateY(0);
+      transition: transform 0.25s;
+    }
+
+    .setup-overlay.hidden .setup-card {
+      transform: translateY(16px);
+    }
+
+    .setup-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.3px;
+    }
+
+    .setup-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .setup-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .setup-option {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .setup-option:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 4px 16px rgba(96, 108, 56, 0.12);
+    }
+
+    .setup-option-badge {
+      position: absolute;
+      top: -1px;
+      right: 12px;
+    }
+
+    .setup-option-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .setup-option-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .setup-option-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+      flex: 1;
+    }
+
+    .setup-option-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: auto;
+    }
+
+    .setup-option-btn:hover {
+      background: #505a2e;
+    }
+
+    .setup-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .setup-footer-note {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .setup-skip-link {
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+
+    .setup-skip-link:hover {
+      color: var(--text);
+    }
+
+    /* ─── Toast ─────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--text);
+      color: var(--bg);
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-md);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Mobile Tab Bar ────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+
+    .tab-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 0 6px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 12px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      text-decoration: none;
+    }
+
+    .tab-item.active {
+      opacity: 1;
+    }
+
+    .tab-item-icon {
+      font-size: 18px;
+    }
+
+    .tab-item-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .tab-item.active .tab-item-label {
+      color: var(--accent);
+    }
+
+    /* ─── Responsive ────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 16px 100px;
+      }
+
+      .tab-bar {
+        display: block;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .donut-wrap {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .income-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .goals-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .goal-type-pill-selector {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .investments-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .setup-options {
+        grid-template-columns: 1fr;
+      }
+
+      .sheets-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .header-actions {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .stat-value {
+        font-size: 18px;
+      }
+
+      .person-toggle {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li>
+        <a href="connect.html" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" class="active" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+          <span id="vaultExpiryBadge" style="background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;">1</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" data-nav="us">
+          <span class="nav-icon">👥</span>
+          My Unit
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main ─── -->
+  <main class="main">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1 class="page-title">Finances Tracker</h1>
+        <p class="page-subtitle">Your financial life, together.</p>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn" onclick="openPrivacyModal()">⚙️ Privacy</button>
+        <button class="header-btn primary-btn" onclick="showSetupOverlay()">⚙️ Data sources</button>
+      </div>
+    </div>
+
+    <!-- ─── Person Toggle ─── -->
+    <div class="person-toggle-wrap">
+      <div class="person-toggle-label">Viewing as</div>
+      <div class="person-toggle">
+        <button class="person-pill active" onclick="switchPerson('unit', this)">Unit</button>
+        <button class="person-pill" onclick="switchPerson('zein', this)">Zein</button>
+        <button class="person-pill" onclick="switchPerson('ala', this)">Ala</button>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 1: Overview Stats ─── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Overview</span>
+        <span class="section-link">March 2026</span>
+      </div>
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-label">Net Worth</div>
+          <div class="stat-value" id="statNetWorth">AED 142,500</div>
+          <span class="stat-badge badge-green">↑ +2.3% this month</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Income vs Spend</div>
+          <div class="stat-value" style="font-size:15px; line-height:1.4;" id="statIncomeSpend">AED 16,400 in · 5,100 out</div>
+          <div class="stat-progress-bar-wrap">
+            <div class="stat-progress-bar-fill" id="statSpendBar" style="width: 31%;"></div>
+          </div>
+          <div class="stat-progress-label" id="statSpendLabel">31% of income spent</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">
+            Savings Rate
+            <span class="stat-icon">📊</span>
+          </div>
+          <div class="stat-value" id="statSavingsRate">37.8%</div>
+          <span class="stat-badge badge-green" id="statSavingsBadge">Above target</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Goals</div>
+          <div class="stat-value" style="font-size: 18px;">3 active</div>
+          <div class="stat-sub">1 on track</div>
+          <a class="stat-link" href="#goalsSection">View goals →</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── SECTION 2: Data Sync Status ─── -->
+    <div class="section" id="syncStatusSection">
+      <div class="section-header">
+        <span class="section-label">Data Source</span>
+      </div>
+      <div class="sync-status-card" id="syncStatusCard">
+        <div class="sync-status-icon">📊</div>
+        <div class="sync-status-text">
+          <div class="sync-status-label">Connected · Last synced: 2 minutes ago</div>
+          <div class="sync-status-sub">Google Sheets · finances-2026.sheets.google.com</div>
+        </div>
+        <div class="sync-status-actions">
+          <button class="sync-btn" onclick="showToast('Syncing… ✓ Up to date')">Sync now</button>
+          <a class="sync-link" href="#" onclick="event.preventDefault(); showToast('Opening sheet…')">View sheet ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 3: Finances Tracker (Budget) ─── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Finances Tracker</span>
+      </div>
+      <div class="budget-card">
+        <div class="tabs-bar" id="financeTabsBar">
+          <button class="tab-btn active" onclick="switchFinanceTab('overview', this)">Overview</button>
+          <button class="tab-btn" onclick="switchFinanceTab('income', this)">Income</button>
+          <button class="tab-btn" onclick="switchFinanceTab('expenses', this)">Expenses</button>
+          <div class="tabs-bar-spacer"></div>
+          <button class="tab-edit-btn" id="tabEditBtn" onclick="toggleEditMode(this)">✏️ Edit</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-panel active" id="tab-overview">
+          <div class="donut-wrap">
+            <div class="donut-chart-container">
+              <svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#606C38" stroke-width="26" stroke-dasharray="131.95 376.99" stroke-dashoffset="0" transform="rotate(-90 80 80)" />
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#DDA15E" stroke-width="26" stroke-dasharray="75.40 376.99" stroke-dashoffset="-131.95" transform="rotate(-90 80 80)" />
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#BC6C25" stroke-width="26" stroke-dasharray="45.24 376.99" stroke-dashoffset="-207.35" transform="rotate(-90 80 80)" />
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#8FAF5A" stroke-width="26" stroke-dasharray="67.86 376.99" stroke-dashoffset="-252.59" transform="rotate(-90 80 80)" />
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#C8B89A" stroke-width="26" stroke-dasharray="56.55 376.99" stroke-dashoffset="-320.45" transform="rotate(-90 80 80)" />
+                <text x="80" y="75" text-anchor="middle" font-family="Sora, sans-serif" font-size="14" font-weight="600" fill="#283618">AED</text>
+                <text x="80" y="93" text-anchor="middle" font-family="Sora, sans-serif" font-size="14" font-weight="600" fill="#283618" id="donutTotal">5,100</text>
+              </svg>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #606C38;"></span>
+                <span class="legend-name">Housing</span>
+                <span class="legend-pct">35%</span>
+                <span class="legend-amount">AED 1,785</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #DDA15E;"></span>
+                <span class="legend-name">Food</span>
+                <span class="legend-pct">20%</span>
+                <span class="legend-amount">AED 1,020</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #BC6C25;"></span>
+                <span class="legend-name">Transport</span>
+                <span class="legend-pct">12%</span>
+                <span class="legend-amount">AED 612</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #8FAF5A;"></span>
+                <span class="legend-name">Savings</span>
+                <span class="legend-pct">18%</span>
+                <span class="legend-amount">AED 918</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: #C8B89A;"></span>
+                <span class="legend-name">Other</span>
+                <span class="legend-pct">15%</span>
+                <span class="legend-amount">AED 765</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="overview-totals" style="display:flex; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:90px; background:rgba(96,108,56,0.08); border-radius:10px; padding:10px 14px; text-align:center;">
+              <div style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Income</div>
+              <div id="overviewIncome" style="font-size:16px; font-weight:700; color:#283618; margin-top:3px;">AED 16,400</div>
+            </div>
+            <div style="flex:1; min-width:90px; background:rgba(188,108,37,0.08); border-radius:10px; padding:10px 14px; text-align:center;">
+              <div style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Expenses</div>
+              <div id="overviewExpenses" style="font-size:16px; font-weight:700; color:#BC6C25; margin-top:3px;">AED 5,100</div>
+            </div>
+            <div style="flex:1; min-width:90px; background:rgba(143,175,90,0.12); border-radius:10px; padding:10px 14px; text-align:center;">
+              <div style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Savings</div>
+              <div id="overviewSavings" style="font-size:16px; font-weight:700; color:#606C38; margin-top:3px;">AED 11,300</div>
+            </div>
+          </div>
+
+          <div class="budget-used-bar">
+            <div class="budget-used-label">
+              <span class="budget-used-text">Budget used this month</span>
+              <span class="budget-used-amount" id="budgetUsedAmount">AED 5,100 / AED 7,500</span>
+            </div>
+            <div class="budget-bar-wrap">
+              <div class="budget-bar-fill" id="budgetBarFill" style="width: 68%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Income Tab -->
+        <div class="tab-panel" id="tab-income">
+          <div class="income-cols" id="incomeCols">
+            <!-- Unit view: two cols -->
+            <div class="income-col" id="incomeColZein">
+              <div class="income-col-name">💚 Zein</div>
+              <div class="income-row">
+                <span class="income-row-label">Salary</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 4,200</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row">
+                <span class="income-row-label">Freelance</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 800</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row">
+                <span class="income-row-label">Consulting</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 2,200</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row-total">
+                <span class="income-total-label">Total</span>
+                <span class="income-total-value">AED 7,200</span>
+              </div>
+              <button class="income-add-btn" onclick="showToast('Add income source coming soon')">+ Add income source</button>
+            </div>
+            <div class="income-col" id="incomeColAla">
+              <div class="income-col-name">🧡 Ala</div>
+              <div class="income-row">
+                <span class="income-row-label">Web0 / Agency</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 6,500</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row">
+                <span class="income-row-label">Freelance</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 1,800</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row">
+                <span class="income-row-label">Other</span>
+                <span class="editable-amount" onclick="makeEditable(this)">AED 900</span>
+                <span class="income-row-pencil" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+              </div>
+              <div class="income-row-total">
+                <span class="income-total-label">Total</span>
+                <span class="income-total-value">AED 9,200</span>
+              </div>
+              <button class="income-add-btn" onclick="showToast('Add income source coming soon')">+ Add income source</button>
+            </div>
+          </div>
+          <p style="font-size: 12px; color: var(--muted); margin-top: 14px;">Click any amount to edit inline. Changes sync automatically.</p>
+        </div>
+
+        <!-- Expenses Tab -->
+        <div class="tab-panel" id="tab-expenses">
+          <div class="expense-list" id="expensesList">
+            <!-- dynamically rendered by updateExpenses() -->
+          </div>
+          <button class="add-btn" onclick="showToast('Add expense coming soon')">+ Add expense</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 4: Goals ─── -->
+    <div class="section" id="goalsSection">
+      <!-- Goals Section Header -->
+      <div class="goals-section-header">
+        <div class="goals-section-title-wrap">
+          <div class="goals-section-title">Goals</div>
+          <div class="goals-section-subtitle">What you're working towards, together.</div>
+        </div>
+        <button class="goals-add-header-btn" onclick="openAddGoalModal()">+ Add goal</button>
+      </div>
+      <div class="goals-section-meta" id="goalsSectionMeta">3 active goals · AED 51,200 total saved · Earliest deadline: Dec 31</div>
+
+      <!-- Goal Cards Grid -->
+      <div class="goals-grid" id="goalsGrid">
+
+        <!-- Goal 1: Emergency Fund -->
+        <div class="goal-card" id="goalCard-0" onclick="toggleGoalDetails(event, 'goal-details-0', 'goal-toggle-0')">
+          <div class="goal-card-top-row">
+            <span class="goal-type-icon">💰</span>
+            <span class="goal-name">Emergency Fund</span>
+            <span class="goal-owner-pill goal-owner-unit">Unit</span>
+            <span class="goal-status-badge goal-status-on-track">On track ✓</span>
+          </div>
+          <div class="goal-type-label">Savings goal</div>
+          <div class="goal-bar-wrap">
+            <div class="goal-bar-fill" style="width: 62%;"></div>
+          </div>
+          <div class="goal-progress-label">AED 31,000 of AED 50,000 · 62% complete</div>
+          <div class="goal-stats-row">
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Target</div>
+              <div class="goal-stat-value">AED 50,000</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Deadline</div>
+              <div class="goal-stat-value">Dec 31, 2026</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Remaining</div>
+              <div class="goal-stat-value">AED 19,000 left</div>
+            </div>
+          </div>
+          <span class="goal-days-tag goal-days-normal" id="goalDaysTag-0">281 days left</span>
+          <br/>
+          <button class="goal-view-details-toggle" id="goal-toggle-0" onclick="toggleGoalDetails(event, 'goal-details-0', 'goal-toggle-0')">View details →</button>
+          <div class="goal-details-section" id="goal-details-0">
+            <div class="goal-notes-label">Notes</div>
+            <textarea class="goal-notes-textarea" onclick="event.stopPropagation()">3-6 months of expenses. Priority.</textarea>
+            <div class="goal-monthly-needed">Monthly contribution needed: <strong id="goalMonthly-0">AED 248/mo</strong></div>
+            <div class="goal-tracking-status goal-tracking-on" id="goalTracking-0">✓ On track — you're ahead of schedule</div>
+            <div class="goal-card-actions">
+              <button class="goal-action-btn" onclick="event.stopPropagation(); showToast('Edit goal coming soon')">✏️ Edit</button>
+              <button class="goal-action-btn delete-btn" onclick="event.stopPropagation(); deleteGoalCard(0)">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goal 2: Jello House Fundraise -->
+        <div class="goal-card" id="goalCard-1" onclick="toggleGoalDetails(event, 'goal-details-1', 'goal-toggle-1')">
+          <div class="goal-card-top-row">
+            <span class="goal-type-icon">📈</span>
+            <span class="goal-name">Jello House Fundraise</span>
+            <span class="goal-owner-pill goal-owner-unit">Unit</span>
+            <span class="goal-status-badge goal-status-behind">Behind ⚠️</span>
+          </div>
+          <div class="goal-type-label">Investment target</div>
+          <div class="goal-bar-wrap">
+            <div class="goal-bar-fill" style="width: 35%;"></div>
+          </div>
+          <div class="goal-progress-label">AED 35,000 of AED 100,000 · 35% complete</div>
+          <div class="goal-stats-row">
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Target</div>
+              <div class="goal-stat-value">AED 100,000</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Deadline</div>
+              <div class="goal-stat-value">Jun 30, 2026</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Remaining</div>
+              <div class="goal-stat-value">AED 65,000 left</div>
+            </div>
+          </div>
+          <span class="goal-days-tag goal-days-amber" id="goalDaysTag-1">97 days left</span>
+          <br/>
+          <button class="goal-view-details-toggle" id="goal-toggle-1" onclick="toggleGoalDetails(event, 'goal-details-1', 'goal-toggle-1')">View details →</button>
+          <div class="goal-details-section" id="goal-details-1">
+            <div class="goal-notes-label">Notes</div>
+            <textarea class="goal-notes-textarea" onclick="event.stopPropagation()">Round 1 target. Need to close by end of Q2.</textarea>
+            <div class="goal-monthly-needed">Monthly contribution needed: <strong id="goalMonthly-1">AED 20,313/mo</strong></div>
+            <div class="goal-tracking-status goal-tracking-off" id="goalTracking-1">⚠️ Behind — you need to accelerate contributions</div>
+            <div class="goal-card-actions">
+              <button class="goal-action-btn" onclick="event.stopPropagation(); showToast('Edit goal coming soon')">✏️ Edit</button>
+              <button class="goal-action-btn delete-btn" onclick="event.stopPropagation(); deleteGoalCard(1)">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Goal 3: New Car -->
+        <div class="goal-card" id="goalCard-2" onclick="toggleGoalDetails(event, 'goal-details-2', 'goal-toggle-2')">
+          <div class="goal-card-top-row">
+            <span class="goal-type-icon">🛍️</span>
+            <span class="goal-name">New Car</span>
+            <span class="goal-owner-pill goal-owner-ala">Ala</span>
+            <span class="goal-status-badge goal-status-on-track">On track ✓</span>
+          </div>
+          <div class="goal-type-label">Purchase goal</div>
+          <div class="goal-bar-wrap">
+            <div class="goal-bar-fill" style="width: 8%;"></div>
+          </div>
+          <div class="goal-progress-label">AED 12,000 of AED 155,000 · 8% complete</div>
+          <div class="goal-stats-row">
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Target</div>
+              <div class="goal-stat-value">AED 155,000</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Deadline</div>
+              <div class="goal-stat-value">Aug 1, 2026</div>
+            </div>
+            <div class="goal-stat-item">
+              <div class="goal-stat-label">Remaining</div>
+              <div class="goal-stat-value">AED 143,000 left</div>
+            </div>
+          </div>
+          <span class="goal-days-tag goal-days-normal" id="goalDaysTag-2">129 days left</span>
+          <br/>
+          <button class="goal-view-details-toggle" id="goal-toggle-2" onclick="toggleGoalDetails(event, 'goal-details-2', 'goal-toggle-2')">View details →</button>
+          <div class="goal-details-section" id="goal-details-2">
+            <div class="goal-notes-label">Notes</div>
+            <textarea class="goal-notes-textarea" onclick="event.stopPropagation()">Tesla Model Y or Jetour X95. Budget max AED 155K.</textarea>
+            <div class="goal-monthly-needed">Monthly contribution needed: <strong id="goalMonthly-2">AED 33,267/mo</strong></div>
+            <div class="goal-tracking-status goal-tracking-on" id="goalTracking-2">✓ On track — keep it up</div>
+            <div class="goal-card-actions">
+              <button class="goal-action-btn" onclick="event.stopPropagation(); showToast('Edit goal coming soon')">✏️ Edit</button>
+              <button class="goal-action-btn delete-btn" onclick="event.stopPropagation(); deleteGoalCard(2)">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Goal Summary Card -->
+      <div class="goal-summary-card" id="goalSummaryCard">
+        <div class="goal-summary-stats">
+          <div class="goal-summary-stat-item">
+            <div class="goal-summary-stat-label">Total saved</div>
+            <div class="goal-summary-stat-value" id="goalSummaryTotal">AED 78,000</div>
+          </div>
+          <div class="goal-summary-stat-item">
+            <div class="goal-summary-stat-label">Total target</div>
+            <div class="goal-summary-stat-value" id="goalSummaryTarget">AED 305,000</div>
+          </div>
+          <div class="goal-summary-stat-item">
+            <div class="goal-summary-stat-label">Overall progress</div>
+            <div class="goal-summary-stat-value" id="goalSummaryPct">25.6%</div>
+          </div>
+        </div>
+        <div class="goal-summary-progress-wrap">
+          <div class="goal-summary-progress-fill" id="goalSummaryBar" style="width: 25.6%;"></div>
+        </div>
+        <div class="goal-summary-progress-label" id="goalSummaryLabel">AED 78,000 saved of AED 305,000 total across 3 goals</div>
+      </div>
+    </div>
+
+    <!-- Add Goal Modal -->
+    <div class="add-goal-modal-overlay" id="addGoalModal" onclick="handleAddGoalOverlayClick(event)">
+      <div class="add-goal-modal">
+        <div class="add-goal-modal-title">Add a new goal</div>
+
+        <div class="add-goal-form-group">
+          <label class="add-goal-form-label">Goal name *</label>
+          <input type="text" class="add-goal-input" id="newGoalName" placeholder="e.g. Vacation fund, New laptop…" />
+        </div>
+
+        <div class="add-goal-form-group">
+          <label class="add-goal-form-label">Goal type</label>
+          <div class="goal-type-pill-selector" id="newGoalTypeSelector">
+            <div class="goal-type-pill-card selected" data-val="Savings goal" data-icon="💰" onclick="selectGoalTypePill(this)">
+              💰 Savings goal
+            </div>
+            <div class="goal-type-pill-card" data-val="Investment target" data-icon="📈" onclick="selectGoalTypePill(this)">
+              📈 Investment target
+            </div>
+            <div class="goal-type-pill-card" data-val="Purchase goal" data-icon="🛍️" onclick="selectGoalTypePill(this)">
+              🛍️ Purchase goal
+            </div>
+            <div class="goal-type-pill-card" data-val="Debt payoff" data-icon="💳" onclick="selectGoalTypePill(this)">
+              💳 Debt payoff
+              <span class="goal-type-pill-note">Link to a debt in Debt Tracker</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-goal-two-cols">
+          <div class="add-goal-form-group">
+            <label class="add-goal-form-label">Target amount (AED) *</label>
+            <input type="number" class="add-goal-input" id="newGoalTarget" placeholder="50000" min="0" />
+          </div>
+          <div class="add-goal-form-group">
+            <label class="add-goal-form-label">Current amount (AED)</label>
+            <input type="number" class="add-goal-input" id="newGoalCurrent" placeholder="0" min="0" value="0" />
+          </div>
+        </div>
+
+        <div class="add-goal-form-group">
+          <label class="add-goal-form-label">Deadline *</label>
+          <input type="date" class="add-goal-input" id="newGoalDeadline" />
+        </div>
+
+        <div class="add-goal-form-group">
+          <label class="add-goal-form-label">Owner</label>
+          <div class="owner-cards">
+            <div class="owner-card selected" data-owner="Unit" onclick="selectGoalOwnerCard(this)">
+              <div style="font-weight:600;font-size:14px;">U</div>
+              Unit
+            </div>
+            <div class="owner-card" data-owner="Zein" onclick="selectGoalOwnerCard(this)">
+              <div style="font-weight:600;font-size:14px;">Z</div>
+              Zein
+            </div>
+            <div class="owner-card" data-owner="Ala" onclick="selectGoalOwnerCard(this)">
+              <div style="font-weight:600;font-size:14px;">A</div>
+              Ala
+            </div>
+          </div>
+        </div>
+
+        <div class="add-goal-form-group">
+          <label class="add-goal-form-label">Notes (optional)</label>
+          <textarea class="add-goal-input" id="newGoalNotes" placeholder="Any notes about this goal…" style="min-height:64px; resize:vertical;"></textarea>
+        </div>
+
+        <div class="add-goal-modal-actions">
+          <button class="add-goal-submit-btn" onclick="submitNewGoal()">Add goal ✓</button>
+          <span class="add-goal-cancel-link" onclick="closeAddGoalModal()">Cancel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 5: Investments ─── -->
+    <div class="section" id="investmentsSection">
+      <div class="section-header">
+        <span class="section-label">Investments</span>
+        <span class="section-link">Full transparency mode</span>
+      </div>
+      <div class="investments-cols" id="investmentsCols">
+        <div class="investment-card" id="investCardZein">
+          <div class="investment-card-header">
+            <div class="investment-person">💚 Zein</div>
+            <span class="investment-last-updated" id="zeinInvestLastUpdated">Last updated Mar 20</span>
+          </div>
+          <div class="investment-row">
+            <span class="investment-icon">📈</span>
+            <div class="investment-name-wrap">
+              <span class="investment-name">Stocks</span>
+              <span class="badge-import" id="zeinStocksBadge" style="display:none;">📎 from import</span>
+            </div>
+            <span class="investment-amount editable-amount" id="zeinStocksAmt" onclick="makeEditable(this)">AED 28,000</span>
+          </div>
+          <div class="investment-row">
+            <span class="investment-icon">🏦</span>
+            <span class="investment-name">Savings account</span>
+            <span class="investment-amount editable-amount" onclick="makeEditable(this)">AED 15,000</span>
+          </div>
+          <div class="investment-total-row">
+            <span class="investment-total-label">Total portfolio</span>
+            <span class="investment-total-value" id="zeinInvestTotal">AED 43,000</span>
+          </div>
+          <div class="investment-add" onclick="showToast('Add investment coming soon')">
+            <span class="investment-add-icon">+</span>
+            Add investment
+          </div>
+        </div>
+
+        <div class="investment-card" id="investCardAla">
+          <div class="investment-card-header">
+            <div class="investment-person">🧡 Ala</div>
+            <span class="investment-last-updated">Last updated Mar 18</span>
+          </div>
+          <div class="investment-row">
+            <span class="investment-icon">📈</span>
+            <span class="investment-name">Stocks</span>
+            <span class="investment-amount editable-amount" onclick="makeEditable(this)">AED 35,000</span>
+          </div>
+          <div class="investment-row">
+            <span class="investment-icon">₿</span>
+            <span class="investment-name">Crypto</span>
+            <span class="investment-amount editable-amount" onclick="makeEditable(this)">AED 8,500</span>
+          </div>
+          <div class="investment-row">
+            <span class="investment-icon">🏘</span>
+            <span class="investment-name">Real estate fund</span>
+            <span class="investment-amount editable-amount" onclick="makeEditable(this)">AED 20,000</span>
+          </div>
+          <div class="investment-total-row">
+            <span class="investment-total-label">Total portfolio</span>
+            <span class="investment-total-value">AED 63,500</span>
+          </div>
+          <div class="investment-add" onclick="showToast('Add investment coming soon')">
+            <span class="investment-add-icon">+</span>
+            Add investment
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 6: Debt Tracker ─── -->
+    <div class="section" id="debtTrackerSection">
+      <!-- Section Header -->
+      <div class="debt-section-header">
+        <div class="debt-section-title-wrap">
+          <div class="debt-section-title">Debt Tracker</div>
+          <div class="debt-section-subtitle">Track what you owe and when you'll be free.</div>
+        </div>
+        <button class="debt-add-btn" onclick="openAddDebtModal()">+ Add debt</button>
+      </div>
+      <div class="debt-section-meta" id="debtSectionMeta">Total outstanding: AED 30,100 across 2 debts</div>
+
+      <!-- Debt Cards -->
+      <div class="debt-cards-list" id="debtCardsList">
+
+        <!-- Card 1: Car Loan -->
+        <div class="debt-card" id="debtCard-0">
+          <div class="debt-card-header">
+            <span class="debt-card-name">🚗 Car Loan</span>
+            <span class="debt-card-lender">Emirates NBD</span>
+            <span class="debt-owner-pill debt-owner-ala">Ala</span>
+            <span class="debt-type-badge">Fixed</span>
+            <span class="debt-card-spacer"></span>
+          </div>
+          <div class="debt-card-progress">
+            <div class="debt-progress-bar-wrap">
+              <div class="debt-progress-bar-fill" id="carLoanBar" style="width: 38%;"></div>
+            </div>
+            <div class="debt-progress-label" id="carLoanProgressLabel">AED 28,000 remaining of AED 45,000 total — 38% paid off</div>
+          </div>
+          <div class="debt-card-stats">
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Monthly Payment</div>
+              <div class="debt-stat-value">AED 1,200/mo</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Interest Rate</div>
+              <div class="debt-stat-value">4.5% p.a.</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Payoff Date</div>
+              <div class="debt-stat-value">Mar 2028</div>
+            </div>
+          </div>
+          <button class="debt-details-toggle" onclick="toggleDebtDetails(this, 'debt-details-0')">View details →</button>
+          <div class="debt-details-section" id="debt-details-0">
+            <div class="debt-details-grid">
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Payment Due</div>
+                <div class="debt-detail-value">15th of every month</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Total Interest Remaining</div>
+                <div class="debt-detail-value">AED 2,340</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Months to Payoff</div>
+                <div class="debt-detail-value">24 months</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Strategy</div>
+                <div class="debt-detail-value">
+                  <div class="strategy-pills">
+                    <button class="strategy-pill active" onclick="selectStrategy(this, 'avalanche-0')">Avalanche</button>
+                    <button class="strategy-pill" onclick="selectStrategy(this, 'snowball-0')">Snowball</button>
+                    <button class="strategy-pill" onclick="selectStrategy(this, 'custom-0')">Custom</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="whatif-calc">
+              <div class="whatif-label">💡 What-if calculator</div>
+              <div class="whatif-row">
+                <span class="whatif-text">If I pay AED</span>
+                <input type="number" class="whatif-input" placeholder="extra" min="0" oninput="calcWhatIf(this, 28000, 1200, 4.5, 24, 'whatif-result-0')" />
+                <span class="whatif-text">extra/month, I'll pay it off</span>
+                <span class="whatif-result" id="whatif-result-0">—</span>
+                <span class="whatif-text" id="whatif-sooner-0"></span>
+              </div>
+            </div>
+            <div class="debt-card-actions">
+              <button class="debt-action-btn" onclick="showToast('Edit debt coming soon')">✏️ Edit</button>
+              <button class="debt-action-btn delete-btn" onclick="deleteDebtCard(0)">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Credit Card -->
+        <div class="debt-card" id="debtCard-1">
+          <div class="debt-card-header">
+            <span class="debt-card-name">💳 Credit Card</span>
+            <span class="debt-card-lender">ADCB</span>
+            <span class="debt-owner-pill debt-owner-both">Both</span>
+            <span class="debt-type-badge">Revolving</span>
+            <span class="debt-card-spacer"></span>
+          </div>
+          <div class="debt-card-progress">
+            <div class="debt-progress-bar-wrap">
+              <div class="debt-progress-bar-fill" style="width: 74%;"></div>
+            </div>
+            <div class="debt-progress-label">AED 2,100 remaining of AED 8,000 limit — 74% paid off</div>
+          </div>
+          <div class="debt-card-stats">
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Monthly Payment</div>
+              <div class="debt-stat-value">AED 500/mo</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Interest Rate</div>
+              <div class="debt-stat-value">24% p.a.</div>
+            </div>
+            <div class="debt-stat-item">
+              <div class="debt-stat-label">Payoff Date</div>
+              <div class="debt-stat-value">Aug 2026</div>
+            </div>
+          </div>
+          <button class="debt-details-toggle" onclick="toggleDebtDetails(this, 'debt-details-1')">View details →</button>
+          <div class="debt-details-section" id="debt-details-1">
+            <div class="debt-details-grid">
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Payment Due</div>
+                <div class="debt-detail-value">5th of every month</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Total Interest Remaining</div>
+                <div class="debt-detail-value">AED 180</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Months to Payoff</div>
+                <div class="debt-detail-value">5 months</div>
+              </div>
+              <div class="debt-detail-row">
+                <div class="debt-detail-label">Strategy</div>
+                <div class="debt-detail-value">
+                  <div class="strategy-pills">
+                    <button class="strategy-pill" onclick="selectStrategy(this, 'avalanche-1')">Avalanche</button>
+                    <button class="strategy-pill active" onclick="selectStrategy(this, 'snowball-1')">Snowball</button>
+                    <button class="strategy-pill" onclick="selectStrategy(this, 'custom-1')">Custom</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="whatif-calc">
+              <div class="whatif-label">💡 What-if calculator</div>
+              <div class="whatif-row">
+                <span class="whatif-text">If I pay AED</span>
+                <input type="number" class="whatif-input" placeholder="extra" min="0" oninput="calcWhatIf(this, 2100, 500, 24, 5, 'whatif-result-1')" />
+                <span class="whatif-text">extra/month, I'll pay it off</span>
+                <span class="whatif-result" id="whatif-result-1">—</span>
+                <span class="whatif-text" id="whatif-sooner-1"></span>
+              </div>
+            </div>
+            <div class="debt-card-actions">
+              <button class="debt-action-btn" onclick="showToast('Edit debt coming soon')">✏️ Edit</button>
+              <button class="debt-action-btn delete-btn" onclick="deleteDebtCard(1)">🗑 Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Repayment Strategy Summary Card -->
+      <div class="repayment-summary-card" id="repaymentSummaryCard">
+        <div class="repayment-summary-title">Your repayment approach</div>
+        <div class="repayment-strategy-row">
+          <span class="repayment-strategy-name" id="repaymentStrategyName">⚡ Avalanche Method</span>
+          <span class="stat-badge badge-green">Active</span>
+        </div>
+        <div class="repayment-strategy-desc" id="repaymentStrategyDesc">
+          Pay minimums on all debts, then throw every extra dirham at the highest-interest debt first. This minimises the total interest you'll pay — mathematically optimal.
+        </div>
+        <div class="repayment-summary-stats">
+          <div class="repayment-stat">
+            <div class="repayment-stat-label">Total interest across all debts</div>
+            <div class="repayment-stat-value" id="repaymentTotalInterest">AED 2,520</div>
+          </div>
+          <div class="repayment-stat">
+            <div class="repayment-stat-label">Debt-free date</div>
+            <div class="repayment-stat-value" id="repaymentFreeDate">March 2028</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="debt-last-updated" id="debtLastUpdated">Last updated Mar 20</div>
+    </div>
+
+    <!-- Add Debt Modal -->
+    <div class="add-debt-modal-overlay" id="addDebtModal" onclick="handleAddDebtOverlayClick(event)">
+      <div class="add-debt-modal">
+        <div class="add-debt-modal-title">Add a new debt</div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Debt name</label>
+          <input type="text" class="add-debt-input" id="newDebtName" placeholder="e.g. Car Loan, Personal Loan…" />
+        </div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Lender</label>
+          <input type="text" class="add-debt-input" id="newDebtLender" placeholder="e.g. Emirates NBD, ADCB…" />
+        </div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Owner</label>
+          <div class="owner-cards">
+            <div class="owner-card selected" data-owner="Zein" onclick="selectOwnerCard(this)">💚 Zein</div>
+            <div class="owner-card" data-owner="Ala" onclick="selectOwnerCard(this)">🧡 Ala</div>
+            <div class="owner-card" data-owner="Both" onclick="selectOwnerCard(this)">🤝 Both</div>
+          </div>
+        </div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Loan type</label>
+          <div class="pill-selector" id="newDebtTypeSelector">
+            <button class="pill-select-btn selected" data-val="Fixed" onclick="selectPill(this, 'newDebtTypeSelector')">Fixed</button>
+            <button class="pill-select-btn" data-val="Variable" onclick="selectPill(this, 'newDebtTypeSelector')">Variable</button>
+            <button class="pill-select-btn" data-val="Revolving" onclick="selectPill(this, 'newDebtTypeSelector')">Revolving</button>
+          </div>
+        </div>
+
+        <div class="add-debt-two-cols">
+          <div class="add-debt-form-group">
+            <label class="add-debt-form-label">Total amount (AED)</label>
+            <input type="number" class="add-debt-input" id="newDebtTotal" placeholder="45000" min="0" />
+          </div>
+          <div class="add-debt-form-group">
+            <label class="add-debt-form-label">Current balance (AED)</label>
+            <input type="number" class="add-debt-input" id="newDebtBalance" placeholder="28000" min="0" />
+          </div>
+        </div>
+
+        <div class="add-debt-two-cols">
+          <div class="add-debt-form-group">
+            <label class="add-debt-form-label">Monthly payment (AED)</label>
+            <input type="number" class="add-debt-input" id="newDebtMonthly" placeholder="1200" min="0" />
+          </div>
+          <div class="add-debt-form-group">
+            <label class="add-debt-form-label">Interest rate (%)</label>
+            <input type="number" class="add-debt-input" id="newDebtRate" placeholder="4.5" min="0" step="0.1" />
+          </div>
+        </div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Due date (day of month)</label>
+          <input type="number" class="add-debt-input" id="newDebtDueDate" placeholder="15" min="1" max="31" style="width: 120px;" />
+        </div>
+
+        <div class="add-debt-form-group">
+          <label class="add-debt-form-label">Repayment strategy</label>
+          <div class="pill-selector" id="newDebtStrategySelector">
+            <button class="pill-select-btn selected" data-val="Avalanche" onclick="selectPill(this, 'newDebtStrategySelector')">Avalanche</button>
+            <button class="pill-select-btn" data-val="Snowball" onclick="selectPill(this, 'newDebtStrategySelector')">Snowball</button>
+            <button class="pill-select-btn" data-val="Custom" onclick="selectPill(this, 'newDebtStrategySelector')">Custom</button>
+          </div>
+        </div>
+
+        <div class="add-debt-modal-actions">
+          <button class="add-debt-submit-btn" onclick="submitNewDebt()">Add debt</button>
+          <span class="add-debt-cancel-link" onclick="closeAddDebtModal()">Cancel</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 7: Import Data ─── -->
+    <div class="section" id="importSection">
+      <div class="section-header">
+        <span class="section-label">Import Data</span>
+      </div>
+      <div class="import-card">
+        <div class="import-title">Upload a statement</div>
+        <div class="import-subtitle">Upload a bank, credit card, or investment statement and we'll parse it for you.</div>
+
+        <div class="drop-zone" id="dropZone">
+          <input type="file" class="drop-zone-input" id="fileInput" accept=".pdf,.csv,.xls,.xlsx" onchange="handleFileUpload(this)" />
+          <div class="drop-zone-icon">📂</div>
+          <div class="drop-zone-text">Drag & drop your statement here</div>
+          <div class="drop-zone-formats">PDF, CSV, XLS — up to 10MB</div>
+          <div class="drop-zone-browse">or browse files</div>
+        </div>
+
+        <div class="import-processing" id="importProcessing">
+          <div class="spinner"></div>
+          <div class="processing-text">Analysing your statement...</div>
+        </div>
+
+        <div class="import-review" id="importReview">
+          <div class="review-title">We found the following in your statement:</div>
+
+          <div class="review-group">
+            <div class="review-group-label">💸 Expenses detected</div>
+            <table class="review-table">
+              <thead>
+                <tr>
+                  <th style="width:28px;"></th>
+                  <th>Category</th>
+                  <th>Item</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked class="expense-import-cb" data-amount="280" data-category="food" /></td>
+                  <td>🍽 Food & dining</td><td>Carrefour</td><td>AED 280</td><td>Mar 20</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked class="expense-import-cb" data-amount="420" data-category="housing" /></td>
+                  <td>🏠 Housing</td><td>DEWA</td><td>AED 420</td><td>Mar 18</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked class="expense-import-cb" data-amount="95" data-category="transport" /></td>
+                  <td>🚗 Transport</td><td>Uber</td><td>AED 95</td><td>Mar 22</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked class="expense-import-cb" data-amount="340" data-category="shopping" /></td>
+                  <td>🛍 Shopping</td><td>Zara</td><td>AED 340</td><td>Mar 19</td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" checked class="expense-import-cb" data-amount="200" data-category="wellness" /></td>
+                  <td>💆 Wellness</td><td>Gym membership</td><td>AED 200</td><td>Mar 21</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="review-group">
+            <div class="review-group-label">📈 Investment detected</div>
+            <table class="review-table">
+              <thead>
+                <tr><th style="width:28px;"></th><th>Type</th><th>Amount</th><th>Note</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked id="investImportCb" /></td>
+                  <td>📈 Stocks</td><td>AED 2,000</td><td>Regular investment</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="review-group">
+            <div class="review-group-label">💳 Debt payment detected</div>
+            <table class="review-table">
+              <thead>
+                <tr><th style="width:28px;"></th><th>Debt</th><th>Payment</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked id="debtImportCb" /></td>
+                  <td>Car loan</td><td>AED 1,200</td><td>Mar 15</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <button class="review-add-btn" onclick="addImportedData()">Add selected to Unit →</button>
+        </div>
+
+        <div class="import-synced-note" id="importSyncedNote">✓ Last synced: just now</div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION 8: Google Sheets Sync (Redesigned) ─── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-label">Google Sheets</span>
+      </div>
+      <div class="sheets-full-card">
+        <div class="sheets-full-title">📊 Connect Google Sheets</div>
+        <div class="sheets-full-subtitle">Already tracking in a spreadsheet? Connect it and we'll pull your data automatically.</div>
+
+        <div class="sheets-how-it-works">
+          <div class="sheets-how-label">How it works</div>
+          <div class="sheets-steps">
+            <div class="sheets-step">
+              <div class="sheets-step-num">1</div>
+              <div class="sheets-step-title">Share your sheet</div>
+              <div class="sheets-step-desc">Make your Google Sheet viewable to anyone with the link — no Google account needed on our end.</div>
+            </div>
+            <div class="sheets-step">
+              <div class="sheets-step-num">2</div>
+              <div class="sheets-step-title">Paste the link</div>
+              <div class="sheets-step-desc">Drop the URL below and we'll read your data and map it to your tracker automatically.</div>
+            </div>
+            <div class="sheets-step">
+              <div class="sheets-step-num">3</div>
+              <div class="sheets-step-title">Stay in sync</div>
+              <div class="sheets-step-desc">We'll pull the latest data automatically every 30 minutes. No manual updates needed.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sheets-connect-section">
+          <div class="sheets-connect-label">Connect your sheet</div>
+          <div class="sheets-input-row">
+            <input type="url" class="sheets-input" id="sheetsInput" placeholder="Paste your Google Sheet URL..." />
+            <button class="sheets-connect-btn" onclick="handleSheetsConnect()">Connect →</button>
+          </div>
+          <div class="sheets-tip">
+            💡 <strong>Tip:</strong> We recommend one sheet per category (Income, Expenses, Net Worth). We never write to your sheet — read-only, always.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Tab Bar ─── -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <a href="dashboard.html" class="tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="tab-item" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="tab-item active" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="tab-item" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Privacy Modal -->
+<div class="modal-overlay" id="privacyModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Financial privacy settings</div>
+    <div class="modal-desc">This affects how you and your partner view each other's financial data. Both partners need to agree before changing this.</div>
+    <div class="modal-options" id="modalOptions">
+      <div class="modal-option selected" onclick="selectModalPrivacy(this, 'full')">
+        <div class="modal-option-radio"></div>
+        <span class="modal-option-icon">🤝</span>
+        <div class="modal-option-body">
+          <div class="modal-option-label">Full transparency</div>
+          <div class="modal-option-desc">Both partners see everything</div>
+        </div>
+      </div>
+      <div class="modal-option" onclick="selectModalPrivacy(this, 'shared')">
+        <div class="modal-option-radio"></div>
+        <span class="modal-option-icon">🫧</span>
+        <div class="modal-option-body">
+          <div class="modal-option-label">Shared overview</div>
+          <div class="modal-option-desc">See totals together, details stay private</div>
+        </div>
+      </div>
+      <div class="modal-option" onclick="selectModalPrivacy(this, 'private')">
+        <div class="modal-option-radio"></div>
+        <span class="modal-option-icon">🔐</span>
+        <div class="modal-option-body">
+          <div class="modal-option-label">Fully private</div>
+          <div class="modal-option-desc">Manage separately, share goals only</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-save-btn" onclick="savePrivacySettings()">Save changes</button>
+      <span class="modal-cancel-link" onclick="closePrivacyModal()">Cancel</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── First-time Setup Overlay ─── -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-card">
+    <div class="setup-title">Set up your finances</div>
+    <div class="setup-subtitle">Choose how you want to track your money together.</div>
+
+    <div class="setup-options">
+      <!-- Option A: Google Sheets -->
+      <div class="setup-option" onclick="selectSetupOption('sheets')">
+        <div class="setup-option-badge">
+          <span class="badge-recommended">Recommended</span>
+        </div>
+        <div class="setup-option-icon">📊</div>
+        <div class="setup-option-title">Connect a Google Sheet</div>
+        <div class="setup-option-desc">Already tracking in a spreadsheet? Connect it and we'll pull your data automatically.</div>
+        <button class="setup-option-btn" onclick="event.stopPropagation(); selectSetupOption('sheets')">Connect sheet →</button>
+      </div>
+
+      <!-- Option B: Upload -->
+      <div class="setup-option" onclick="selectSetupOption('upload')">
+        <div class="setup-option-icon">📁</div>
+        <div class="setup-option-title">Upload a statement</div>
+        <div class="setup-option-desc">Upload a bank, credit card, or investment statement and we'll parse it for you.</div>
+        <button class="setup-option-btn" onclick="event.stopPropagation(); selectSetupOption('upload')">Upload file →</button>
+      </div>
+
+      <!-- Option C: Manual -->
+      <div class="setup-option" onclick="selectSetupOption('manual')">
+        <div class="setup-option-icon">✏️</div>
+        <div class="setup-option-title">Enter manually</div>
+        <div class="setup-option-desc">Start from scratch and add your finances step by step.</div>
+        <button class="setup-option-btn" onclick="event.stopPropagation(); selectSetupOption('manual')">Start fresh →</button>
+      </div>
+    </div>
+
+    <div class="setup-footer">
+      <div class="setup-footer-note">You can always change this later in Settings.</div>
+      <span class="setup-skip-link" onclick="dismissSetup()">Skip for now</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── Expenses data per person
+  const expensesData = {
+    unit: [
+      { icon: '🏠', name: 'Housing',       amount: 'AED 2,800' },
+      { icon: '🛒', name: 'Groceries',     amount: 'AED 650'   },
+      { icon: '🚗', name: 'Transport',     amount: 'AED 450'   },
+      { icon: '🍽', name: 'Dining out',    amount: 'AED 380'   },
+      { icon: '📱', name: 'Subscriptions', amount: 'AED 220'   },
+      { icon: '🎭', name: 'Entertainment', amount: 'AED 180'   },
+      { icon: '💊', name: 'Healthcare',    amount: 'AED 140'   },
+      { icon: '📦', name: 'Other',         amount: 'AED 280'   },
+    ],
+    zein: [
+      { icon: '🛒', name: 'Groceries',     amount: 'AED 400' },
+      { icon: '💆', name: 'Personal care', amount: 'AED 320' },
+      { icon: '👗', name: 'Clothing',      amount: 'AED 280' },
+      { icon: '🍽', name: 'Dining out',    amount: 'AED 200' },
+      { icon: '🎭', name: 'Entertainment', amount: 'AED 120' },
+      { icon: '📱', name: 'Subscriptions', amount: 'AED 80'  },
+    ],
+    ala: [
+      { icon: '🚗', name: 'Transport',  amount: 'AED 450' },
+      { icon: '🍽', name: 'Dining out', amount: 'AED 180' },
+      { icon: '☕', name: 'Coffee',     amount: 'AED 160' },
+      { icon: '💻', name: 'Tech/tools', amount: 'AED 220' },
+      { icon: '🏋️', name: 'Fitness',   amount: 'AED 180' },
+      { icon: '📦', name: 'Other',      amount: 'AED 110' },
+    ],
+  };
+
+  // ─── Overview totals per person
+  const overviewTotals = {
+    unit: { income: 'AED 16,400', expenses: 'AED 5,100', savings: 'AED 11,300' },
+    zein: { income: 'AED 7,200',  expenses: 'AED 1,400', savings: 'AED 5,800'  },
+    ala:  { income: 'AED 9,200',  expenses: 'AED 1,300', savings: 'AED 7,900'  },
+  };
+
+  function updateExpenses(person) {
+    const list = document.getElementById('expensesList');
+    if (!list) return;
+    const rows = expensesData[person] || expensesData.unit;
+    list.innerHTML = rows.map(r => `
+      <div class="expense-row">
+        <span class="drag-handle">⠿</span>
+        <span class="expense-icon">${r.icon}</span>
+        <span class="expense-name">${r.name}</span>
+        <span class="editable-amount expense-amount" onclick="makeEditable(this)">${r.amount}</span>
+        <span class="expense-edit" onclick="makeEditable(this.previousElementSibling)">✏️</span>
+      </div>
+    `).join('');
+  }
+
+  function updateOverviewTotals(person) {
+    const t = overviewTotals[person] || overviewTotals.unit;
+    const inc = document.getElementById('overviewIncome');
+    const exp = document.getElementById('overviewExpenses');
+    const sav = document.getElementById('overviewSavings');
+    if (inc) inc.textContent = t.income;
+    if (exp) exp.textContent = t.expenses;
+    if (sav) sav.textContent = t.savings;
+  }
+
+  // ─── Data per person
+  const personData = {
+    unit: {
+      netWorth: 'AED 142,500',
+      incomeSpend: 'AED 16,400 in · 5,100 out',
+      spendBarPct: 31,
+      spendBarLabel: '31% of income spent',
+      savingsRate: '37.8%',
+      savingsBadge: 'Above target',
+      savingsBadgeClass: 'badge-green',
+    },
+    zein: {
+      netWorth: 'AED 58,000',
+      incomeSpend: 'AED 7,200 in · 2,800 out',
+      spendBarPct: 39,
+      spendBarLabel: '39% of income spent',
+      savingsRate: '28%',
+      savingsBadge: 'On track',
+      savingsBadgeClass: 'badge-amber',
+    },
+    ala: {
+      netWorth: 'AED 84,500',
+      incomeSpend: 'AED 9,200 in · 2,300 out',
+      spendBarPct: 25,
+      spendBarLabel: '25% of income spent',
+      savingsRate: '45%',
+      savingsBadge: 'Excellent',
+      savingsBadgeClass: 'badge-green',
+    }
+  };
+
+  let currentPerson = 'unit';
+
+  function switchPerson(person, btn) {
+    currentPerson = person;
+
+    // Update pills
+    document.querySelectorAll('.person-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Update stats
+    const d = personData[person];
+    document.getElementById('statNetWorth').textContent = d.netWorth;
+    document.getElementById('statIncomeSpend').textContent = d.incomeSpend;
+    document.getElementById('statSpendBar').style.width = d.spendBarPct + '%';
+    document.getElementById('statSpendLabel').textContent = d.spendBarLabel;
+    document.getElementById('statSavingsRate').textContent = d.savingsRate;
+    const badge = document.getElementById('statSavingsBadge');
+    badge.textContent = d.savingsBadge;
+    badge.className = 'stat-badge ' + d.savingsBadgeClass;
+
+    // Update investments visibility
+    const cardZein = document.getElementById('investCardZein');
+    const cardAla = document.getElementById('investCardAla');
+    const cols = document.getElementById('investmentsCols');
+
+    if (person === 'unit') {
+      cardZein.style.display = '';
+      cardAla.style.display = '';
+      cols.style.gridTemplateColumns = '1fr 1fr';
+    } else if (person === 'zein') {
+      cardZein.style.display = '';
+      cardAla.style.display = 'none';
+      cols.style.gridTemplateColumns = '1fr';
+    } else if (person === 'ala') {
+      cardZein.style.display = 'none';
+      cardAla.style.display = '';
+      cols.style.gridTemplateColumns = '1fr';
+    }
+
+    // Update income cols
+    const colZein = document.getElementById('incomeColZein');
+    const colAla = document.getElementById('incomeColAla');
+    const incomeCols = document.getElementById('incomeCols');
+
+    if (person === 'unit') {
+      colZein.style.display = '';
+      colAla.style.display = '';
+      incomeCols.style.gridTemplateColumns = '1fr 1fr';
+    } else if (person === 'zein') {
+      colZein.style.display = '';
+      colAla.style.display = 'none';
+      incomeCols.style.gridTemplateColumns = '1fr';
+    } else if (person === 'ala') {
+      colZein.style.display = 'none';
+      colAla.style.display = '';
+      incomeCols.style.gridTemplateColumns = '1fr';
+    }
+
+    // Update expenses tab
+    updateExpenses(person);
+
+    // Update overview totals
+    updateOverviewTotals(person);
+  }
+
+  // ─── Finance Tabs
+  let currentFinanceTab = 'overview';
+
+  function switchFinanceTab(name, btn) {
+    currentFinanceTab = name;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+
+    // Show edit button only on income or expenses tabs
+    const editBtn = document.getElementById('tabEditBtn');
+    if (name === 'income' || name === 'expenses') {
+      editBtn.classList.add('visible');
+    } else {
+      editBtn.classList.remove('visible');
+      editBtn.classList.remove('active-edit');
+      editBtn.textContent = '✏️ Edit';
+    }
+  }
+
+  function toggleEditMode(btn) {
+    const isActive = btn.classList.toggle('active-edit');
+    btn.textContent = isActive ? '✓ Done' : '✏️ Edit';
+    if (isActive) {
+      showToast('Edit mode on — click any row to edit');
+    }
+  }
+
+  // ─── Setup Overlay
+  function dismissSetup() {
+    const overlay = document.getElementById('setupOverlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+  }
+
+  function showSetupOverlay() {
+    const overlay = document.getElementById('setupOverlay');
+    overlay.style.display = 'flex';
+    setTimeout(() => { overlay.classList.remove('hidden'); }, 10);
+  }
+
+  function selectSetupOption(type) {
+    dismissSetup();
+
+    // Update sync status card
+    const statusIcon = document.querySelector('#syncStatusCard .sync-status-icon');
+    const statusLabel = document.querySelector('#syncStatusCard .sync-status-label');
+    const statusSub = document.querySelector('#syncStatusCard .sync-status-sub');
+    const statusActions = document.querySelector('#syncStatusCard .sync-status-actions');
+
+    if (type === 'sheets') {
+      statusIcon.textContent = '📊';
+      statusLabel.textContent = 'Connected · Last synced: just now';
+      statusSub.textContent = 'Google Sheets · finances-2026.sheets.google.com';
+      statusActions.innerHTML = '<button class="sync-btn" onclick="showToast(\'Syncing… ✓ Up to date\')">Sync now</button><a class="sync-link" href="#" onclick="event.preventDefault(); showToast(\'Opening sheet…\')">View sheet ↗</a>';
+      showToast('Google Sheets connected ✓ — data will sync every 30 minutes');
+    } else if (type === 'upload') {
+      statusIcon.textContent = '📁';
+      statusLabel.textContent = 'Last upload: March 22';
+      statusSub.textContent = 'Statement · bank-statement-march.pdf';
+      statusActions.innerHTML = '<button class="sync-btn" onclick="document.getElementById(\'importSection\').scrollIntoView({behavior:\'smooth\'})">Upload new statement</button>';
+      showToast('Upload mode selected — drag your statement below');
+    } else if (type === 'manual') {
+      statusIcon.textContent = '✏️';
+      statusLabel.textContent = 'Manual entry';
+      statusSub.textContent = 'Entering data step by step';
+      statusActions.innerHTML = '<button class="sync-btn" onclick="showToast(\'Transaction editor coming soon\')">Add transaction</button>';
+      showToast('Manual entry mode — add your data directly');
+    }
+  }
+
+  // ─── Privacy Modal
+  function openPrivacyModal() {
+    document.getElementById('privacyModal').classList.add('open');
+  }
+
+  function closePrivacyModal() {
+    document.getElementById('privacyModal').classList.remove('open');
+  }
+
+  function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('privacyModal')) {
+      closePrivacyModal();
+    }
+  }
+
+  function selectModalPrivacy(el, mode) {
+    document.querySelectorAll('.modal-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function savePrivacySettings() {
+    closePrivacyModal();
+    showToast('Privacy settings updated ✓');
+  }
+
+  // ─── Editable amounts (click to edit inline)
+  function makeEditable(span) {
+    if (span.tagName === 'INPUT') return;
+    const original = span.textContent.trim();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = original;
+    input.className = 'editable-input';
+    span.parentNode.replaceChild(input, span);
+    input.focus();
+    input.select();
+
+    function save() {
+      const val = input.value.trim() || original;
+      const newSpan = document.createElement('span');
+      newSpan.className = span.className;
+      newSpan.id = span.id || '';
+      newSpan.textContent = val;
+      newSpan.onclick = function() { makeEditable(newSpan); };
+      input.parentNode.replaceChild(newSpan, input);
+    }
+
+    input.addEventListener('blur', save);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); save(); }
+      if (e.key === 'Escape') {
+        const newSpan = document.createElement('span');
+        newSpan.className = span.className;
+        newSpan.id = span.id || '';
+        newSpan.textContent = original;
+        newSpan.onclick = function() { makeEditable(newSpan); };
+        input.parentNode.replaceChild(newSpan, input);
+      }
+    });
+  }
+
+  // ─── Google Sheets connect
+  function handleSheetsConnect() {
+    const val = document.getElementById('sheetsInput').value.trim();
+    if (!val) {
+      showToast('Paste a Google Sheet URL first');
+      return;
+    }
+    showToast('Google Sheets connected ✓ — data will sync every 30 minutes');
+    // Update sync status card
+    const statusLabel = document.querySelector('#syncStatusCard .sync-status-label');
+    const statusSub = document.querySelector('#syncStatusCard .sync-status-sub');
+    if (statusLabel) statusLabel.textContent = 'Connected · Last synced: just now';
+    if (statusSub) statusSub.textContent = 'Google Sheets · ' + val.replace('https://', '').substring(0, 40) + '…';
+  }
+
+  // ─── Toast
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  }
+
+  // ─── Import / Upload flow
+  function handleFileUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    document.getElementById('dropZone').style.display = 'none';
+    document.getElementById('importProcessing').classList.add('visible');
+    document.getElementById('importReview').classList.remove('visible');
+    document.getElementById('importSyncedNote').classList.remove('visible');
+
+    setTimeout(() => {
+      document.getElementById('importProcessing').classList.remove('visible');
+      document.getElementById('importReview').classList.add('visible');
+    }, 2000);
+  }
+
+  const dropZone = document.getElementById('dropZone');
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFileUpload({ files: e.dataTransfer.files });
+  });
+
+  function addImportedData() {
+    const expCbs = document.querySelectorAll('.expense-import-cb:checked');
+    let foodAdded = 0, housingAdded = 0, transportAdded = 0, shoppingAdded = 0, wellnessAdded = 0;
+    expCbs.forEach(cb => {
+      const amt = parseInt(cb.dataset.amount || '0');
+      const cat = cb.dataset.category;
+      if (cat === 'food') foodAdded += amt;
+      else if (cat === 'housing') housingAdded += amt;
+      else if (cat === 'transport') transportAdded += amt;
+      else if (cat === 'shopping') shoppingAdded += amt;
+      else if (cat === 'wellness') wellnessAdded += amt;
+    });
+
+    const checkedCount = expCbs.length;
+    const investChecked = document.getElementById('investImportCb').checked;
+    const debtChecked = document.getElementById('debtImportCb').checked;
+
+    if (housingAdded > 0) {
+      const el = document.getElementById('expHousing');
+      if (el) { const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 2500; el.textContent = 'AED ' + (cur + housingAdded).toLocaleString(); }
+    }
+    if (foodAdded > 0) {
+      const el = document.getElementById('expFood');
+      if (el) { const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 980; el.textContent = 'AED ' + (cur + foodAdded).toLocaleString(); }
+    }
+    if (transportAdded > 0) {
+      const el = document.getElementById('expTransport');
+      if (el) { const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 450; el.textContent = 'AED ' + (cur + transportAdded).toLocaleString(); }
+    }
+    if (shoppingAdded > 0) {
+      const el = document.getElementById('expShopping');
+      if (el) { const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 600; el.textContent = 'AED ' + (cur + shoppingAdded).toLocaleString(); }
+    }
+    if (wellnessAdded > 0) {
+      const el = document.getElementById('expWellness');
+      if (el) { const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 250; el.textContent = 'AED ' + (cur + wellnessAdded).toLocaleString(); }
+    }
+
+    const totalAdded = foodAdded + housingAdded + transportAdded + shoppingAdded + wellnessAdded;
+    if (totalAdded > 0) {
+      const baseOut = 5100;
+      const newOut = baseOut + totalAdded;
+      const budget = 7500;
+      const newPct = Math.min(Math.round((newOut / budget) * 100), 100);
+      document.getElementById('budgetBarFill').style.width = newPct + '%';
+      document.getElementById('budgetUsedAmount').textContent = 'AED ' + newOut.toLocaleString() + ' / AED 7,500';
+    }
+
+    if (investChecked) {
+      const el = document.getElementById('zeinStocksAmt');
+      if (el) {
+        const cur = parseInt(el.textContent.replace(/[^0-9]/g, '')) || 28000;
+        const newAmt = cur + 2000;
+        el.textContent = 'AED ' + newAmt.toLocaleString();
+        const totalEl = document.getElementById('zeinInvestTotal');
+        if (totalEl) {
+          const curTotal = parseInt(totalEl.textContent.replace(/[^0-9]/g, '')) || 43000;
+          totalEl.textContent = 'AED ' + (curTotal + 2000).toLocaleString();
+        }
+        document.getElementById('zeinStocksBadge').style.display = 'inline-flex';
+        document.getElementById('zeinInvestLastUpdated').textContent = 'Last updated: just now';
+      }
+    }
+
+    if (debtChecked) {
+      const newRemaining = 26800;
+      const total = 45000;
+      const newPaid = total - newRemaining;
+      const newPct = Math.round((newPaid / total) * 100);
+      // Update new debt card bar + progress label
+      const carBar = document.getElementById('carLoanBar');
+      if (carBar) carBar.style.width = newPct + '%';
+      const carLabel = document.getElementById('carLoanProgressLabel');
+      if (carLabel) carLabel.textContent = 'AED ' + newRemaining.toLocaleString() + ' remaining of AED ' + total.toLocaleString() + ' total — ' + newPct + '% paid off';
+      // Update in-memory debts array
+      const carDebt = debts.find(d => d.id === 0);
+      if (carDebt) { carDebt.remaining = newRemaining; }
+      updateDebtSummary();
+      document.getElementById('debtLastUpdated').textContent = 'Last updated: just now';
+    }
+
+    let parts = [];
+    if (checkedCount > 0) parts.push(checkedCount + ' expense' + (checkedCount !== 1 ? 's' : ''));
+    if (investChecked) parts.push('1 investment');
+    if (debtChecked) parts.push('1 debt payment');
+
+    document.getElementById('importSyncedNote').classList.add('visible');
+    document.getElementById('importReview').classList.remove('visible');
+    const dz = document.getElementById('dropZone');
+    dz.style.display = '';
+    dz.innerHTML = `
+      <div class="drop-zone-icon">✅</div>
+      <div class="drop-zone-text">Statement imported successfully</div>
+      <div class="drop-zone-formats">Upload another statement to add more data</div>
+      <div class="drop-zone-browse" onclick="resetDropZone()">Upload another file</div>
+    `;
+    showToast('✓ ' + parts.join(', ') + ' added');
+  }
+
+  function resetDropZone() {
+    const dz = document.getElementById('dropZone');
+    dz.innerHTML = `
+      <input type="file" class="drop-zone-input" id="fileInput" accept=".pdf,.csv,.xls,.xlsx" onchange="handleFileUpload(this)" />
+      <div class="drop-zone-icon">📂</div>
+      <div class="drop-zone-text">Drag &amp; drop your statement here</div>
+      <div class="drop-zone-formats">PDF, CSV, XLS — up to 10MB</div>
+      <div class="drop-zone-browse">or browse files</div>
+    `;
+    document.getElementById('importSyncedNote').classList.remove('visible');
+    attachDragEvents();
+  }
+
+  function attachDragEvents() {
+    const dz = document.getElementById('dropZone');
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', () => { dz.classList.remove('dragover'); });
+    dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('dragover'); handleFileUpload({ files: e.dataTransfer.files }); });
+  }
+
+  // ─── Debt Tracker
+
+  // Track debts in-memory for dynamic add
+  const debts = [
+    { id: 0, name: '🚗 Car Loan', lender: 'Emirates NBD', owner: 'Ala', type: 'Fixed', total: 45000, remaining: 28000, monthly: 1200, rate: 4.5, dueDate: 15, strategy: 'Avalanche', months: 24, interest: 2340 },
+    { id: 1, name: '💳 Credit Card', lender: 'ADCB', owner: 'Both', type: 'Revolving', total: 8000, remaining: 2100, monthly: 500, rate: 24, dueDate: 5, strategy: 'Snowball', months: 5, interest: 180 },
+  ];
+
+  function calcMonths(remaining, monthly, rate) {
+    const monthlyRate = rate / 12 / 100;
+    const interest = remaining * monthlyRate;
+    const principal = monthly - interest;
+    if (principal <= 0) return Infinity;
+    return Math.ceil(remaining / principal);
+  }
+
+  function calcInterest(remaining, monthly, rate, months) {
+    if (!isFinite(months)) return 0;
+    const monthlyRate = rate / 12 / 100;
+    return Math.round(months * remaining * monthlyRate);
+  }
+
+  function calcWhatIf(input, remaining, monthly, rate, originalMonths, resultId) {
+    const extra = parseFloat(input.value) || 0;
+    const newMonthly = monthly + extra;
+    const newMonths = calcMonths(remaining, newMonthly, rate);
+    const monthsSaved = originalMonths - newMonths;
+    const resultEl = document.getElementById(resultId);
+    const soonerEl = document.getElementById(resultId.replace('whatif-result-', 'whatif-sooner-'));
+
+    if (extra <= 0 || !isFinite(newMonths)) {
+      if (resultEl) resultEl.textContent = '—';
+      if (soonerEl) soonerEl.textContent = '';
+      return;
+    }
+
+    if (monthsSaved > 0) {
+      if (resultEl) resultEl.textContent = monthsSaved + ' month' + (monthsSaved !== 1 ? 's' : '') + ' sooner';
+      if (soonerEl) soonerEl.textContent = '';
+    } else {
+      if (resultEl) resultEl.textContent = 'same payoff';
+      if (soonerEl) soonerEl.textContent = '';
+    }
+  }
+
+  function toggleDebtDetails(btn, sectionId) {
+    const section = document.getElementById(sectionId);
+    const isOpen = section.classList.toggle('open');
+    btn.textContent = isOpen ? 'Hide details ↑' : 'View details →';
+  }
+
+  function selectStrategy(btn, key) {
+    const container = btn.closest('.strategy-pills');
+    container.querySelectorAll('.strategy-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    updateRepaymentSummary();
+  }
+
+  function updateDebtSummary() {
+    const total = debts.reduce((sum, d) => sum + d.remaining, 0);
+    const count = debts.length;
+    const metaEl = document.getElementById('debtSectionMeta');
+    if (metaEl) {
+      metaEl.textContent = 'Total outstanding: AED ' + total.toLocaleString() + ' across ' + count + ' debt' + (count !== 1 ? 's' : '');
+    }
+    updateRepaymentSummary();
+  }
+
+  function updateRepaymentSummary() {
+    const totalInterest = debts.reduce((sum, d) => sum + (d.interest || 0), 0);
+    const interestEl = document.getElementById('repaymentTotalInterest');
+    if (interestEl) interestEl.textContent = 'AED ' + totalInterest.toLocaleString();
+  }
+
+  // Add Debt Modal
+  function openAddDebtModal() {
+    document.getElementById('addDebtModal').classList.add('open');
+  }
+
+  function closeAddDebtModal() {
+    document.getElementById('addDebtModal').classList.remove('open');
+    // Reset form
+    ['newDebtName','newDebtLender','newDebtTotal','newDebtBalance','newDebtMonthly','newDebtRate','newDebtDueDate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    // Reset owner selection
+    document.querySelectorAll('.owner-card').forEach((c,i) => {
+      c.classList.toggle('selected', i === 0);
+    });
+    // Reset pill selectors
+    ['newDebtTypeSelector','newDebtStrategySelector'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      sel.querySelectorAll('.pill-select-btn').forEach((b,i) => b.classList.toggle('selected', i === 0));
+    });
+  }
+
+  function handleAddDebtOverlayClick(e) {
+    if (e.target === document.getElementById('addDebtModal')) {
+      closeAddDebtModal();
+    }
+  }
+
+  function selectOwnerCard(card) {
+    document.querySelectorAll('.owner-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  function selectPill(btn, selectorId) {
+    const sel = document.getElementById(selectorId);
+    sel.querySelectorAll('.pill-select-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+
+  function getOrdinal(n) {
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return n + (s[(v-20)%10] || s[v] || s[0]);
+  }
+
+  function submitNewDebt() {
+    const name = document.getElementById('newDebtName').value.trim();
+    const lender = document.getElementById('newDebtLender').value.trim();
+    const total = parseFloat(document.getElementById('newDebtTotal').value) || 0;
+    const remaining = parseFloat(document.getElementById('newDebtBalance').value) || 0;
+    const monthly = parseFloat(document.getElementById('newDebtMonthly').value) || 0;
+    const rate = parseFloat(document.getElementById('newDebtRate').value) || 0;
+    const dueDate = parseInt(document.getElementById('newDebtDueDate').value) || 1;
+
+    if (!name || total <= 0 || remaining <= 0 || monthly <= 0) {
+      showToast('Please fill in all required fields');
+      return;
+    }
+
+    const ownerCard = document.querySelector('.owner-card.selected');
+    const owner = ownerCard ? ownerCard.dataset.owner : 'Zein';
+
+    const typeBtn = document.querySelector('#newDebtTypeSelector .pill-select-btn.selected');
+    const type = typeBtn ? typeBtn.dataset.val : 'Fixed';
+
+    const stratBtn = document.querySelector('#newDebtStrategySelector .pill-select-btn.selected');
+    const strategy = stratBtn ? stratBtn.dataset.val : 'Avalanche';
+
+    const progress = Math.round(((total - remaining) / total) * 100);
+    const months = calcMonths(remaining, monthly, rate);
+    const interest = calcInterest(remaining, monthly, rate, isFinite(months) ? months : 0);
+
+    // Compute payoff date
+    const payoffDate = computePayoffDate(isFinite(months) ? months : 0);
+
+    const newId = debts.length;
+
+    debts.push({ id: newId, name, lender, owner, type, total, remaining, monthly, rate, dueDate, strategy, months: isFinite(months) ? Math.ceil(months) : 999, interest });
+
+    const ownerClass = owner === 'Ala' ? 'debt-owner-ala' : owner === 'Zein' ? 'debt-owner-zein' : 'debt-owner-both';
+    const ownerEmoji = owner === 'Ala' ? '🧡 Ala' : owner === 'Zein' ? '💚 Zein' : '🤝 Both';
+
+    const cardHtml = `
+      <div class="debt-card" id="debtCard-${newId}">
+        <div class="debt-card-header">
+          <span class="debt-card-name">${name}</span>
+          <span class="debt-card-lender">${lender}</span>
+          <span class="debt-owner-pill ${ownerClass}">${ownerEmoji}</span>
+          <span class="debt-type-badge">${type}</span>
+          <span class="debt-card-spacer"></span>
+        </div>
+        <div class="debt-card-progress">
+          <div class="debt-progress-bar-wrap">
+            <div class="debt-progress-bar-fill" style="width: ${progress}%;"></div>
+          </div>
+          <div class="debt-progress-label">AED ${remaining.toLocaleString()} remaining of AED ${total.toLocaleString()} total — ${progress}% paid off</div>
+        </div>
+        <div class="debt-card-stats">
+          <div class="debt-stat-item">
+            <div class="debt-stat-label">Monthly Payment</div>
+            <div class="debt-stat-value">AED ${monthly.toLocaleString()}/mo</div>
+          </div>
+          <div class="debt-stat-item">
+            <div class="debt-stat-label">Interest Rate</div>
+            <div class="debt-stat-value">${rate}% p.a.</div>
+          </div>
+          <div class="debt-stat-item">
+            <div class="debt-stat-label">Payoff Date</div>
+            <div class="debt-stat-value">${payoffDate}</div>
+          </div>
+        </div>
+        <button class="debt-details-toggle" onclick="toggleDebtDetails(this, 'debt-details-${newId}')">View details →</button>
+        <div class="debt-details-section" id="debt-details-${newId}">
+          <div class="debt-details-grid">
+            <div class="debt-detail-row">
+              <div class="debt-detail-label">Payment Due</div>
+              <div class="debt-detail-value">${getOrdinal(dueDate)} of every month</div>
+            </div>
+            <div class="debt-detail-row">
+              <div class="debt-detail-label">Total Interest Remaining</div>
+              <div class="debt-detail-value">AED ${interest.toLocaleString()}</div>
+            </div>
+            <div class="debt-detail-row">
+              <div class="debt-detail-label">Months to Payoff</div>
+              <div class="debt-detail-value">${isFinite(months) ? Math.ceil(months) : '—'} months</div>
+            </div>
+            <div class="debt-detail-row">
+              <div class="debt-detail-label">Strategy</div>
+              <div class="debt-detail-value">
+                <div class="strategy-pills">
+                  <button class="strategy-pill${strategy === 'Avalanche' ? ' active' : ''}" onclick="selectStrategy(this, 'avalanche-${newId}')">Avalanche</button>
+                  <button class="strategy-pill${strategy === 'Snowball' ? ' active' : ''}" onclick="selectStrategy(this, 'snowball-${newId}')">Snowball</button>
+                  <button class="strategy-pill${strategy === 'Custom' ? ' active' : ''}" onclick="selectStrategy(this, 'custom-${newId}')">Custom</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="whatif-calc">
+            <div class="whatif-label">💡 What-if calculator</div>
+            <div class="whatif-row">
+              <span class="whatif-text">If I pay AED</span>
+              <input type="number" class="whatif-input" placeholder="extra" min="0" oninput="calcWhatIf(this, ${remaining}, ${monthly}, ${rate}, ${isFinite(months) ? Math.ceil(months) : 0}, 'whatif-result-${newId}')" />
+              <span class="whatif-text">extra/month, I'll pay it off</span>
+              <span class="whatif-result" id="whatif-result-${newId}">—</span>
+              <span class="whatif-text" id="whatif-sooner-${newId}"></span>
+            </div>
+          </div>
+          <div class="debt-card-actions">
+            <button class="debt-action-btn" onclick="showToast('Edit debt coming soon')">✏️ Edit</button>
+            <button class="debt-action-btn delete-btn" onclick="deleteDebtCard(${newId})">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('debtCardsList').insertAdjacentHTML('beforeend', cardHtml);
+    updateDebtSummary();
+    closeAddDebtModal();
+    showToast('✓ ' + name + ' added to Debt Tracker');
+  }
+
+  function computePayoffDate(months) {
+    if (!months || months <= 0) return '—';
+    const now = new Date();
+    now.setMonth(now.getMonth() + Math.ceil(months));
+    return now.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  }
+
+  function deleteDebtCard(id) {
+    const card = document.getElementById('debtCard-' + id);
+    if (!card) return;
+    const idx = debts.findIndex(d => d.id === id);
+    if (idx !== -1) debts.splice(idx, 1);
+    card.style.transition = 'opacity 0.25s';
+    card.style.opacity = '0';
+    setTimeout(() => { card.remove(); updateDebtSummary(); }, 250);
+    showToast('Debt removed');
+  }
+
+  // Update import handler for debt — keep existing IDs working
+  // Patch: after import updates carLoanRemaining etc., also update the new card
+  const _origAddImportedData = typeof addImportedData === 'function' ? addImportedData : null;
+
+  // ─── Goals Tracker ─────────────────────────────────────────────────────────
+
+  // In-memory goals data
+  const goalsData = [
+    {
+      id: 0,
+      name: 'Emergency Fund',
+      type: 'Savings goal',
+      icon: '💰',
+      owner: 'Unit',
+      target: 50000,
+      current: 31000,
+      deadline: new Date('2026-12-31'),
+      notes: '3-6 months of expenses. Priority.',
+      active: true
+    },
+    {
+      id: 1,
+      name: 'Jello House Fundraise',
+      type: 'Investment target',
+      icon: '📈',
+      owner: 'Unit',
+      target: 100000,
+      current: 35000,
+      deadline: new Date('2026-06-30'),
+      notes: 'Round 1 target. Need to close by end of Q2.',
+      active: true
+    },
+    {
+      id: 2,
+      name: 'New Car',
+      type: 'Purchase goal',
+      icon: '🛍️',
+      owner: 'Ala',
+      target: 155000,
+      current: 12000,
+      deadline: new Date('2026-08-01'),
+      notes: 'Tesla Model Y or Jetour X95. Budget max AED 155K.',
+      active: true
+    }
+  ];
+
+  let nextGoalId = 3;
+
+  function getDaysRemaining(deadline) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const d = new Date(deadline);
+    d.setHours(0, 0, 0, 0);
+    return Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+  }
+
+  function getDaysTagClass(days) {
+    if (days <= 30) return 'goal-days-urgent';
+    if (days <= 60) return 'goal-days-amber';
+    return 'goal-days-normal';
+  }
+
+  function getMonthsLeft(deadline) {
+    const today = new Date();
+    return Math.max((deadline - today) / (1000 * 60 * 60 * 24 * 30), 0.5);
+  }
+
+  function calcGoalMonthlyNeeded(goal) {
+    const remaining = goal.target - goal.current;
+    const months = getMonthsLeft(goal.deadline);
+    return Math.ceil(remaining / months);
+  }
+
+  function calcGoalOnTrack(goal) {
+    const today = new Date();
+    const start = new Date(goal.deadline);
+    // We don't have a start date, so approximate: assume goal started 1 year before deadline
+    const totalMs = 365 * 24 * 60 * 60 * 1000;
+    const elapsed = totalMs - (goal.deadline - today);
+    const elapsedRatio = Math.max(0, Math.min(elapsed / totalMs, 1));
+    const expectedRatio = elapsedRatio;
+    const actualRatio = goal.current / goal.target;
+    return actualRatio >= expectedRatio;
+  }
+
+  function formatDeadline(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function updateGoalsSummary() {
+    const active = goalsData.filter(g => g.active);
+    const totalSaved = active.reduce((s, g) => s + g.current, 0);
+    const totalTarget = active.reduce((s, g) => s + g.target, 0);
+    const overallPct = totalTarget > 0 ? (totalSaved / totalTarget * 100).toFixed(1) : '0.0';
+
+    // Find earliest deadline
+    let earliest = null;
+    active.forEach(g => {
+      if (!earliest || g.deadline < earliest) earliest = g.deadline;
+    });
+    const earliestStr = earliest ? earliest.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+
+    const meta = document.getElementById('goalsSectionMeta');
+    if (meta) {
+      meta.textContent = active.length + ' active goal' + (active.length !== 1 ? 's' : '') +
+        ' · AED ' + totalSaved.toLocaleString() + ' total saved' +
+        ' · Earliest deadline: ' + earliestStr;
+    }
+
+    const summaryTotal = document.getElementById('goalSummaryTotal');
+    if (summaryTotal) summaryTotal.textContent = 'AED ' + totalSaved.toLocaleString();
+
+    const summaryTarget = document.getElementById('goalSummaryTarget');
+    if (summaryTarget) summaryTarget.textContent = 'AED ' + totalTarget.toLocaleString();
+
+    const summaryPct = document.getElementById('goalSummaryPct');
+    if (summaryPct) summaryPct.textContent = overallPct + '%';
+
+    const summaryBar = document.getElementById('goalSummaryBar');
+    if (summaryBar) summaryBar.style.width = overallPct + '%';
+
+    const summaryLabel = document.getElementById('goalSummaryLabel');
+    if (summaryLabel) {
+      summaryLabel.textContent = 'AED ' + totalSaved.toLocaleString() + ' saved of AED ' + totalTarget.toLocaleString() + ' total across ' + active.length + ' goal' + (active.length !== 1 ? 's' : '');
+    }
+
+    // Update overview stat card
+    const statGoals = document.querySelector('.stat-card:last-child .stat-value');
+    if (statGoals) statGoals.textContent = active.length + ' active';
+  }
+
+  // Initialize goal days tags on load
+  function initGoalDaysTags() {
+    goalsData.forEach(g => {
+      const tag = document.getElementById('goalDaysTag-' + g.id);
+      if (!tag) return;
+      const days = getDaysRemaining(g.deadline);
+      tag.textContent = days + ' days left';
+      tag.className = 'goal-days-tag ' + getDaysTagClass(days);
+    });
+    updateGoalsSummary();
+  }
+
+  function toggleGoalDetails(event, detailsId, toggleId) {
+    // Prevent double-fire if button was clicked (button has its own handler)
+    if (event.target.classList.contains('goal-action-btn') ||
+        event.target.classList.contains('goal-notes-textarea') ||
+        event.target.tagName === 'TEXTAREA') {
+      return;
+    }
+
+    const section = document.getElementById(detailsId);
+    const btn = document.getElementById(toggleId);
+    if (!section || !btn) return;
+
+    const isOpen = section.classList.toggle('open');
+    btn.textContent = isOpen ? 'Hide details ↑' : 'View details →';
+  }
+
+  function deleteGoalCard(id) {
+    const card = document.getElementById('goalCard-' + id);
+    if (!card) return;
+    const goal = goalsData.find(g => g.id === id);
+    if (goal) goal.active = false;
+    card.style.transition = 'opacity 0.25s';
+    card.style.opacity = '0';
+    setTimeout(() => {
+      card.remove();
+      updateGoalsSummary();
+    }, 250);
+    showToast('Goal removed');
+  }
+
+  // Add Goal Modal
+  function openAddGoalModal() {
+    document.getElementById('addGoalModal').classList.add('open');
+  }
+
+  function closeAddGoalModal() {
+    document.getElementById('addGoalModal').classList.remove('open');
+    // Reset form
+    const nameEl = document.getElementById('newGoalName');
+    if (nameEl) nameEl.value = '';
+    const targetEl = document.getElementById('newGoalTarget');
+    if (targetEl) targetEl.value = '';
+    const currentEl = document.getElementById('newGoalCurrent');
+    if (currentEl) currentEl.value = '0';
+    const deadlineEl = document.getElementById('newGoalDeadline');
+    if (deadlineEl) deadlineEl.value = '';
+    const notesEl = document.getElementById('newGoalNotes');
+    if (notesEl) notesEl.value = '';
+
+    // Reset goal type pills
+    document.querySelectorAll('.goal-type-pill-card').forEach((c, i) => {
+      c.classList.toggle('selected', i === 0);
+    });
+    // Reset owner cards (in the add-goal modal's owner-cards)
+    const addGoalModal = document.getElementById('addGoalModal');
+    if (addGoalModal) {
+      addGoalModal.querySelectorAll('.owner-card').forEach((c, i) => {
+        c.classList.toggle('selected', i === 0);
+      });
+    }
+  }
+
+  function handleAddGoalOverlayClick(e) {
+    if (e.target === document.getElementById('addGoalModal')) {
+      closeAddGoalModal();
+    }
+  }
+
+  function selectGoalTypePill(card) {
+    document.querySelectorAll('.goal-type-pill-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+  }
+
+  function selectGoalOwnerCard(card) {
+    const modal = card.closest('.add-goal-modal');
+    if (modal) {
+      modal.querySelectorAll('.owner-card').forEach(c => c.classList.remove('selected'));
+    }
+    card.classList.add('selected');
+  }
+
+  function submitNewGoal() {
+    const name = document.getElementById('newGoalName').value.trim();
+    const target = parseFloat(document.getElementById('newGoalTarget').value) || 0;
+    const current = parseFloat(document.getElementById('newGoalCurrent').value) || 0;
+    const deadlineStr = document.getElementById('newGoalDeadline').value;
+    const notes = document.getElementById('newGoalNotes').value.trim();
+
+    if (!name || target <= 0 || !deadlineStr) {
+      showToast('Please fill in goal name, target amount, and deadline');
+      return;
+    }
+
+    const deadline = new Date(deadlineStr);
+
+    // Get selected goal type
+    const typeCard = document.querySelector('.goal-type-pill-card.selected');
+    const type = typeCard ? typeCard.dataset.val : 'Savings goal';
+    const icon = typeCard ? typeCard.dataset.icon : '💰';
+
+    // Get selected owner from add goal modal
+    const addGoalModal = document.getElementById('addGoalModal');
+    const ownerCard = addGoalModal ? addGoalModal.querySelector('.owner-card.selected') : null;
+    const owner = ownerCard ? ownerCard.dataset.owner : 'Unit';
+
+    const newId = nextGoalId++;
+    const pct = Math.round(current / target * 100);
+    const remaining = target - current;
+    const days = getDaysRemaining(deadline);
+    const daysClass = getDaysTagClass(days);
+    const monthlyNeeded = Math.ceil(remaining / Math.max(getMonthsLeft(deadline), 0.5));
+
+    // Rough on-track calc: assume goal is new, so if any progress it's on track
+    const onTrack = current >= 0;
+
+    const newGoal = {
+      id: newId,
+      name, type, icon, owner, target, current, deadline, notes, active: true
+    };
+    goalsData.push(newGoal);
+
+    const ownerPillClass = owner === 'Unit' ? 'goal-owner-unit' : owner === 'Zein' ? 'goal-owner-zein' : 'goal-owner-ala';
+    const statusClass = onTrack ? 'goal-status-on-track' : 'goal-status-behind';
+    const statusText = onTrack ? 'On track ✓' : 'Behind ⚠️';
+    const trackingClass = onTrack ? 'goal-tracking-on' : 'goal-tracking-off';
+    const trackingText = onTrack ? '✓ On track — keep it up' : '⚠️ Behind — accelerate contributions';
+
+    const deadlineDisplay = formatDeadline(deadline);
+
+    const cardHtml = `
+      <div class="goal-card" id="goalCard-${newId}" onclick="toggleGoalDetails(event, 'goal-details-${newId}', 'goal-toggle-${newId}')">
+        <div class="goal-card-top-row">
+          <span class="goal-type-icon">${icon}</span>
+          <span class="goal-name">${name}</span>
+          <span class="goal-owner-pill ${ownerPillClass}">${owner}</span>
+          <span class="goal-status-badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="goal-type-label">${type}</div>
+        <div class="goal-bar-wrap">
+          <div class="goal-bar-fill" style="width: ${pct}%;"></div>
+        </div>
+        <div class="goal-progress-label">AED ${current.toLocaleString()} of AED ${target.toLocaleString()} · ${pct}% complete</div>
+        <div class="goal-stats-row">
+          <div class="goal-stat-item">
+            <div class="goal-stat-label">Target</div>
+            <div class="goal-stat-value">AED ${target.toLocaleString()}</div>
+          </div>
+          <div class="goal-stat-item">
+            <div class="goal-stat-label">Deadline</div>
+            <div class="goal-stat-value${days <= 30 ? ' urgent' : ''}">${deadlineDisplay}</div>
+          </div>
+          <div class="goal-stat-item">
+            <div class="goal-stat-label">Remaining</div>
+            <div class="goal-stat-value">AED ${remaining.toLocaleString()} left</div>
+          </div>
+        </div>
+        <span class="goal-days-tag ${daysClass}">${days} days left</span>
+        <br/>
+        <button class="goal-view-details-toggle" id="goal-toggle-${newId}" onclick="toggleGoalDetails(event, 'goal-details-${newId}', 'goal-toggle-${newId}')">View details →</button>
+        <div class="goal-details-section" id="goal-details-${newId}">
+          <div class="goal-notes-label">Notes</div>
+          <textarea class="goal-notes-textarea" onclick="event.stopPropagation()">${notes}</textarea>
+          <div class="goal-monthly-needed">Monthly contribution needed: <strong>AED ${monthlyNeeded.toLocaleString()}/mo</strong></div>
+          <div class="goal-tracking-status ${trackingClass}">${trackingText}</div>
+          <div class="goal-card-actions">
+            <button class="goal-action-btn" onclick="event.stopPropagation(); showToast('Edit goal coming soon')">✏️ Edit</button>
+            <button class="goal-action-btn delete-btn" onclick="event.stopPropagation(); deleteGoalCard(${newId})">🗑 Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('goalsGrid').insertAdjacentHTML('beforeend', cardHtml);
+    updateGoalsSummary();
+    closeAddGoalModal();
+    showToast('✓ Goal "' + name + '" added');
+  }
+
+  // Initialize expenses list and overview totals on page load
+  updateExpenses('unit');
+  updateOverviewTotals('unit');
+
+  // Initialize goals on page load
+  initGoalDaysTags();
+</script>
+</body>
+</html>

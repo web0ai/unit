@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Why check-ins work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ─────────────────────────────────────── */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--deep-warm) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── Sidebar utility ────────────────────────────── */
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+
+    /* ─── Main Content ───────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: calc(var(--sidebar-width) + 860px);
+    }
+
+    /* ─── Page Header ────────────────────────────────── */
+    .page-header {
+      margin-bottom: 36px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 16px;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 400;
+      max-width: 560px;
+    }
+
+    /* ─── Section ────────────────────────────────────── */
+    .section {
+      margin-bottom: 44px;
+    }
+
+    .section-heading {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      margin-bottom: 6px;
+    }
+
+    .section-subheading {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* ─── Research Cards ─────────────────────────────── */
+    .research-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .research-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .research-card-body {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    .source-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(96, 108, 56, 0.1);
+      color: var(--accent);
+      border: 1px solid rgba(96, 108, 56, 0.2);
+      letter-spacing: 0.1px;
+    }
+
+    .source-badge::before {
+      content: '📖';
+      font-size: 12px;
+    }
+
+    /* ─── Framework Cards ────────────────────────────── */
+    .framework-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .framework-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 22px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .framework-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .framework-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .framework-time-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 14px;
+      background: var(--accent-light);
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .framework-card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .framework-card-questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .q-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ─── Tips List ──────────────────────────────────── */
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tip-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tip-number {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 22px;
+      padding-top: 1px;
+    }
+
+    .tip-emoji {
+      font-size: 20px;
+      flex-shrink: 0;
+      line-height: 1.3;
+    }
+
+    .tip-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ─── Footer CTA card ────────────────────────────── */
+    .cta-card {
+      background: linear-gradient(135deg, rgba(96, 108, 56, 0.08) 0%, rgba(221, 161, 94, 0.1) 100%);
+      border: 1.5px solid rgba(96, 108, 56, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .cta-card-left {}
+
+    .cta-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .cta-card-sub {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .btn-cta {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 26px;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px rgba(96, 108, 56, 0.28);
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      letter-spacing: -0.1px;
+    }
+
+    .btn-cta:hover {
+      background: #4e5929;
+      box-shadow: 0 4px 16px rgba(96, 108, 56, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-cta:active {
+      transform: translateY(0);
+    }
+
+    /* ─── Mobile Tab Bar ──────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tab-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 0 6px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      min-width: 50px;
+      text-decoration: none;
+    }
+
+    .tab-item:hover,
+    .tab-item.active {
+      background: var(--accent-light);
+    }
+
+    .tab-item-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .tab-item-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .tab-item.active .tab-item-label {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 800px) {
+      .sidebar {
+        display: none;
+      }
+
+      .tab-bar {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 16px 100px;
+        max-width: 100%;
+      }
+
+      .framework-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+      }
+
+      .btn-cta {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav">
+      <li>
+        <a href="connect.html" class="active" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" data-nav="us">
+          <span class="nav-icon">👥</span>
+          Us
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────── -->
+  <main class="main">
+
+    <!-- ── Page Header ────────────────────────────────── -->
+    <div class="page-header">
+      <a href="connect.html" class="back-link">← Back to Connect</a>
+      <h1 class="page-title">Why check-ins work</h1>
+      <p class="page-subtitle">The science and thinking behind intentional couple communication.</p>
+    </div>
+
+    <!-- ── Section 1: The Research ───────────────────── -->
+    <div class="section">
+      <h2 class="section-heading">50 years of relationship science</h2>
+      <p class="section-subheading" style="margin-bottom: 20px;">The research is clear — structured communication isn't just nice to have, it's the foundation of lasting relationships.</p>
+
+      <div class="research-grid">
+
+        <div class="research-card">
+          <p class="research-card-body">
+            Dr. John Gottman's 50 years of research found that couples who maintain a 5:1 ratio of positive to negative interactions have dramatically stronger relationships. Structured check-ins are one of the most effective ways to build this ratio consistently.
+          </p>
+          <span class="source-badge">Gottman Institute</span>
+        </div>
+
+        <div class="research-card">
+          <p class="research-card-body">
+            Gottman recommends a weekly 'State of the Union' conversation — a structured check-in where both partners share appreciations and address unresolved issues. Couples who do this report higher satisfaction and lower conflict.
+          </p>
+          <span class="source-badge">Gottman Method</span>
+        </div>
+
+        <div class="research-card">
+          <p class="research-card-body">
+            The best founding teams don't avoid conflict — they manage it with weekly syncs. The same principle applies to couples: consistent, structured communication prevents small misalignments from becoming relationship-ending conflicts.
+          </p>
+          <span class="source-badge">YC / Startup research</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Section 2: Our Question Framework ─────────── -->
+    <div class="section">
+      <h2 class="section-heading">How we designed the questions</h2>
+      <p class="section-subheading">Each depth level is purpose-built for a specific type of conversation.</p>
+
+      <div class="framework-grid">
+
+        <div class="framework-card">
+          <div class="framework-card-header">
+            <div class="framework-card-title">Short</div>
+            <span class="framework-time-badge">15 min</span>
+          </div>
+          <p class="framework-card-desc">
+            A quick pulse check. Designed for busy weeks when you still want to stay connected. Based on Gottman's appreciation principle — always start with what's working.
+          </p>
+          <div class="framework-card-questions">
+            <span class="q-pill">Feeling (1–10)</span>
+            <span class="q-pill">One appreciation</span>
+            <span class="q-pill">What you need</span>
+            <span class="q-pill">Looking forward to</span>
+          </div>
+        </div>
+
+        <div class="framework-card">
+          <div class="framework-card-header">
+            <div class="framework-card-title">Less Short</div>
+            <span class="framework-time-badge">30 min</span>
+          </div>
+          <p class="framework-card-desc">
+            A deeper dive. Includes reflection on the week and a team alignment check. Borrows from cofounder sync frameworks — treat your relationship like a partnership with regular retrospectives.
+          </p>
+          <div class="framework-card-questions">
+            <span class="q-pill">All Short questions</span>
+            <span class="q-pill">What went well</span>
+            <span class="q-pill">What was hard</span>
+            <span class="q-pill">Team alignment</span>
+            <span class="q-pill">Tension</span>
+            <span class="q-pill">Shared goal</span>
+          </div>
+        </div>
+
+        <div class="framework-card">
+          <div class="framework-card-header">
+            <div class="framework-card-title">Not Short</div>
+            <span class="framework-time-badge">60 min</span>
+          </div>
+          <p class="framework-card-desc">
+            A full monthly review. Covers the whole picture — physical/mental health, finances, relationship dynamics, long-term vision. Modeled after quarterly business reviews, adapted for couples.
+          </p>
+          <div class="framework-card-questions">
+            <span class="q-pill">All above</span>
+            <span class="q-pill">Shared goals</span>
+            <span class="q-pill">Health check</span>
+            <span class="q-pill">Wishes</span>
+            <span class="q-pill">Safe space</span>
+            <span class="q-pill">Start/stop/change</span>
+            <span class="q-pill">3-month vision</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Section 3: Tips ────────────────────────────── -->
+    <div class="section">
+      <h2 class="section-heading">Making it work</h2>
+      <p class="section-subheading" style="margin-bottom: 20px;">Four principles that make check-ins effective, not just routine.</p>
+
+      <div class="tips-list">
+
+        <div class="tip-row">
+          <div class="tip-number">1</div>
+          <div class="tip-emoji">📵</div>
+          <div class="tip-text"><strong>No phones. Close the laptop.</strong> Give each other 15–60 uninterrupted minutes.</div>
+        </div>
+
+        <div class="tip-row">
+          <div class="tip-number">2</div>
+          <div class="tip-emoji">📅</div>
+          <div class="tip-text"><strong>Same time every week.</strong> Consistency matters more than perfection.</div>
+        </div>
+
+        <div class="tip-row">
+          <div class="tip-number">3</div>
+          <div class="tip-emoji">🤝</div>
+          <div class="tip-text"><strong>Start with appreciation. Always.</strong> It sets the tone for everything that follows.</div>
+        </div>
+
+        <div class="tip-row">
+          <div class="tip-number">4</div>
+          <div class="tip-emoji">💬</div>
+          <div class="tip-text"><strong>If something comes up, note it — don't solve it mid check-in.</strong> Return to it after.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Footer CTA ─────────────────────────────────── -->
+    <div class="cta-card">
+      <div class="cta-card-left">
+        <div class="cta-card-title">Ready to check in?</div>
+        <div class="cta-card-sub">This week's check-in is waiting. Takes as little as 15 minutes.</div>
+      </div>
+      <a href="connect.html" class="btn-cta">Start this week's check-in →</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Tab Bar ────────────────────────────── -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <a href="dashboard.html" class="tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="tab-item active" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="tab-item" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="tab-item" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+</body>
+</html>

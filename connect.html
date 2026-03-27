@@ -1,0 +1,4128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unit — Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #FEFAE0;
+      --text: #283618;
+      --accent: #606C38;
+      --accent-light: #f0f2e4;
+      --warm: #DDA15E;
+      --deep-warm: #BC6C25;
+      --muted: #5a6342;
+      --surface: #fffdf0;
+      --border: #e0d9b8;
+      --white: #ffffff;
+      --sidebar-width: 220px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 1px 4px rgba(40, 54, 24, 0.07);
+      --shadow-md: 0 4px 16px rgba(40, 54, 24, 0.09);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ─────────────────────────────────────── */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-width);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: -0.3px;
+      margin-bottom: 36px;
+      padding-left: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+      display: inline-block;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      transition: background 0.15s, color 0.15s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .sidebar-nav li a .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-nav li a:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .sidebar-nav li a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      margin-top: auto;
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--deep-warm) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .profile-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .profile-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ─── Main Content ───────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      min-height: 100vh;
+      padding: 36px 40px 80px;
+      max-width: calc(var(--sidebar-width) + 860px);
+    }
+
+    /* ─── Page Header ────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .page-header-left {}
+
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .page-learn-link {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.15s;
+    }
+
+    .page-learn-link:hover {
+      opacity: 0.75;
+      text-decoration: underline;
+    }
+
+    .btn-settings {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-settings:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    /* ─── Section ────────────────────────────────────── */
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ─── Dashboard Stat Cards ───────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-card-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .stat-card-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ─── This Week Check-in (prominent card) ────────── */
+    .checkin-hero-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px 20px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .checkin-hero-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .checkin-hero-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .status-badge.not-started {
+      background: rgba(221, 161, 94, 0.15);
+      color: var(--deep-warm);
+      border: 1px solid rgba(221, 161, 94, 0.3);
+    }
+
+    .depth-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid rgba(96, 108, 56, 0.2);
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .checkin-hero-body {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .checkin-hero-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btn-start {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px 28px;
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px rgba(96, 108, 56, 0.3);
+      letter-spacing: -0.1px;
+    }
+
+    .btn-start:hover {
+      background: #4e5929;
+      box-shadow: 0 4px 16px rgba(96, 108, 56, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-start:active {
+      transform: translateY(0);
+    }
+
+    .checkin-hero-footer {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .checkin-hero-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .checkin-hero-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ─── Questions Section Header ───────────────────── */
+    .questions-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .btn-outlined {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-outlined:hover {
+      background: var(--accent-light);
+    }
+
+    /* ─── Questions Form ─────────────────────────────── */
+    .questions-section {
+      transition: opacity 0.25s ease;
+    }
+
+    .questions-section.fading {
+      opacity: 0;
+    }
+
+    .partner-form-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .question-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .question-number {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+
+    .question-text {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+
+    .partner-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .partner-col {}
+
+    .partner-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .partner-label .partner-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .partner-dot.zein {
+      background: var(--warm);
+    }
+
+    .partner-dot.ala {
+      background: var(--accent);
+    }
+
+    /* ─── Form Inputs ────────────────────────────────── */
+    .form-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      resize: none;
+    }
+
+    .form-input::placeholder {
+      color: #b8b09a;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    textarea.form-input {
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    /* ─── Slider + Word Input Row ────────────────────── */
+    .slider-word-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-container {
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .slider-label-text {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Custom range slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      border-radius: 10px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(96, 108, 56, 0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+      border: 2px solid var(--surface);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.4);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--surface);
+      box-shadow: 0 1px 4px rgba(96, 108, 56, 0.35);
+    }
+
+    .slider-value-display {
+      text-align: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    /* ─── Check-in History ───────────────────────────── */
+    .history-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .history-header-buttons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      position: relative;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: background 0.12s;
+      cursor: pointer;
+    }
+
+    .history-row:hover {
+      background: var(--accent-light);
+    }
+
+    .history-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .history-check {
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    .history-date {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .history-depth-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .history-view {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.12s;
+    }
+
+    .history-view:hover {
+      background: var(--accent-light);
+    }
+
+    /* ─── Export Dropdown ────────────────────────────── */
+    .export-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      z-index: 60;
+      overflow: hidden;
+      min-width: 150px;
+    }
+
+    .export-dropdown.open {
+      display: block;
+    }
+
+    .export-option {
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.12s;
+    }
+
+    .export-option:hover {
+      background: var(--accent-light);
+    }
+
+    /* ─── Toast ──────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--accent);
+      color: var(--white);
+      padding: 9px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ─── Modal Overlay ──────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      z-index: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      max-width: 700px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+      position: relative;
+      transform: translateY(16px);
+      transition: transform 0.22s ease;
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .modal-close:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .modal-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      padding-right: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-depth-badge {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .modal-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    /* ─── Settings Modal ─────────────────────────────── */
+    .settings-modal-section {
+      margin-bottom: 24px;
+    }
+
+    .settings-modal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-modal-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .cadence-value {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cadence-text {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .cadence-edit-btn {
+      font-size: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: background 0.15s;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .cadence-edit-btn:hover {
+      background: var(--accent-light);
+    }
+
+    .cadence-dropdown {
+      display: none;
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      z-index: 50;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .cadence-dropdown.open {
+      display: block;
+    }
+
+    .cadence-option {
+      padding: 9px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.12s;
+    }
+
+    .cadence-option:hover {
+      background: var(--accent-light);
+    }
+
+    .cadence-option.selected {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .cadence-wrapper {
+      position: relative;
+    }
+
+    /* ─── Depth Selector ─────────────────────────────── */
+    .depth-selector {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .depth-card {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      background: var(--bg);
+      transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+      min-width: 100px;
+    }
+
+    .depth-card:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .depth-card.active {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.12);
+    }
+
+    .depth-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .depth-card.active .depth-card-title {
+      color: var(--accent);
+    }
+
+    .depth-card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Session Notes (read-only) ──────────────────── */
+    .session-partners {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .session-partner-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .session-partner-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .session-answer-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+
+    .session-answer-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .session-answer-value {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    /* ─── Edit Questions Modal ───────────────────────── */
+    .edit-q-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .edit-q-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .edit-q-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .edit-q-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .btn-remove-q {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+    }
+
+    .btn-remove-q:hover {
+      border-color: #bc6c25;
+      color: #bc6c25;
+      background: rgba(188, 108, 37, 0.08);
+    }
+
+    .btn-add-q {
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 9px 16px;
+      width: 100%;
+      text-align: left;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .btn-add-q:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .edit-q-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-cancel:hover {
+      background: var(--accent-light);
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 18px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-save:hover {
+      background: #4e5929;
+    }
+
+    /* ─── Trends Modal ───────────────────────────────── */
+    .trends-chart-wrap {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 16px 10px;
+      margin-bottom: 20px;
+    }
+
+    .trends-chart-legend {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .insights-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .insight-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .insight-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .insight-value {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .insight-trend {
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    /* ─── Mobile Tab Bar ──────────────────────────────── */
+    .tab-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .tab-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 8px 0 6px;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      min-width: 50px;
+      text-decoration: none;
+    }
+
+    .tab-item:hover,
+    .tab-item.active {
+      background: var(--accent-light);
+    }
+
+    .tab-item-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .tab-item-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .tab-item.active .tab-item-label {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* ─── Sidebar utility ────────────────────────────── */
+    .sidebar-section-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 16px 4px;
+      font-weight: 500;
+      opacity: 0.65;
+    }
+
+    .sidebar-divider-thin {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 4px 2px;
+    }
+
+    /* ─── Responsive ─────────────────────────────────── */
+    @media (max-width: 800px) {
+      .sidebar {
+        display: none;
+      }
+
+      .tab-bar {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 24px 16px 100px;
+        max-width: 100%;
+      }
+
+      .partner-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .checkin-hero-body {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .btn-start {
+        width: 100%;
+        text-align: center;
+      }
+
+      .session-partners {
+        grid-template-columns: 1fr;
+      }
+
+      .depth-selector {
+        flex-direction: column;
+      }
+
+      .depth-card {
+        min-width: auto;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       CHECK-IN FLOW OVERLAY
+    ═══════════════════════════════════════════════════ */
+
+    .checkin-flow-overlay {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      bottom: 0;
+      background: var(--bg);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .checkin-flow-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    @media (max-width: 800px) {
+      .checkin-flow-overlay {
+        left: 0;
+      }
+    }
+
+    .flow-inner {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px 80px;
+    }
+
+    /* ─── Stage Containers ─── */
+    .flow-stage {
+      display: none;
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .flow-stage.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Stage 1: Intro ─── */
+    .flow-intro-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 56px 48px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .flow-intro-emoji {
+      font-size: 56px;
+      line-height: 1;
+    }
+
+    .flow-intro-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      line-height: 1.2;
+    }
+
+    .flow-intro-meta {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .btn-begin {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 16px 48px;
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 12px rgba(96, 108, 56, 0.3);
+      letter-spacing: -0.1px;
+      margin-top: 4px;
+    }
+
+    .btn-begin:hover {
+      background: #4e5929;
+      box-shadow: 0 4px 20px rgba(96, 108, 56, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-skip-now {
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s;
+      padding: 0;
+    }
+
+    .btn-skip-now:hover {
+      color: var(--text);
+    }
+
+    /* ─── Stage 2: Questions ─── */
+    .flow-question-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* Progress bar */
+    .flow-progress-bar-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .flow-progress-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .flow-progress-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .flow-progress-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .flow-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+
+    .btn-flow-exit {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      padding: 5px 12px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-flow-exit:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* Question card */
+    .flow-question-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 32px 28px;
+      box-shadow: var(--shadow-md);
+      animation: fadeSlideIn 0.22s ease;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .flow-q-number {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+      font-family: 'Sora', sans-serif;
+    }
+
+    .flow-q-text-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .flow-q-text {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+      flex: 1;
+    }
+
+    .btn-edit-q-inline {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 4px;
+      border-radius: 6px;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .btn-edit-q-inline:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    /* Inline question edit */
+    .flow-q-edit-area {
+      display: none;
+      margin-bottom: 28px;
+      gap: 8px;
+    }
+
+    .flow-q-edit-area.open {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .flow-q-edit-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    .flow-q-edit-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* Answer columns */
+    .flow-answer-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .flow-answer-cols {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flow-answer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .flow-answer-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .flow-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .flow-answer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Rating pills */
+    .flow-rating-pills {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .flow-rating-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    .flow-rating-pill:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    .flow-rating-pill.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--white);
+      transform: scale(1.08);
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.3);
+    }
+
+    /* Flow inputs */
+    .flow-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .flow-input::placeholder {
+      color: #b8b09a;
+    }
+
+    .flow-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
+    }
+
+    textarea.flow-input {
+      min-height: 90px;
+      resize: none;
+      line-height: 1.5;
+    }
+
+    input.flow-input.short-word {
+      max-width: 200px;
+    }
+
+    /* Bottom nav */
+    .flow-bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-flow-back {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .btn-flow-back:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .btn-flow-skip {
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s;
+      padding: 0;
+    }
+
+    .btn-flow-skip:hover {
+      color: var(--text);
+    }
+
+    .btn-flow-next {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 28px;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.25);
+    }
+
+    .btn-flow-next:hover {
+      background: #4e5929;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(96, 108, 56, 0.3);
+    }
+
+    .btn-flow-next:active {
+      transform: translateY(0);
+    }
+
+    /* ─── Stage 3: Review ─── */
+    .flow-review-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px 32px 28px;
+    }
+
+    .flow-review-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+
+    .flow-review-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .flow-review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .flow-review-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .flow-review-q-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .flow-review-q-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .btn-review-edit {
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+
+    .btn-review-edit:hover {
+      background: var(--accent-light);
+      color: var(--text);
+    }
+
+    .flow-review-answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 560px) {
+      .flow-review-answers {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .flow-review-answer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .flow-review-answer-who {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .flow-review-answer-who.zein-who {
+      color: var(--warm);
+    }
+
+    .flow-review-answer-who.ala-who {
+      color: var(--accent);
+    }
+
+    .flow-review-answer-val {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .flow-review-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+
+    .btn-go-back {
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color 0.15s;
+      padding: 0;
+    }
+
+    .btn-go-back:hover {
+      color: var(--text);
+    }
+
+    .btn-save-checkin {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 12px 28px;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.25);
+    }
+
+    .btn-save-checkin:hover {
+      background: #4e5929;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(96, 108, 56, 0.3);
+    }
+
+    /* ─── Stage 4: Completion ─── */
+    .flow-complete-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .flow-summary-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px 32px 28px;
+    }
+
+    .flow-complete-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .flow-complete-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .flow-complete-highlights {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .flow-highlight-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .flow-highlight-who {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .flow-highlight-who.zein-hl {
+      color: var(--warm);
+    }
+
+    .flow-highlight-who.ala-hl {
+      color: var(--accent);
+    }
+
+    .flow-highlight-word {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+    }
+
+    .flow-highlight-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .flow-rating-compare {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .flow-rating-compare strong {
+      color: var(--text);
+    }
+
+    .btn-view-history {
+      background: none;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0;
+    }
+
+    .btn-view-history:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Activity card */
+    .flow-activity-outer {
+      perspective: 800px;
+    }
+
+    .flow-activity-card-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 200px;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .flow-activity-card-wrap.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flow-activity-face {
+      position: absolute;
+      inset: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .flow-activity-face.back {
+      transform: rotateY(180deg);
+    }
+
+    /* Static activity box (fallback for height) */
+    .flow-activity-static {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .flow-activity-icon {
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .flow-activity-face-label {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .flow-activity-text {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+      letter-spacing: -0.2px;
+    }
+
+    .btn-flip {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 24px;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(96, 108, 56, 0.25);
+    }
+
+    .btn-flip:hover {
+      background: #4e5929;
+      transform: translateY(-1px);
+    }
+
+    .flow-micro-quote {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .btn-flow-done {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px 40px;
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      box-shadow: 0 2px 12px rgba(96, 108, 56, 0.3);
+      align-self: center;
+      margin-top: 8px;
+    }
+
+    .btn-flow-done:hover {
+      background: #4e5929;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 18px rgba(96, 108, 56, 0.35);
+    }
+
+    /* ─── Inline edit modal for save-question prompt ─── */
+    .flow-save-q-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .flow-save-q-modal.open {
+      display: flex;
+    }
+
+    .flow-save-q-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      max-width: 420px;
+      width: 100%;
+      padding: 28px 28px 24px;
+    }
+
+    .flow-save-q-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .flow-save-q-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .flow-save-q-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .flow-save-q-btn {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .flow-save-q-btn.primary {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+    }
+
+    .flow-save-q-btn.primary:hover {
+      background: #4e5929;
+    }
+
+    .flow-save-q-btn.secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1.5px solid var(--border);
+    }
+
+    .flow-save-q-btn.secondary:hover {
+      background: var(--accent-light);
+      border-color: var(--accent);
+    }
+
+    .flow-save-q-btn.ghost {
+      background: none;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+
+    .flow-save-q-btn.ghost:hover {
+      background: var(--accent-light);
+    }
+
+    /* ─── Exit confirm modal ─── */
+    .flow-exit-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 54, 24, 0.35);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .flow-exit-modal.open {
+      display: flex;
+    }
+
+    .flow-exit-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 48px rgba(40, 54, 24, 0.18);
+      max-width: 360px;
+      width: 100%;
+      padding: 28px;
+    }
+
+    .flow-exit-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .flow-exit-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .flow-exit-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* Flipped activity display */
+    .flow-activity-revealed {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+
+    .flow-activity-revealed.show {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── Sidebar ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-dot"></span>
+      Unit
+    </div>
+
+    <div class="sidebar-section-label">Pillars</div>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <li>
+        <a href="connect.html" class="active" data-nav="connect">
+          <span class="nav-icon">💬</span>
+          Connect
+        </a>
+      </li>
+      <li>
+        <a href="life.html" data-nav="life">
+          <span class="nav-icon">🌍</span>
+          Life
+        </a>
+      </li>
+      <li>
+        <a href="money.html" data-nav="money">
+          <span class="nav-icon">💰</span>
+          Money
+        </a>
+      </li>
+      <li>
+        <a href="vault.html" data-nav="vault">
+          <span class="nav-icon">🗂️</span>
+          Vault
+          <span id="vaultExpiryBadge" style="background:#e74c3c;color:#fff;font-size:11px;padding:1px 6px;border-radius:10px;margin-left:6px;font-weight:600;">1</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-divider-thin"></div>
+
+    <ul class="sidebar-nav" style="margin-top:4px;">
+      <li>
+        <a href="dashboard.html" data-nav="home">
+          <span class="nav-icon">🏠</span>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="us.html" data-nav="us">
+          <span class="nav-icon">👥</span>
+          My Unit
+        </a>
+      </li>
+      <li>
+        <a href="schedule.html" data-nav="schedule">
+          <span class="nav-icon">📅</span>
+          Schedule
+        </a>
+      </li>
+    </ul>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">🌿</div>
+      <div>
+        <div class="profile-name">Zein &amp; Ala</div>
+        <div class="profile-sub">Family account</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ──────────────────────────────── -->
+  <main class="main">
+
+    <!-- ── Page Header ────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">Connect</h1>
+        <p class="page-subtitle">Stay connected with your partner through intentional check-ins.</p>
+        <a href="connect-why.html" class="page-learn-link">Learn more about why this works →</a>
+      </div>
+      <button class="btn-settings" onclick="openSettingsModal()">⚙️ Settings</button>
+    </div>
+
+    <!-- ── Section 1: Your connection at a glance ─────── -->
+    <div class="section">
+      <div class="section-label">Your connection at a glance</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-label">Streak</div>
+          <div class="stat-card-value">🔥 4 weeks strong</div>
+          <div class="stat-card-sub">Keep it going</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Last check-in</div>
+          <div class="stat-card-value">March 16 · Short</div>
+          <div class="stat-card-sub">Zein: 7 · Ala: 8</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Next check-in</div>
+          <div class="stat-card-value">Thursday, March 26</div>
+          <div class="stat-card-sub">In 2 days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 2: Start your check-in ────────────── -->
+    <div class="section">
+      <div class="section-label">This week</div>
+      <div class="checkin-hero-card">
+        <div class="checkin-hero-top">
+          <h2 class="checkin-hero-title">Week of March 23, 2026</h2>
+          <span class="status-badge not-started">Not started yet</span>
+          <span class="depth-pill" id="depthPill">Short · 15 min</span>
+        </div>
+        <div class="checkin-hero-body">
+          <div class="checkin-hero-desc" id="heroDesc">4 quick questions to stay in sync</div>
+          <button class="btn-start" onclick="startCheckinFlow()">Start check-in →</button>
+        </div>
+        <div class="checkin-hero-footer">
+          Last check-in: March 16 · Completed ✓ · <a href="#" onclick="openSessionModal(0); return false;">View notes →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 3: Your answers this week ─────────── -->
+    <div class="section" id="questionsAnchor">
+      <div class="questions-section-header">
+        <div class="section-label" id="questionsLabel" style="margin-bottom:0;">Your answers this week · Short</div>
+        <button class="btn-outlined" onclick="openEditQuestionsModal()">Edit questions ✏️</button>
+      </div>
+      <div class="questions-section" id="questionsSection">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- ── Section 4: History ─────────────────────────── -->
+    <div class="section">
+      <div class="history-section-header">
+        <div class="section-label" style="margin-bottom:0;">History</div>
+        <div class="history-header-buttons">
+          <div style="position:relative;">
+            <button class="btn-outlined" id="exportBtn" onclick="toggleExportDropdown(event)">Export</button>
+            <div class="export-dropdown" id="exportDropdown">
+              <div class="export-option" onclick="exportCheckinHistory('json'); closeExportDropdown();">Export as JSON</div>
+              <div class="export-option" onclick="exportCheckinHistory('text'); closeExportDropdown();">Export as Text</div>
+            </div>
+          </div>
+          <button class="btn-outlined" onclick="openTrendsModal()">✦ Analyze trends →</button>
+        </div>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-row" onclick="openSessionModal(0)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">March 20, 2026</span>
+            <span class="history-depth-badge">Weekly</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+        <div class="history-row" onclick="openSessionModal(1)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">March 13, 2026</span>
+            <span class="history-depth-badge">Weekly</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+        <div class="history-row" onclick="openSessionModal(2)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">March 6, 2026</span>
+            <span class="history-depth-badge">Weekly</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+        <div class="history-row" onclick="openSessionModal(3)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">March 9, 2026</span>
+            <span class="history-depth-badge">Short</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+        <div class="history-row" onclick="openSessionModal(4)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">March 2, 2026</span>
+            <span class="history-depth-badge">Less Short</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+        <div class="history-row" onclick="openSessionModal(5)">
+          <div class="history-left">
+            <span class="history-check">✓</span>
+            <span class="history-date">February 23, 2026</span>
+            <span class="history-depth-badge">Short</span>
+          </div>
+          <span class="history-view">View →</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ─── Mobile Tab Bar ────────────────────────────── -->
+<nav class="tab-bar">
+  <div class="tab-bar-inner">
+    <a href="dashboard.html" class="tab-item" data-tab="home">
+      <span class="tab-item-icon">🏠</span>
+      <span class="tab-item-label">Home</span>
+    </a>
+    <a href="connect.html" class="tab-item active" data-tab="connect">
+      <span class="tab-item-icon">💬</span>
+      <span class="tab-item-label">Connect</span>
+    </a>
+    <a href="life.html" class="tab-item" data-tab="life">
+      <span class="tab-item-icon">🌍</span>
+      <span class="tab-item-label">Life</span>
+    </a>
+    <a href="money.html" class="tab-item" data-tab="money">
+      <span class="tab-item-icon">💰</span>
+      <span class="tab-item-label">Money</span>
+    </a>
+    <a href="vault.html" class="tab-item" data-tab="vault">
+      <span class="tab-item-icon">🗂️</span>
+      <span class="tab-item-label">Vault</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ─── CHECK-IN FLOW OVERLAY ─────────────────────── -->
+<div class="checkin-flow-overlay" id="checkinFlowOverlay">
+  <div class="flow-inner" id="flowInner">
+
+    <!-- Stage 1: Intro -->
+    <div class="flow-stage" id="flowStage1">
+      <div class="flow-intro-card">
+        <div class="flow-intro-emoji">💬</div>
+        <div class="flow-intro-title" id="flowIntroTitle">Time for your weekly check-in</div>
+        <div class="flow-intro-meta" id="flowIntroMeta">~10 min · March 26, 2026</div>
+        <button class="btn-begin" onclick="flowBegin()">Begin →</button>
+        <button class="btn-skip-now" onclick="closeCheckinFlow()">Skip for now</button>
+      </div>
+    </div>
+
+    <!-- Stage 2: Questions -->
+    <div class="flow-stage" id="flowStage2">
+      <div class="flow-question-wrap">
+        <!-- Progress bar -->
+        <div class="flow-progress-bar-wrap">
+          <div class="flow-progress-left">
+            <span class="flow-progress-label" id="flowProgressLabel">Question 1 of 6</span>
+            <div class="flow-progress-track">
+              <div class="flow-progress-fill" id="flowProgressFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <button class="btn-flow-exit" onclick="confirmExitFlow()">× Exit</button>
+        </div>
+
+        <!-- Question card -->
+        <div class="flow-question-card" id="flowQuestionCard">
+          <div class="flow-q-number" id="flowQNumber">01</div>
+          <div class="flow-q-text-wrap" id="flowQTextWrap">
+            <div class="flow-q-text" id="flowQText">How are you feeling this week?</div>
+            <button class="btn-edit-q-inline" title="Edit question" onclick="openInlineQEdit()">✏️</button>
+          </div>
+          <div class="flow-q-edit-area" id="flowQEditArea">
+            <input class="flow-q-edit-input" id="flowQEditInput" type="text" />
+            <div class="flow-q-edit-btns">
+              <button class="btn-cancel" onclick="cancelInlineQEdit()">Cancel</button>
+              <button class="btn-save" onclick="saveInlineQEdit()">Save</button>
+            </div>
+          </div>
+          <div class="flow-answer-cols" id="flowAnswerCols">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Bottom nav -->
+        <div class="flow-bottom-bar">
+          <button class="btn-flow-back" id="flowBackBtn" onclick="flowPrevQuestion()">← Back</button>
+          <button class="btn-flow-skip" onclick="flowSkipQuestion()">Skip</button>
+          <button class="btn-flow-next" id="flowNextBtn" onclick="flowNextQuestion()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 3: Review -->
+    <div class="flow-stage" id="flowStage3">
+      <div class="flow-review-card">
+        <div class="flow-review-title">Here's your check-in 👀</div>
+        <div class="flow-review-subtitle">Review before saving.</div>
+        <div class="flow-review-list" id="flowReviewList"></div>
+        <div class="flow-review-actions">
+          <button class="btn-go-back" onclick="flowGoToQuestion(currentFlowQuestions.length - 1)">← Go back</button>
+          <button class="btn-save-checkin" onclick="flowSaveCheckin()">Save check-in ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 4: Completion -->
+    <div class="flow-stage" id="flowStage4">
+      <div class="flow-complete-wrap">
+        <!-- Summary card -->
+        <div class="flow-summary-card">
+          <div class="flow-complete-title">Check-in complete 🎉</div>
+          <div class="flow-complete-meta" id="flowCompleteMeta"></div>
+
+          <div class="flow-complete-highlights" id="flowCompleteHighlights" style="display:none"></div>
+          <div class="flow-rating-compare" id="flowRatingCompare" style="display:none"></div>
+
+          <button class="btn-view-history" onclick="openLatestHistoryEntry()">View in history →</button>
+        </div>
+
+        <!-- Activity card -->
+        <div class="flow-activity-static" id="flowActivityCard">
+          <div id="flowActivityFront" style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;">
+            <div class="flow-activity-icon">🎲</div>
+            <div class="flow-activity-face-label">Your activity for this week</div>
+            <button class="btn-flip" onclick="flipActivityCard()">Flip →</button>
+          </div>
+          <div class="flow-activity-revealed" id="flowActivityRevealed">
+            <div class="flow-activity-icon" id="flowActivityEmoji">🚶</div>
+            <div class="flow-activity-text" id="flowActivityText">Go for a 20-minute walk together. No phones. Just talk.</div>
+          </div>
+          <div class="flow-micro-quote" id="flowMicroQuote" style="display:none"></div>
+        </div>
+
+        <button class="btn-flow-done" onclick="closeCheckinFlow()">Done ✓</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── Inline Q Edit Save Modal ─────────────────── -->
+<div class="flow-save-q-modal" id="flowSaveQModal">
+  <div class="flow-save-q-box">
+    <div class="flow-save-q-title">Save this change?</div>
+    <div class="flow-save-q-sub">Do you want to update this question for all future check-ins, or just use the new text this time?</div>
+    <div class="flow-save-q-buttons">
+      <button class="flow-save-q-btn primary" onclick="saveQEditChoice('permanent')">Yes, save permanently</button>
+      <button class="flow-save-q-btn secondary" onclick="saveQEditChoice('once')">Just this time</button>
+      <button class="flow-save-q-btn ghost" onclick="saveQEditChoice('cancel')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Exit Confirm Modal ────────────────────────── -->
+<div class="flow-exit-modal" id="flowExitModal">
+  <div class="flow-exit-box">
+    <div class="flow-exit-title">Exit check-in?</div>
+    <div class="flow-exit-sub">Your progress won't be saved. Are you sure you want to leave?</div>
+    <div class="flow-exit-btns">
+      <button class="btn-cancel" onclick="closeExitModal()">Keep going</button>
+      <button class="btn-save" style="background:#bc6c25;" onclick="confirmExit()">Exit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Settings Modal ────────────────────────────── -->
+<div class="modal-overlay" id="settingsModal" onclick="handleSettingsModalClick(event)">
+  <div class="modal-box" id="settingsModalBox">
+    <button class="modal-close" onclick="closeSettingsModal()">×</button>
+    <div class="modal-title">⚙️ Check-in Settings</div>
+    <div class="modal-subtitle">Configure your cadence and depth preference.</div>
+
+    <div class="settings-modal-section">
+      <div class="settings-modal-label">Cadence</div>
+      <div class="cadence-wrapper">
+        <div class="cadence-value">
+          <span class="cadence-text" id="cadenceText">Weekly</span>
+          <button class="cadence-edit-btn" id="cadenceEditBtn" onclick="toggleCadenceDropdown()">change</button>
+        </div>
+        <div class="cadence-dropdown" id="cadenceDropdown">
+          <div class="cadence-option selected" onclick="setCadence('Weekly', this)">Weekly</div>
+          <div class="cadence-option" onclick="setCadence('Biweekly', this)">Biweekly</div>
+          <div class="cadence-option" onclick="setCadence('Monthly', this)">Monthly</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-modal-section">
+      <div class="settings-modal-label">Check-in depth</div>
+      <div class="depth-selector" id="depthSelector">
+        <div class="depth-card active" data-depth="short" onclick="selectDepth('short', this)">
+          <div class="depth-card-title">Short</div>
+          <div class="depth-card-meta">15 min · 4 questions</div>
+        </div>
+        <div class="depth-card" data-depth="less-short" onclick="selectDepth('less-short', this)">
+          <div class="depth-card-title">Less Short</div>
+          <div class="depth-card-meta">30 min · 9 questions</div>
+        </div>
+        <div class="depth-card" data-depth="not-short" onclick="selectDepth('not-short', this)">
+          <div class="depth-card-title">Not Short</div>
+          <div class="depth-card-meta">60 min · 15 questions</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-q-actions" style="padding-top: 16px; border-top: 1px solid var(--border); margin-top: 8px;">
+      <button class="btn-save" onclick="closeSettingsModal(); showToast('Settings saved ✓');">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Session Notes Modal ───────────────────────── -->
+<div class="modal-overlay" id="sessionModal" onclick="handleSessionModalClick(event)">
+  <div class="modal-box" id="sessionModalBox">
+    <button class="modal-close" onclick="closeSessionModal()">×</button>
+    <div id="sessionModalContent"></div>
+  </div>
+</div>
+
+<!-- ─── Edit Questions Modal ──────────────────────── -->
+<div class="modal-overlay" id="editQModal" onclick="handleEditQModalClick(event)">
+  <div class="modal-box" id="editQModalBox">
+    <button class="modal-close" onclick="closeEditQModal()">×</button>
+    <div class="modal-title">Edit questions</div>
+    <div class="modal-subtitle" id="editQModalSubtitle">Editing questions for the Short depth</div>
+    <div class="edit-q-list" id="editQList"></div>
+    <button class="btn-add-q" onclick="addEditQRow()">+ Add question</button>
+    <div class="edit-q-actions">
+      <button class="btn-cancel" onclick="closeEditQModal()">Cancel</button>
+      <button class="btn-save" onclick="saveEditedQuestions()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Trends Modal ──────────────────────────────── -->
+<div class="modal-overlay" id="trendsModal" onclick="handleTrendsModalClick(event)">
+  <div class="modal-box" id="trendsModalBox">
+    <button class="modal-close" onclick="closeTrendsModal()">×</button>
+    <div class="modal-title">✦ Trends & reflections</div>
+    <div class="modal-subtitle">Feeling scores across your last 4 sessions</div>
+    <div class="trends-chart-wrap">
+      <div class="trends-chart-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background: var(--warm);"></div>
+          Zein
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: var(--accent);"></div>
+          Ala
+        </div>
+      </div>
+      <svg id="trendsSvg" width="100%" height="180" viewBox="0 0 560 180" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+</div>
+
+<!-- ─── Toast ─────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script>
+
+/* ═══════════════════════════════════════════════════════
+   EXISTING CODE — unchanged
+═══════════════════════════════════════════════════════ */
+
+/* ─── Cadence time-period label ─────────────────── */
+const CADENCE_PERIOD = {
+  'Weekly': 'this week',
+  'Biweekly': 'these two weeks',
+  'Monthly': 'this month',
+};
+
+let currentCadence = 'Weekly';
+
+/* ─── Depth metadata ────────────────────────────── */
+const DEPTH_META = {
+  'short':      { label: 'Short',      pill: 'Short · 15 min',      desc: '4 quick questions to stay in sync' },
+  'less-short': { label: 'Less Short', pill: 'Less Short · 30 min', desc: '9 questions for a deeper weekly review' },
+  'not-short':  { label: 'Not Short',  pill: 'Not Short · 60 min',  desc: '15 questions for a full monthly retrospective' },
+};
+
+/* ─── Question Definitions (templates with {period}) ── */
+const QUESTION_TEMPLATES = {
+  short: [
+    { id: 'q1', text: 'How are you feeling {period}?', type: 'slider-word', sliderLabel: ['1 — rough', '10 — amazing'] },
+    { id: 'q2', text: 'Name one thing I did that you appreciated.', type: 'text', placeholder: 'Something specific...' },
+    { id: 'q3', text: 'What do you need from me {period}?', type: 'text', placeholder: 'Be honest...' },
+    { id: 'q4', text: 'One thing you\'re looking forward to.', type: 'text', placeholder: 'Big or small...' },
+  ],
+  'less-short': [
+    { id: 'q1', text: 'How are you feeling {period}?', type: 'slider-word', sliderLabel: ['1 — rough', '10 — amazing'] },
+    { id: 'q2', text: 'Name one thing I did that you appreciated.', type: 'text', placeholder: 'Something specific...' },
+    { id: 'q3', text: 'What do you need from me {period}?', type: 'text', placeholder: 'Be honest...' },
+    { id: 'q4', text: 'One thing you\'re looking forward to.', type: 'text', placeholder: 'Big or small...' },
+    { id: 'q5', text: 'What went well for you individually {period}?', type: 'textarea', placeholder: 'Wins, moments, progress...' },
+    { id: 'q6', text: 'What was hard — and did I show up for you?', type: 'textarea', placeholder: 'Be honest, be kind...' },
+    { id: 'q7', text: 'How are we doing as a team right now?', type: 'slider', sliderLabel: ['1 — disconnected', '10 — in sync'] },
+    { id: 'q8', text: 'Any unresolved tension we should name?', type: 'textarea', placeholder: 'Naming it is the first step...' },
+    { id: 'q9', text: 'What\'s one goal we\'re both working toward {period}?', type: 'text', placeholder: 'A shared intention...' },
+  ],
+  'not-short': [
+    { id: 'q1', text: 'How are you feeling {period}?', type: 'slider-word', sliderLabel: ['1 — rough', '10 — amazing'] },
+    { id: 'q2', text: 'Name one thing I did that you appreciated.', type: 'text', placeholder: 'Something specific...' },
+    { id: 'q3', text: 'What do you need from me {period}?', type: 'text', placeholder: 'Be honest...' },
+    { id: 'q4', text: 'One thing you\'re looking forward to.', type: 'text', placeholder: 'Big or small...' },
+    { id: 'q5', text: 'What went well for you individually {period}?', type: 'textarea', placeholder: 'Wins, moments, progress...' },
+    { id: 'q6', text: 'What was hard — and did I show up for you?', type: 'textarea', placeholder: 'Be honest, be kind...' },
+    { id: 'q7', text: 'How are we doing as a team right now?', type: 'slider', sliderLabel: ['1 — disconnected', '10 — in sync'] },
+    { id: 'q8', text: 'Any unresolved tension we should name?', type: 'textarea', placeholder: 'Naming it is the first step...' },
+    { id: 'q9', text: 'What\'s one goal we\'re both working toward {period}?', type: 'text', placeholder: 'A shared intention...' },
+    { id: 'q10', text: 'Where are we on our shared goals — home, money, life?', type: 'textarea', placeholder: 'Check in on the big picture...' },
+    { id: 'q11', text: 'How are you doing physically and mentally? What would get it to a 10?', type: 'textarea', placeholder: 'Energy, sleep, mood, stress...' },
+    { id: 'q12', text: 'What do you wish I understood better about you right now?', type: 'textarea', placeholder: 'Something unsaid...' },
+    { id: 'q13', text: 'Is there something you\'ve been holding in?', type: 'textarea', placeholder: 'Safe space. No judgment.' },
+    { id: 'q14', text: 'What do you want to start, stop, or change about how we operate together?', type: 'textarea', placeholder: 'Think of it as a team retrospective...' },
+    { id: 'q15', text: 'Where do you want us to be in 3 months — as individuals and as a unit?', type: 'textarea', placeholder: 'Dream a little. Be real.' },
+  ],
+};
+
+/* Runtime questions (editable, loaded from localStorage or defaults) */
+let QUESTIONS = {};
+
+function getStorageKey(depth) {
+  return `familyos_questions_${depth}`;
+}
+
+function loadQuestionsFromStorage() {
+  ['short', 'less-short', 'not-short'].forEach(depth => {
+    const stored = localStorage.getItem(getStorageKey(depth));
+    if (stored) {
+      try {
+        QUESTIONS[depth] = JSON.parse(stored);
+      } catch(e) {
+        QUESTIONS[depth] = QUESTION_TEMPLATES[depth].map(q => ({ ...q }));
+      }
+    } else {
+      QUESTIONS[depth] = QUESTION_TEMPLATES[depth].map(q => ({ ...q }));
+    }
+  });
+}
+
+function saveQuestionsToStorage(depth) {
+  localStorage.setItem(getStorageKey(depth), JSON.stringify(QUESTIONS[depth]));
+}
+
+function applyPeriod(text) {
+  const period = CADENCE_PERIOD[currentCadence] || 'this week';
+  return text.replace(/\{period\}/g, period);
+}
+
+const DEPTH_LABELS = {
+  'short': 'Short',
+  'less-short': 'Less Short',
+  'not-short': 'Not Short',
+};
+
+let currentDepth = 'short';
+
+/* ─── Update hero card depth pill + desc ────────── */
+function updateHeroPill(depth) {
+  const meta = DEPTH_META[depth];
+  const pill = document.getElementById('depthPill');
+  const desc = document.getElementById('heroDesc');
+  if (pill) pill.textContent = meta.pill;
+  if (desc) desc.textContent = meta.desc;
+}
+
+/* ─── Render Questions ─────────────────────────── */
+function renderQuestions(depth) {
+  const qs = QUESTIONS[depth];
+  const section = document.getElementById('questionsSection');
+  const label = document.getElementById('questionsLabel');
+
+  const period = CADENCE_PERIOD[currentCadence] || 'this week';
+  label.textContent = `Your answers this week · ${DEPTH_LABELS[depth]}`;
+
+  section.classList.add('fading');
+
+  setTimeout(() => {
+    let html = '<div class="partner-form-wrapper">';
+
+    qs.forEach((q, idx) => {
+      const num = idx + 1;
+      const displayText = applyPeriod(q.text);
+      html += `
+        <div class="question-block">
+          <div class="question-number">Question ${num}</div>
+          <div class="question-text">${displayText}</div>
+          <div class="partner-columns">
+            ${renderPartnerCol('zein', q, num)}
+            ${renderPartnerCol('ala', q, num)}
+          </div>
+        </div>
+      `;
+    });
+
+    html += '</div>';
+    section.innerHTML = html;
+
+    section.querySelectorAll('input[type="range"]').forEach(slider => {
+      updateSliderTrack(slider);
+      updateSliderDisplay(slider);
+      slider.addEventListener('input', () => {
+        updateSliderTrack(slider);
+        updateSliderDisplay(slider);
+      });
+    });
+
+    section.classList.remove('fading');
+  }, 200);
+}
+
+function renderPartnerCol(partner, q, num) {
+  const label = partner === 'zein' ? 'Zein' : 'Ala';
+  const dotClass = partner === 'zein' ? 'zein' : 'ala';
+  const idPrefix = `${partner}-q${num}`;
+
+  let inputHtml = '';
+
+  if (q.type === 'slider-word') {
+    inputHtml = `
+      <div class="slider-word-row">
+        <div class="slider-container">
+          <div class="slider-labels">
+            <span class="slider-label-text">${q.sliderLabel[0]}</span>
+            <span class="slider-label-text">${q.sliderLabel[1]}</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" id="${idPrefix}-slider" />
+          <div class="slider-value-display" id="${idPrefix}-slider-val">5</div>
+        </div>
+        <input type="text" class="form-input" placeholder="One word..." id="${idPrefix}-word" />
+      </div>
+    `;
+  } else if (q.type === 'slider') {
+    inputHtml = `
+      <div class="slider-container">
+        <div class="slider-labels">
+          <span class="slider-label-text">${q.sliderLabel[0]}</span>
+          <span class="slider-label-text">${q.sliderLabel[1]}</span>
+        </div>
+        <input type="range" min="1" max="10" value="5" id="${idPrefix}-slider" />
+        <div class="slider-value-display" id="${idPrefix}-slider-val">5</div>
+      </div>
+    `;
+  } else if (q.type === 'textarea') {
+    inputHtml = `<textarea class="form-input" placeholder="${q.placeholder || ''}" rows="3" id="${idPrefix}"></textarea>`;
+  } else {
+    inputHtml = `<input type="text" class="form-input" placeholder="${q.placeholder || ''}" id="${idPrefix}" />`;
+  }
+
+  return `
+    <div class="partner-col">
+      <div class="partner-label">
+        <span class="partner-dot ${dotClass}"></span>
+        ${label}
+      </div>
+      ${inputHtml}
+    </div>
+  `;
+}
+
+function updateSliderTrack(slider) {
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const val = parseFloat(slider.value);
+  const pct = ((val - min) / (max - min)) * 100;
+  slider.style.background = `linear-gradient(to right, var(--accent) ${pct}%, var(--border) ${pct}%)`;
+}
+
+function updateSliderDisplay(slider) {
+  const displayId = slider.id + '-val';
+  const display = document.getElementById(displayId);
+  if (display) {
+    display.textContent = slider.value;
+  }
+}
+
+/* ─── Depth Selection ──────────────────────────── */
+function selectDepth(depth, el) {
+  if (depth === currentDepth) return;
+  currentDepth = depth;
+
+  document.querySelectorAll('.depth-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+
+  updateHeroPill(depth);
+  renderQuestions(depth);
+}
+
+/* ─── Settings Modal ───────────────────────────── */
+function openSettingsModal() {
+  document.getElementById('settingsModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSettingsModal() {
+  document.getElementById('settingsModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleSettingsModalClick(e) {
+  if (e.target === document.getElementById('settingsModal')) closeSettingsModal();
+}
+
+/* ─── Cadence Dropdown ─────────────────────────── */
+function toggleCadenceDropdown() {
+  const dd = document.getElementById('cadenceDropdown');
+  dd.classList.toggle('open');
+}
+
+function setCadence(val, el) {
+  currentCadence = val;
+  document.getElementById('cadenceText').textContent = val;
+  document.querySelectorAll('.cadence-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('cadenceDropdown').classList.remove('open');
+  renderQuestions(currentDepth);
+}
+
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.cadence-wrapper');
+  if (wrapper && !wrapper.contains(e.target)) {
+    const dd = document.getElementById('cadenceDropdown');
+    if (dd) dd.classList.remove('open');
+  }
+  // Close export dropdown on outside click
+  const exportBtn = document.getElementById('exportBtn');
+  const exportDd = document.getElementById('exportDropdown');
+  if (exportBtn && exportDd && !exportBtn.contains(e.target) && !exportDd.contains(e.target)) {
+    exportDd.classList.remove('open');
+  }
+});
+
+/* ─── Export Dropdown ──────────────────────────── */
+function toggleExportDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('exportDropdown').classList.toggle('open');
+}
+
+function closeExportDropdown() {
+  document.getElementById('exportDropdown').classList.remove('open');
+}
+
+/* ─── Export History ───────────────────────────── */
+function exportCheckinHistory(format) {
+  const exportData = SESSION_DATA.map(s => ({
+    date: s.date,
+    cadence: s.cadence || s.depth,
+    answers: s.questions ? s.questions.map(qa => ({
+      question: qa.q,
+      zein: qa.zein,
+      ala: qa.ala,
+    })) : s.zein.map((z, i) => ({
+      question: z.label,
+      zein: z.value,
+      ala: s.ala[i] ? s.ala[i].value : '',
+    })),
+  }));
+
+  let content, mimeType, filename;
+
+  if (format === 'json') {
+    content = JSON.stringify({ exported: new Date().toISOString(), checkins: exportData }, null, 2);
+    mimeType = 'application/json';
+    filename = 'unit-checkin-history.json';
+  } else {
+    content = exportData.map(s => {
+      const answers = s.answers.map(a => `  Q: ${a.question}\n  Zein: ${a.zein}\n  Ala: ${a.ala}`).join('\n\n');
+      return `=== ${s.date} · ${s.cadence} ===\n\n${answers}`;
+    }).join('\n\n' + '─'.repeat(40) + '\n\n');
+    mimeType = 'text/plain';
+    filename = 'unit-checkin-history.txt';
+  }
+
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Export downloaded ✓');
+}
+
+/* ─── Toast ────────────────────────────────────── */
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2500);
+}
+
+/* ─── Scroll to questions ──────────────────────── */
+function scrollToQuestions() {
+  const el = document.getElementById('questionsAnchor');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ─── Session Data ─────────────────────────────── */
+const SESSION_DATA = [
+  {
+    date: 'March 20, 2026',
+    cadence: 'Weekly',
+    depth: 'Weekly',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '7/10', ala: '8/10' },
+      { q: 'What was your biggest win?', zein: 'Finally rested properly', ala: 'Shipped the Unit prototype' },
+      { q: 'What do you need more of?', zein: 'Quiet mornings', ala: 'Less context switching' },
+      { q: 'Something you appreciated about your partner:', zein: 'He made me breakfast every day', ala: 'She\'s been so patient with everything' },
+      { q: 'One word for how this week felt:', zein: 'Soft', ala: 'Full' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '7/10' },
+      { label: 'Biggest win', value: 'Finally rested properly' },
+      { label: 'Need more of', value: 'Quiet mornings' },
+      { label: 'Appreciated', value: 'He made me breakfast every day' },
+      { label: 'One word', value: 'Soft' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '8/10' },
+      { label: 'Biggest win', value: 'Shipped the Unit prototype' },
+      { label: 'Need more of', value: 'Less context switching' },
+      { label: 'Appreciated', value: 'She\'s been so patient with everything' },
+      { label: 'One word', value: 'Full' },
+    ],
+  },
+  {
+    date: 'March 13, 2026',
+    cadence: 'Weekly',
+    depth: 'Weekly',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '6/10', ala: '7/10' },
+      { q: 'What was your biggest win?', zein: 'Got my blood work done — finally', ala: 'Closed a client deal we\'d been chasing' },
+      { q: 'What do you need more of?', zein: 'Gentle evenings at home', ala: 'Focus time in the mornings' },
+      { q: 'Something you appreciated about your partner:', zein: 'He was calm when I was worried', ala: 'She kept the house warm and steady' },
+      { q: 'One word for how this week felt:', zein: 'Heavy', ala: 'Busy' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '6/10' },
+      { label: 'Biggest win', value: 'Got my blood work done — finally' },
+      { label: 'Need more of', value: 'Gentle evenings at home' },
+      { label: 'Appreciated', value: 'He was calm when I was worried' },
+      { label: 'One word', value: 'Heavy' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '7/10' },
+      { label: 'Biggest win', value: 'Closed a client deal we\'d been chasing' },
+      { label: 'Need more of', value: 'Focus time in the mornings' },
+      { label: 'Appreciated', value: 'She kept the house warm and steady' },
+      { label: 'One word', value: 'Busy' },
+    ],
+  },
+  {
+    date: 'March 6, 2026',
+    cadence: 'Weekly',
+    depth: 'Weekly',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '8/10', ala: '7/10' },
+      { q: 'What was your biggest win?', zein: 'Felt really connected to the pregnancy this week', ala: 'Took a full day off — first one in months' },
+      { q: 'What do you need more of?', zein: 'Physical touch and reassurance', ala: 'Sleep and unstructured time' },
+      { q: 'Something you appreciated about your partner:', zein: 'He put his phone down and just sat with me', ala: 'She\'s been so graceful through everything' },
+      { q: 'One word for how this week felt:', zein: 'Warm', ala: 'Restful' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '8/10' },
+      { label: 'Biggest win', value: 'Felt really connected to the pregnancy this week' },
+      { label: 'Need more of', value: 'Physical touch and reassurance' },
+      { label: 'Appreciated', value: 'He put his phone down and just sat with me' },
+      { label: 'One word', value: 'Warm' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '7/10' },
+      { label: 'Biggest win', value: 'Took a full day off — first one in months' },
+      { label: 'Need more of', value: 'Sleep and unstructured time' },
+      { label: 'Appreciated', value: 'She\'s been so graceful through everything' },
+      { label: 'One word', value: 'Restful' },
+    ],
+  },
+  {
+    date: 'March 9, 2026',
+    cadence: 'Weekly',
+    depth: 'Short',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '6/10', ala: '7/10' },
+      { q: 'Something you appreciated about your partner:', zein: 'You checked in on me', ala: 'You were patient with me' },
+      { q: 'What do you need this week?', zein: 'Earlier bedtimes', ala: 'Clarity on the week ahead' },
+      { q: 'One thing you\'re looking forward to:', zein: 'Eid', ala: 'Family time' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '6 · "tired"' },
+      { label: 'Appreciated', value: 'You checked in on me' },
+      { label: 'Need', value: 'Earlier bedtimes' },
+      { label: 'Looking forward to', value: 'Eid' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '7 · "grounded"' },
+      { label: 'Appreciated', value: 'You were patient with me' },
+      { label: 'Need', value: 'Clarity on the week ahead' },
+      { label: 'Looking forward to', value: 'Family time' },
+    ],
+  },
+  {
+    date: 'March 2, 2026',
+    cadence: 'Weekly',
+    depth: 'Less Short',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '7/10', ala: '7/10' },
+      { q: 'Something you appreciated about your partner:', zein: 'You cooked on Sunday without me asking', ala: 'You were warm when I was stressed' },
+      { q: 'What do you need from me this week?', zein: 'More intentional evenings together', ala: 'A proper rest day, no phone' },
+      { q: 'What went well individually?', zein: 'Finished a big project at work, felt proud', ala: 'Shipped two features I\'ve been dragging on' },
+      { q: 'Any unresolved tension to name?', zein: 'The kitchen situation — let\'s talk', ala: 'Money talk we keep postponing' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '7 · "hopeful"' },
+      { label: 'Appreciated', value: 'You cooked on Sunday without me asking' },
+      { label: 'Need', value: 'More intentional evenings together' },
+      { label: 'What went well', value: 'Finished a big project at work, felt proud' },
+      { label: 'Unresolved tension', value: 'The kitchen situation — let\'s talk properly' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '7 · "steady"' },
+      { label: 'Appreciated', value: 'You were warm when I was stressed' },
+      { label: 'Need', value: 'A proper rest day, no phone' },
+      { label: 'What went well', value: 'Shipped two features I\'ve been dragging on' },
+      { label: 'Unresolved tension', value: 'Money talk we keep postponing' },
+    ],
+  },
+  {
+    date: 'February 23, 2026',
+    cadence: 'Weekly',
+    depth: 'Short',
+    questions: [
+      { q: 'How are you feeling this week? (1–10)', zein: '8/10', ala: '7/10' },
+      { q: 'Something you appreciated about your partner:', zein: 'You planned a quiet evening for us', ala: 'You made me feel seen this week' },
+      { q: 'What do you need this week?', zein: 'More spontaneous moments', ala: 'Consistency in the mornings' },
+      { q: 'One thing you\'re looking forward to:', zein: 'Ramadan beginning', ala: 'Iftar with family' },
+    ],
+    zein: [
+      { label: 'Feeling', value: '8 · "content"' },
+      { label: 'Appreciated', value: 'You planned a quiet evening for us' },
+      { label: 'Need', value: 'More spontaneous moments' },
+      { label: 'Looking forward to', value: 'Ramadan beginning' },
+    ],
+    ala: [
+      { label: 'Feeling', value: '7 · "present"' },
+      { label: 'Need', value: 'Consistency in the mornings' },
+      { label: 'Looking forward to', value: 'Iftar with family' },
+    ],
+  },
+];
+
+/* ─── Session Modal ────────────────────────────── */
+function openSessionModal(idx) {
+  const s = SESSION_DATA[idx];
+  const content = document.getElementById('sessionModalContent');
+
+  let bodyHtml = '';
+  if (s.questions) {
+    bodyHtml = `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        ${s.questions.map(qa => `
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;">
+            <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;">${qa.q}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <div style="font-size:10px;font-weight:500;color:var(--warm);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Zein</div>
+                <div style="font-size:14px;color:var(--text);line-height:1.45;">${qa.zein}</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:500;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Ala</div>
+                <div style="font-size:14px;color:var(--text);line-height:1.45;">${qa.ala}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    bodyHtml = `
+      <div class="session-partners">
+        <div class="session-partner-col">
+          <div class="session-partner-name">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--warm);display:inline-block;flex-shrink:0;"></span>
+            Zein
+          </div>
+          ${s.zein.map(a => `
+            <div class="session-answer-item">
+              <div class="session-answer-label">${a.label}</div>
+              <div class="session-answer-value">${a.value}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="session-partner-col">
+          <div class="session-partner-name">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;flex-shrink:0;"></span>
+            Ala
+          </div>
+          ${s.ala.map(a => `
+            <div class="session-answer-item">
+              <div class="session-answer-label">${a.label}</div>
+              <div class="session-answer-value">${a.value}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  content.innerHTML = `
+    <div class="modal-title">
+      ${s.date}
+      <span class="modal-depth-badge">${s.cadence || s.depth}</span>
+    </div>
+    <div class="modal-subtitle">Read-only · both partners' answers</div>
+    ${bodyHtml}
+    <div style="margin-top:20px;text-align:right;">
+      <button onclick="closeSessionModal()" style="padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;">Close</button>
+    </div>
+  `;
+
+  document.getElementById('sessionModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSessionModal() {
+  document.getElementById('sessionModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleSessionModalClick(e) {
+  if (e.target === document.getElementById('sessionModal')) closeSessionModal();
+}
+
+/* ─── Edit Questions Modal ─────────────────────── */
+function openEditQuestionsModal() {
+  const depth = currentDepth;
+  const qs = QUESTIONS[depth];
+  document.getElementById('editQModalSubtitle').textContent = `Editing questions for the ${DEPTH_LABELS[depth]} depth`;
+
+  renderEditQList(qs);
+  document.getElementById('editQModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderEditQList(qs) {
+  const list = document.getElementById('editQList');
+  list.innerHTML = qs.map((q, i) => `
+    <div class="edit-q-row" data-idx="${i}">
+      <input class="edit-q-input" type="text" value="${escapeAttr(applyPeriod(q.text))}" data-idx="${i}" />
+      <button class="btn-remove-q" onclick="removeEditQRow(${i})" title="Remove">×</button>
+    </div>
+  `).join('');
+}
+
+function addEditQRow() {
+  const list = document.getElementById('editQList');
+  const rows = list.querySelectorAll('.edit-q-row');
+  const idx = rows.length;
+  const row = document.createElement('div');
+  row.className = 'edit-q-row';
+  row.dataset.idx = idx;
+  row.innerHTML = `
+    <input class="edit-q-input" type="text" value="" placeholder="Enter your question..." data-idx="${idx}" />
+    <button class="btn-remove-q" onclick="removeEditQRow(${idx})" title="Remove">×</button>
+  `;
+  list.appendChild(row);
+}
+
+function removeEditQRow(idx) {
+  const list = document.getElementById('editQList');
+  const rows = Array.from(list.querySelectorAll('.edit-q-row'));
+  rows[idx].remove();
+  Array.from(list.querySelectorAll('.edit-q-row')).forEach((row, i) => {
+    row.dataset.idx = i;
+    row.querySelector('.btn-remove-q').setAttribute('onclick', `removeEditQRow(${i})`);
+    row.querySelector('.edit-q-input').dataset.idx = i;
+  });
+}
+
+function saveEditedQuestions() {
+  const depth = currentDepth;
+  const list = document.getElementById('editQList');
+  const inputs = list.querySelectorAll('.edit-q-input');
+  const newQs = [];
+
+  inputs.forEach((input, i) => {
+    const val = input.value.trim();
+    if (!val) return;
+    const origQ = QUESTIONS[depth][i] || {};
+    newQs.push({
+      id: origQ.id || `q${i+1}`,
+      text: val,
+      type: origQ.type || 'text',
+      placeholder: origQ.placeholder || '',
+      ...(origQ.sliderLabel ? { sliderLabel: origQ.sliderLabel } : {}),
+    });
+  });
+
+  QUESTIONS[depth] = newQs;
+  saveQuestionsToStorage(depth);
+  closeEditQModal();
+  renderQuestions(depth);
+  showToast(`Saved as your ${DEPTH_LABELS[depth]} template ✓`);
+}
+
+function closeEditQModal() {
+  document.getElementById('editQModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleEditQModalClick(e) {
+  if (e.target === document.getElementById('editQModal')) closeEditQModal();
+}
+
+function escapeAttr(str) {
+  return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* ─── Trends Modal ─────────────────────────────── */
+const TRENDS_DATA = {
+  labels: ['Feb 23', 'Mar 2', 'Mar 9', 'Mar 16'],
+  zein:   [8, 7, 6, 7],
+  ala:    [7, 7, 7, 8],
+};
+
+function openTrendsModal() {
+  drawTrendsChart();
+  renderInsights();
+  document.getElementById('trendsModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTrendsModal() {
+  document.getElementById('trendsModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleTrendsModalClick(e) {
+  if (e.target === document.getElementById('trendsModal')) closeTrendsModal();
+}
+
+function drawTrendsChart() {
+  const svg = document.getElementById('trendsSvg');
+  const W = 560, H = 180;
+  const padL = 32, padR = 20, padT = 16, padB = 36;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = TRENDS_DATA.labels.length;
+  const minY = 1, maxY = 10;
+
+  function xPos(i) { return padL + (i / (n - 1)) * chartW; }
+  function yPos(v) { return padT + chartH - ((v - minY) / (maxY - minY)) * chartH; }
+
+  let html = '';
+
+  for (let v = 2; v <= 10; v += 2) {
+    const y = yPos(v);
+    html += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e0d9b8" stroke-width="1" />`;
+    html += `<text x="${padL - 6}" y="${y + 4}" font-size="9" fill="#5a6342" text-anchor="end">${v}</text>`;
+  }
+
+  const zeinPoints = TRENDS_DATA.zein.map((v, i) => `${xPos(i)},${yPos(v)}`).join(' ');
+  html += `<polyline points="${zeinPoints}" fill="none" stroke="#DDA15E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  const alaPoints = TRENDS_DATA.ala.map((v, i) => `${xPos(i)},${yPos(v)}`).join(' ');
+  html += `<polyline points="${alaPoints}" fill="none" stroke="#606C38" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />`;
+
+  TRENDS_DATA.zein.forEach((v, i) => {
+    html += `<circle cx="${xPos(i)}" cy="${yPos(v)}" r="5" fill="#DDA15E" stroke="#fffdf0" stroke-width="2" />`;
+    html += `<text x="${xPos(i)}" y="${yPos(v) - 9}" font-size="10" fill="#DDA15E" text-anchor="middle" font-family="Sora,sans-serif" font-weight="600">${v}</text>`;
+  });
+
+  TRENDS_DATA.ala.forEach((v, i) => {
+    html += `<circle cx="${xPos(i)}" cy="${yPos(v)}" r="5" fill="#606C38" stroke="#fffdf0" stroke-width="2" />`;
+    html += `<text x="${xPos(i)}" y="${yPos(v) - 9}" font-size="10" fill="#606C38" text-anchor="middle" font-family="Sora,sans-serif" font-weight="600">${v}</text>`;
+  });
+
+  TRENDS_DATA.labels.forEach((lbl, i) => {
+    html += `<text x="${xPos(i)}" y="${H - 4}" font-size="10" fill="#5a6342" text-anchor="middle">${lbl}</text>`;
+  });
+
+  svg.innerHTML = html;
+}
+
+function avg(arr) { return arr.reduce((a, b) => a + b, 0) / arr.length; }
+
+function renderInsights() {
+  const zeinAvg = avg(TRENDS_DATA.zein).toFixed(1);
+  const alaAvg = avg(TRENDS_DATA.ala).toFixed(1);
+
+  const zeinLast = TRENDS_DATA.zein.slice(-2);
+  const zeinTrend = zeinLast[1] > zeinLast[0] ? 'Trending up ↑' : zeinLast[1] < zeinLast[0] ? 'Trending down ↓' : 'Stable →';
+
+  const alaLast = TRENDS_DATA.ala.slice(-2);
+  const alaTrend = alaLast[1] > alaLast[0] ? 'Trending up ↑' : alaLast[1] < alaLast[0] ? 'Trending down ↓' : 'Stable →';
+
+  const grid = document.getElementById('insightsGrid');
+  grid.innerHTML = `
+    <div class="insight-card">
+      <div class="insight-label">Zein's average feeling score</div>
+      <div class="insight-value">${zeinAvg} / 10</div>
+      <div class="insight-trend">${zeinTrend}</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-label">Ala's average feeling score</div>
+      <div class="insight-value">${alaAvg} / 10</div>
+      <div class="insight-trend">${alaTrend}</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-label">Most common theme</div>
+      <div class="insight-value">Rest & quiet time</div>
+      <div class="insight-trend">Appears across 3 of 4 sessions</div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CHECK-IN FLOW — NEW CODE
+═══════════════════════════════════════════════════════ */
+
+/* ─── Check-in flow question sets by cadence ─── */
+const FLOW_QUESTIONS = {
+  quick: [
+    { text: 'How are you feeling this week?', type: 'rating' },
+    { text: "What's one win from this week?", type: 'text' },
+    { text: 'What do you need more of right now?', type: 'text' },
+    { text: 'One word for how this week felt:', type: 'word' },
+  ],
+  weekly: [
+    { text: 'How are you feeling this week?', type: 'rating' },
+    { text: 'What was your biggest win?', type: 'text' },
+    { text: "What's been challenging?", type: 'text' },
+    { text: 'What do you need more of from your partner?', type: 'text' },
+    { text: 'Something you appreciated about your partner this week:', type: 'text' },
+    { text: 'One word for how this week felt:', type: 'word' },
+  ],
+  deep: [
+    { text: 'How are you feeling this week?', type: 'rating' },
+    { text: 'What was your biggest win?', type: 'text' },
+    { text: "What's been challenging?", type: 'text' },
+    { text: 'What do you need more of from your partner?', type: 'text' },
+    { text: 'Something you appreciated about your partner this week:', type: 'text' },
+    { text: "What's one thing you want to do differently next week?", type: 'text' },
+    { text: 'How connected do you feel to your partner right now?', type: 'rating' },
+    { text: 'One word for how this week felt:', type: 'word' },
+  ],
+};
+
+const FLOW_CADENCE_LABELS = {
+  quick: 'Quick check-in',
+  weekly: 'Weekly check-in',
+  deep: 'Deep check-in',
+};
+
+const FLOW_TIME_ESTIMATES = {
+  quick: '~5 min',
+  weekly: '~10 min',
+  deep: '~15 min',
+};
+
+/* Map the existing depth setting to a flow cadence */
+function getCurrentFlowCadence() {
+  if (currentDepth === 'short') return 'quick';
+  if (currentDepth === 'not-short') return 'deep';
+  return 'weekly'; // default: less-short or any unknown → weekly
+}
+
+/* Flow state */
+let currentFlowQuestions = [];
+let currentFlowCadenceKey = 'weekly';
+let currentFlowQIndex = 0;
+// answers[i] = { zein: value, ala: value }
+let flowAnswers = [];
+// Track edited question texts for this session (just-this-time edits)
+let flowQTextOverrides = {};
+// Activity pool tracking
+let usedActivityIndices = [];
+
+const ACTIVITIES = [
+  { text: 'Go for a 20-minute walk together. No phones. Just talk.', emoji: '🚶' },
+  { text: 'Cook something you\'ve never made before. Tonight.', emoji: '🍳' },
+  { text: 'Put on a playlist and just sit together for 10 minutes.', emoji: '🎵' },
+  { text: 'Write each other one thing you love about them. Read it out loud.', emoji: '💌' },
+  { text: 'Plan one thing to look forward to next week. Anything.', emoji: '📅' },
+  { text: 'Give each other a proper hug. 20 seconds minimum.', emoji: '🤗' },
+  { text: 'Watch one episode of something together. No scrolling.', emoji: '📺' },
+  { text: 'Take 5 minutes each to share one dream you haven\'t talked about.', emoji: '🌙' },
+  { text: 'Do absolutely nothing together for 15 minutes.', emoji: '🛋️' },
+  { text: 'Tell your partner one thing they did this week that made you smile.', emoji: '😊' },
+];
+
+const MICRO_QUOTES = [
+  'Couples who do weekly check-ins report 40% higher relationship satisfaction. — Gottman Institute',
+  'Shared rituals are one of the strongest predictors of long-term relationship health.',
+  'Research shows that expressing appreciation daily reduces conflict by up to 30%.',
+  'Presence, not perfection, is what partners need most.',
+];
+
+/* ─── SVG avatars ─── */
+function zeinAvatarSVG(size) {
+  size = size || 36;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="18" fill="#C4956A"/>
+    <circle cx="18" cy="14" r="7" fill="#8B5E3C"/>
+    <ellipse cx="18" cy="30" rx="10" ry="7" fill="#8B5E3C"/>
+    <circle cx="18" cy="14" r="6" fill="#D4A574"/>
+  </svg>`;
+}
+
+function alaAvatarSVG(size) {
+  size = size || 36;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="18" fill="#606C38"/>
+    <circle cx="18" cy="14" r="7" fill="#283618"/>
+    <ellipse cx="18" cy="30" rx="10" ry="7" fill="#283618"/>
+    <circle cx="18" cy="14" r="6" fill="#7a8c4e"/>
+  </svg>`;
+}
+
+/* ─── Open flow ─── */
+function startCheckinFlow() {
+  currentFlowCadenceKey = getCurrentFlowCadence();
+  // Deep copy questions so edits don't affect originals
+  currentFlowQuestions = FLOW_QUESTIONS[currentFlowCadenceKey].map(q => ({ ...q }));
+  flowAnswers = currentFlowQuestions.map(() => ({ zein: null, ala: null }));
+  flowQTextOverrides = {};
+  currentFlowQIndex = 0;
+  usedActivityIndices = [];
+
+  // Set intro text
+  const titleEl = document.getElementById('flowIntroTitle');
+  const metaEl = document.getElementById('flowIntroMeta');
+  const label = FLOW_CADENCE_LABELS[currentFlowCadenceKey];
+  const time = FLOW_TIME_ESTIMATES[currentFlowCadenceKey];
+  const dateStr = formatFlowDate(new Date());
+
+  titleEl.textContent = `Time for your ${label.toLowerCase()}`;
+  metaEl.textContent = `${time} · ${dateStr}`;
+
+  // Show stage 1
+  showFlowStage(1);
+
+  // Show overlay
+  const overlay = document.getElementById('checkinFlowOverlay');
+  overlay.classList.add('active');
+  document.getElementById('flowInner').scrollTop = 0;
+}
+
+function closeCheckinFlow() {
+  const overlay = document.getElementById('checkinFlowOverlay');
+  overlay.classList.remove('active');
+  // Reset activity card
+  document.getElementById('flowActivityFront').style.display = 'flex';
+  document.getElementById('flowActivityRevealed').classList.remove('show');
+  document.getElementById('flowMicroQuote').style.display = 'none';
+}
+
+function formatFlowDate(d) {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function showFlowStage(n) {
+  document.querySelectorAll('.flow-stage').forEach(s => s.classList.remove('active'));
+  document.getElementById(`flowStage${n}`).classList.add('active');
+  document.getElementById('flowInner').scrollTop = 0;
+}
+
+/* ─── Stage 1 actions ─── */
+function flowBegin() {
+  showFlowStage(2);
+  renderFlowQuestion(0);
+}
+
+/* ─── Stage 2: Question rendering ─── */
+function renderFlowQuestion(idx) {
+  currentFlowQIndex = idx;
+  const q = currentFlowQuestions[idx];
+  const total = currentFlowQuestions.length;
+
+  // Progress
+  const pct = Math.round((idx / total) * 100);
+  document.getElementById('flowProgressLabel').textContent = `Question ${idx + 1} of ${total}`;
+  document.getElementById('flowProgressFill').style.width = pct + '%';
+
+  // Question number
+  document.getElementById('flowQNumber').textContent = String(idx + 1).padStart(2, '0');
+
+  // Question text
+  const qText = flowQTextOverrides[idx] !== undefined ? flowQTextOverrides[idx] : q.text;
+  document.getElementById('flowQText').textContent = qText;
+
+  // Hide edit area
+  document.getElementById('flowQEditArea').classList.remove('open');
+  document.getElementById('flowQTextWrap').style.display = 'flex';
+
+  // Back button visibility
+  document.getElementById('flowBackBtn').style.visibility = idx === 0 ? 'hidden' : 'visible';
+
+  // Next/Review button
+  const nextBtn = document.getElementById('flowNextBtn');
+  nextBtn.textContent = idx === total - 1 ? 'Review →' : 'Next →';
+
+  // Render answer cols
+  renderFlowAnswerCols(q, idx);
+
+  // Animate card
+  const card = document.getElementById('flowQuestionCard');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = 'fadeSlideIn 0.22s ease';
+}
+
+function renderFlowAnswerCols(q, idx) {
+  const container = document.getElementById('flowAnswerCols');
+  const savedZein = flowAnswers[idx] ? flowAnswers[idx].zein : null;
+  const savedAla = flowAnswers[idx] ? flowAnswers[idx].ala : null;
+
+  let zeinInput = '';
+  let alaInput = '';
+
+  if (q.type === 'rating') {
+    zeinInput = renderRatingPills('zein', idx, savedZein);
+    alaInput = renderRatingPills('ala', idx, savedAla);
+  } else if (q.type === 'word') {
+    zeinInput = `<input type="text" class="flow-input short-word" id="flow-zein-${idx}" placeholder="Zein's word..." maxlength="30" value="${savedZein || ''}" />`;
+    alaInput = `<input type="text" class="flow-input short-word" id="flow-ala-${idx}" placeholder="Ala's word..." maxlength="30" value="${savedAla || ''}" />`;
+  } else {
+    // text / open
+    zeinInput = `<textarea class="flow-input" id="flow-zein-${idx}" placeholder="Zein's answer..." rows="3">${savedZein || ''}</textarea>`;
+    alaInput = `<textarea class="flow-input" id="flow-ala-${idx}" placeholder="Ala's answer..." rows="3">${savedAla || ''}</textarea>`;
+  }
+
+  container.innerHTML = `
+    <div class="flow-answer-col">
+      <div class="flow-answer-header">
+        <div class="flow-avatar">${zeinAvatarSVG(36)}</div>
+        <span class="flow-answer-name">Zein</span>
+      </div>
+      ${zeinInput}
+    </div>
+    <div class="flow-answer-col">
+      <div class="flow-answer-header">
+        <div class="flow-avatar">${alaAvatarSVG(36)}</div>
+        <span class="flow-answer-name">Ala</span>
+      </div>
+      ${alaInput}
+    </div>
+  `;
+}
+
+function renderRatingPills(person, qIdx, selected) {
+  let html = '<div class="flow-rating-pills">';
+  for (let i = 1; i <= 10; i++) {
+    const isSelected = selected === i;
+    html += `<button class="flow-rating-pill${isSelected ? ' selected' : ''}" onclick="selectRating('${person}', ${qIdx}, ${i}, this)">${i}</button>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function selectRating(person, qIdx, value, el) {
+  // Deselect siblings
+  const container = el.closest('.flow-answer-col');
+  container.querySelectorAll('.flow-rating-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+
+  // Save answer
+  if (!flowAnswers[qIdx]) flowAnswers[qIdx] = { zein: null, ala: null };
+  flowAnswers[qIdx][person] = value;
+}
+
+function collectCurrentAnswers() {
+  const idx = currentFlowQIndex;
+  const q = currentFlowQuestions[idx];
+  if (!flowAnswers[idx]) flowAnswers[idx] = { zein: null, ala: null };
+
+  if (q.type === 'rating') {
+    // Already saved via selectRating clicks
+  } else {
+    const zeinEl = document.getElementById(`flow-zein-${idx}`);
+    const alaEl = document.getElementById(`flow-ala-${idx}`);
+    if (zeinEl) flowAnswers[idx].zein = zeinEl.value.trim() || null;
+    if (alaEl) flowAnswers[idx].ala = alaEl.value.trim() || null;
+  }
+}
+
+function flowNextQuestion() {
+  collectCurrentAnswers();
+  const total = currentFlowQuestions.length;
+  if (currentFlowQIndex < total - 1) {
+    renderFlowQuestion(currentFlowQIndex + 1);
+  } else {
+    // Go to review
+    renderReviewScreen();
+    showFlowStage(3);
+  }
+}
+
+function flowPrevQuestion() {
+  collectCurrentAnswers();
+  if (currentFlowQIndex > 0) {
+    renderFlowQuestion(currentFlowQIndex - 1);
+  }
+}
+
+function flowSkipQuestion() {
+  const idx = currentFlowQIndex;
+  if (!flowAnswers[idx]) flowAnswers[idx] = { zein: null, ala: null };
+  // Leave answers as null
+  const total = currentFlowQuestions.length;
+  if (idx < total - 1) {
+    renderFlowQuestion(idx + 1);
+  } else {
+    renderReviewScreen();
+    showFlowStage(3);
+  }
+}
+
+function flowGoToQuestion(idx) {
+  showFlowStage(2);
+  renderFlowQuestion(idx);
+}
+
+/* ─── Inline Q edit ─── */
+function openInlineQEdit() {
+  const idx = currentFlowQIndex;
+  const currentText = flowQTextOverrides[idx] !== undefined
+    ? flowQTextOverrides[idx]
+    : currentFlowQuestions[idx].text;
+
+  document.getElementById('flowQEditInput').value = currentText;
+  document.getElementById('flowQTextWrap').style.display = 'none';
+  document.getElementById('flowQEditArea').classList.add('open');
+  document.getElementById('flowQEditInput').focus();
+}
+
+function cancelInlineQEdit() {
+  document.getElementById('flowQEditArea').classList.remove('open');
+  document.getElementById('flowQTextWrap').style.display = 'flex';
+}
+
+let pendingQEditText = '';
+
+function saveInlineQEdit() {
+  const newText = document.getElementById('flowQEditInput').value.trim();
+  if (!newText) { cancelInlineQEdit(); return; }
+
+  pendingQEditText = newText;
+  cancelInlineQEdit();
+
+  // Show save modal
+  document.getElementById('flowSaveQModal').classList.add('open');
+}
+
+function saveQEditChoice(choice) {
+  document.getElementById('flowSaveQModal').classList.remove('open');
+  const idx = currentFlowQIndex;
+  if (choice === 'cancel') return;
+
+  if (choice === 'permanent') {
+    // Update the question text permanently in currentFlowQuestions
+    currentFlowQuestions[idx].text = pendingQEditText;
+    // Also update if it's still mapped to a flow cadence key
+    FLOW_QUESTIONS[currentFlowCadenceKey][idx] && (FLOW_QUESTIONS[currentFlowCadenceKey][idx].text = pendingQEditText);
+    delete flowQTextOverrides[idx];
+  } else if (choice === 'once') {
+    flowQTextOverrides[idx] = pendingQEditText;
+  }
+
+  // Re-render question text
+  const qText = flowQTextOverrides[idx] !== undefined ? flowQTextOverrides[idx] : currentFlowQuestions[idx].text;
+  document.getElementById('flowQText').textContent = qText;
+  document.getElementById('flowQTextWrap').style.display = 'flex';
+}
+
+/* ─── Exit flow ─── */
+function confirmExitFlow() {
+  document.getElementById('flowExitModal').classList.add('open');
+}
+
+function closeExitModal() {
+  document.getElementById('flowExitModal').classList.remove('open');
+}
+
+function confirmExit() {
+  document.getElementById('flowExitModal').classList.remove('open');
+  closeCheckinFlow();
+}
+
+/* ─── Stage 3: Review ─── */
+function renderReviewScreen() {
+  const list = document.getElementById('flowReviewList');
+  let html = '';
+
+  currentFlowQuestions.forEach((q, idx) => {
+    const ans = flowAnswers[idx] || { zein: null, ala: null };
+    const displayText = flowQTextOverrides[idx] !== undefined ? flowQTextOverrides[idx] : q.text;
+
+    const zeinVal = ans.zein !== null ? (q.type === 'rating' ? `${ans.zein}/10` : ans.zein) : '—';
+    const alaVal = ans.ala !== null ? (q.type === 'rating' ? `${ans.ala}/10` : ans.ala) : '—';
+
+    html += `
+      <div class="flow-review-item">
+        <div class="flow-review-q-row">
+          <div class="flow-review-q-text">${displayText}</div>
+          <button class="btn-review-edit" title="Edit answer" onclick="flowGoToQuestion(${idx})">✏️</button>
+        </div>
+        <div class="flow-review-answers">
+          <div class="flow-review-answer-card">
+            <div class="flow-review-answer-who zein-who">Zein</div>
+            <div class="flow-review-answer-val">${zeinVal}</div>
+          </div>
+          <div class="flow-review-answer-card">
+            <div class="flow-review-answer-who ala-who">Ala</div>
+            <div class="flow-review-answer-val">${alaVal}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  list.innerHTML = html;
+}
+
+/* ─── Stage 3: Save ─── */
+let lastSavedEntryIndex = null;
+
+function flowSaveCheckin() {
+  const now = new Date();
+  const dateStr = formatFlowDate(now);
+  const cadenceLabel = FLOW_CADENCE_LABELS[currentFlowCadenceKey];
+
+  // Build question objects
+  const questions = currentFlowQuestions.map((q, idx) => {
+    const ans = flowAnswers[idx] || { zein: null, ala: null };
+    const displayText = flowQTextOverrides[idx] !== undefined ? flowQTextOverrides[idx] : q.text;
+    const zeinVal = ans.zein !== null ? (q.type === 'rating' ? `${ans.zein}/10` : ans.zein) : '';
+    const alaVal = ans.ala !== null ? (q.type === 'rating' ? `${ans.ala}/10` : ans.ala) : '';
+    return { q: displayText, zein: zeinVal, ala: alaVal };
+  });
+
+  const newEntry = {
+    date: dateStr,
+    cadence: cadenceLabel,
+    depth: cadenceLabel,
+    questions: questions,
+    zein: questions.map(qa => ({ label: qa.q, value: qa.zein })),
+    ala: questions.map(qa => ({ label: qa.q, value: qa.ala })),
+    _isNew: true,
+  };
+
+  // Prepend to SESSION_DATA
+  SESSION_DATA.unshift(newEntry);
+  lastSavedEntryIndex = 0;
+
+  // Update history list in DOM
+  prependHistoryRow(newEntry, 0);
+
+  // Show toast
+  showToast('Saved ✓');
+
+  // Render completion screen
+  renderCompletionScreen(newEntry);
+  showFlowStage(4);
+}
+
+function prependHistoryRow(entry, idx) {
+  const list = document.getElementById('historyList');
+
+  // Shift all existing onclick indices up by 1
+  const rows = list.querySelectorAll('.history-row');
+  rows.forEach(row => {
+    const match = row.getAttribute('onclick') && row.getAttribute('onclick').match(/openSessionModal\((\d+)\)/);
+    if (match) {
+      const oldIdx = parseInt(match[1]);
+      row.setAttribute('onclick', `openSessionModal(${oldIdx + 1})`);
+    }
+  });
+
+  const row = document.createElement('div');
+  row.className = 'history-row';
+  row.setAttribute('onclick', `openSessionModal(0)`);
+  row.innerHTML = `
+    <div class="history-left">
+      <span class="history-check">✓</span>
+      <span class="history-date">${entry.date}</span>
+      <span class="history-depth-badge">${entry.cadence}</span>
+    </div>
+    <span class="history-view">View →</span>
+  `;
+
+  list.insertBefore(row, list.firstChild);
+}
+
+/* ─── Stage 4: Completion ─── */
+function renderCompletionScreen(entry) {
+  // Meta
+  document.getElementById('flowCompleteMeta').textContent = `${entry.date} · ${entry.cadence}`;
+
+  // Find the last "word" question answers
+  let zeinWord = null, alaWord = null;
+  let zeinRating = null, alaRating = null;
+
+  currentFlowQuestions.forEach((q, idx) => {
+    const ans = flowAnswers[idx] || {};
+    if (q.type === 'word') {
+      if (ans.zein) zeinWord = ans.zein;
+      if (ans.ala) alaWord = ans.ala;
+    }
+    if (q.type === 'rating' && idx === 0) {
+      // First rating question = feeling score
+      if (ans.zein) zeinRating = ans.zein;
+      if (ans.ala) alaRating = ans.ala;
+    }
+  });
+
+  // Highlights (one word)
+  const highlights = document.getElementById('flowCompleteHighlights');
+  if (zeinWord || alaWord) {
+    highlights.style.display = 'grid';
+    highlights.innerHTML = `
+      <div class="flow-highlight-card">
+        <div class="flow-highlight-who zein-hl">Zein</div>
+        <div class="flow-highlight-word">${zeinWord || '—'}</div>
+        <div class="flow-highlight-sub">word of the week</div>
+      </div>
+      <div class="flow-highlight-card">
+        <div class="flow-highlight-who ala-hl">Ala</div>
+        <div class="flow-highlight-word">${alaWord || '—'}</div>
+        <div class="flow-highlight-sub">word of the week</div>
+      </div>
+    `;
+  } else {
+    highlights.style.display = 'none';
+  }
+
+  // Rating compare
+  const ratingEl = document.getElementById('flowRatingCompare');
+  if (zeinRating || alaRating) {
+    ratingEl.style.display = 'flex';
+    const zStr = zeinRating ? `Zein: ${zeinRating}/10` : '';
+    const aStr = alaRating ? `Ala: ${alaRating}/10` : '';
+    const separator = zStr && aStr ? ' · ' : '';
+    ratingEl.innerHTML = `<strong>${zStr}${separator}${aStr}</strong>`;
+  } else {
+    ratingEl.style.display = 'none';
+  }
+
+  // Pick random activity (no repeats in session)
+  const remaining = ACTIVITIES.map((_, i) => i).filter(i => !usedActivityIndices.includes(i));
+  const pool = remaining.length > 0 ? remaining : ACTIVITIES.map((_, i) => i);
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  usedActivityIndices.push(picked);
+
+  document.getElementById('flowActivityEmoji').textContent = ACTIVITIES[picked].emoji;
+  document.getElementById('flowActivityText').textContent = ACTIVITIES[picked].text;
+
+  // Micro-quote (random)
+  const quote = MICRO_QUOTES[Math.floor(Math.random() * MICRO_QUOTES.length)];
+  document.getElementById('flowMicroQuote').textContent = `"${quote}"`;
+}
+
+function flipActivityCard() {
+  document.getElementById('flowActivityFront').style.display = 'none';
+  document.getElementById('flowActivityRevealed').classList.add('show');
+  document.getElementById('flowMicroQuote').style.display = 'block';
+}
+
+function openLatestHistoryEntry() {
+  if (lastSavedEntryIndex !== null) {
+    closeCheckinFlow();
+    openSessionModal(lastSavedEntryIndex);
+  }
+}
+
+/* ─── Init ─────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  loadQuestionsFromStorage();
+  renderQuestions('short');
+  updateHeroPill('short');
+
+  // Sidebar nav active sync
+  const sidebarLinks = document.querySelectorAll('#sidebarNav a');
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      const nav = link.dataset.nav;
+      document.querySelectorAll('.tab-item').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === nav);
+      });
+    });
+  });
+
+  // Mobile tab bar
+  const tabItems = document.querySelectorAll('.tab-item');
+  tabItems.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabItems.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const tabKey = tab.dataset.tab;
+      sidebarLinks.forEach(l => {
+        l.classList.toggle('active', l.dataset.nav === tabKey);
+      });
+    });
+  });
+});
+</script>
+
+</body>
+</html>
