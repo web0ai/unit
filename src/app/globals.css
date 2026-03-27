@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  /* Unit — Olive Garden Feast palette */
+  --color-cream: #FEFAE0;
+  --color-forest: #283618;
+  --color-olive: #606C38;
+  --color-amber: #DDA15E;
+  --color-terra: #BC6C25;
+
+  /* Semantic aliases */
+  --color-background: #FEFAE0;
+  --color-foreground: #283618;
+  --color-primary: #606C38;
+  --color-primary-foreground: #FEFAE0;
+  --color-secondary: #DDA15E;
+  --color-secondary-foreground: #283618;
+  --color-accent: #BC6C25;
+  --color-muted: #f0ead2;
+  --color-muted-foreground: #606C38;
+  --color-border: #d4c9a8;
+  --color-ring: #606C38;
+  --color-destructive: #dc2626;
+
+  /* Fonts */
+  --font-heading: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+}
