@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -81,10 +81,11 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const [direction, setDirection] = useState<"forward" | "back">("forward");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [dateLabel, setDateLabel] = useState("");
   const [dateValue, setDateValue] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [data, setData] = useState<OnboardingData>({
     name: "",
@@ -101,6 +102,43 @@ export default function OnboardingPage() {
     privacyMode: "full-transparency",
     visualTheme: "minimal-light",
   });
+
+  // Check auth on mount and pre-fill email user's name if available
+  useEffect(() => {
+    async function init() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+      setUserId(user.id);
+
+      // Pre-fill name from Google profile if available
+      const meta = user.user_metadata;
+      if (meta?.full_name && !data.name) {
+        const firstName = meta.full_name.split(" ")[0];
+        setData((d) => ({ ...d, name: firstName }));
+      } else if (meta?.name && !data.name) {
+        const firstName = meta.name.split(" ")[0];
+        setData((d) => ({ ...d, name: firstName }));
+      }
+
+      // Check if user already has a unit (invited partner)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("unit_id, onboarding_completed")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.onboarding_completed) {
+        router.push("/dashboard");
+        return;
+      }
+    }
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const update = useCallback(
     (patch: Partial<OnboardingData>) => setData((d) => ({ ...d, ...patch })),
@@ -134,83 +172,174 @@ export default function OnboardingPage() {
     setDateValue("");
   }
 
+  // Validation per step
+  function validateStep(): string | null {
+    switch (step) {
+      case 0:
+        if (!data.name.trim()) return "Please enter your name.";
+        break;
+      case 2:
+        if (data.pillars.length === 0) return "Please select at least one pillar.";
+        break;
+      case 5:
+        if (!data.familyTheme) return "Please pick a family theme.";
+        break;
+    }
+    return null;
+  }
+
   function goTo(target: number) {
     if (animating) return;
-    setDirection(target > step ? "forward" : "back");
+
+    // Only validate when going forward
+    if (target > step) {
+      const err = validateStep();
+      if (err) {
+        setError(err);
+        setTimeout(() => setError(""), 3000);
+        return;
+      }
+    }
+
+    setError("");
     setAnimating(true);
     setTimeout(() => {
       setStep(target);
       setAnimating(false);
+      // Scroll to top on step change
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }, 200);
   }
 
   async function finish() {
+    const err = validateStep();
+    if (err) {
+      setError(err);
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
     setSaving(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push("/login"); return; }
+    setError("");
 
-    // Create unit
-    const { data: unit, error: unitErr } = await supabase
-      .from("units")
-      .insert({
-        name: `${data.name}'s Unit`,
-        theme: data.familyTheme || "fruits",
-        visual_theme: data.visualTheme,
-        check_in_cadence: data.cadence.toLowerCase(),
-        check_in_depth: "short",
-      })
-      .select("id")
-      .single();
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.push("/login"); return; }
 
-    if (unitErr || !unit) { setSaving(false); return; }
+      // Check if user was invited to an existing unit
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("unit_id")
+        .eq("id", user.id)
+        .single();
 
-    // Update profile
-    await supabase
-      .from("profiles")
-      .update({
-        name: data.name,
-        unit_id: unit.id,
-        onboarding_completed: true,
-      })
-      .eq("id", user.id);
+      let unitId = profile?.unit_id;
 
-    // Create shared goal if provided
-    if (data.sharedGoal) {
-      await supabase.from("goals").insert({
-        unit_id: unit.id,
-        title: data.sharedGoal,
-      });
+      if (!unitId) {
+        // Create new unit
+        const { data: unit, error: unitErr } = await supabase
+          .from("units")
+          .insert({
+            name: `${data.name.trim()}'s Unit`,
+            theme: data.familyTheme || "fruits",
+            visual_theme: data.visualTheme,
+            check_in_cadence: data.cadence.toLowerCase(),
+            check_in_depth: "short",
+          })
+          .select("id")
+          .single();
+
+        if (unitErr) {
+          console.error("Unit creation error:", unitErr);
+          setError(`Failed to create unit: ${unitErr.message}`);
+          setSaving(false);
+          return;
+        }
+        if (!unit) {
+          setError("Failed to create unit. Please try again.");
+          setSaving(false);
+          return;
+        }
+        unitId = unit.id;
+      }
+
+      // Update profile
+      const { error: profileErr } = await supabase
+        .from("profiles")
+        .update({
+          name: data.name.trim(),
+          unit_id: unitId,
+          onboarding_completed: true,
+        })
+        .eq("id", user.id);
+
+      if (profileErr) {
+        console.error("Profile update error:", profileErr);
+        setError(`Failed to update profile: ${profileErr.message}`);
+        setSaving(false);
+        return;
+      }
+
+      // Create shared goal if provided
+      if (data.sharedGoal.trim()) {
+        await supabase.from("goals").insert({
+          unit_id: unitId,
+          title: data.sharedGoal.trim(),
+        });
+      }
+
+      // Create bucket list item for dream destination if provided
+      if (data.dreamDestination.trim()) {
+        await supabase.from("bucket_list_items").insert({
+          unit_id: unitId,
+          title: data.dreamDestination.trim(),
+          owner: "shared",
+          category: "dream",
+        });
+      }
+
+      // Create key date events
+      for (const kd of data.keyDates) {
+        await supabase.from("events").insert({
+          unit_id: unitId,
+          title: kd.label,
+          date: new Date(kd.date).toISOString(),
+          category: "key-date",
+          recurrence: "yearly",
+        });
+      }
+
+      // Send partner invite if email provided and unit was just created
+      if (data.partnerEmail.trim() && !profile?.unit_id) {
+        const token = crypto.randomUUID();
+        await supabase.from("invites").insert({
+          unit_id: unitId,
+          email: data.partnerEmail.trim(),
+          token,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        });
+        // TODO: send email via edge function or API
+      }
+
+      router.push("/dashboard");
+    } catch (e) {
+      console.error("Onboarding error:", e);
+      setError("Something went wrong. Please try again.");
+      setSaving(false);
     }
-
-    // Create key date events
-    for (const kd of data.keyDates) {
-      const year = new Date().getFullYear();
-      const dateStr = `${year}-${kd.date.split("-").slice(1).join("-")}`;
-      await supabase.from("events").insert({
-        unit_id: unit.id,
-        title: kd.label,
-        date: new Date(dateStr).toISOString(),
-        category: "key-date",
-        recurrence: "yearly",
-      });
-    }
-
-    // Send partner invite if email provided
-    if (data.partnerEmail) {
-      const token = crypto.randomUUID();
-      await supabase.from("invites").insert({
-        unit_id: unit.id,
-        email: data.partnerEmail,
-        token,
-        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      });
-    }
-
-    router.push("/dashboard");
   }
 
   const isLast = step === STEPS.length - 1;
+
+  // Don't render until we've checked auth
+  if (!userId) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-cream">
+        <p className="text-muted-text text-sm">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh flex flex-col bg-cream">
@@ -231,6 +360,13 @@ export default function OnboardingPage() {
           </span>
         </div>
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="mx-6 mt-3 px-4 py-2.5 rounded-[10px] bg-destructive/10 border border-destructive/30 text-sm text-destructive animate-fade-in">
+          {error}
+        </div>
+      )}
 
       {/* Step content */}
       <div className="flex-1 flex items-start justify-center px-6 py-8 overflow-y-auto">
@@ -260,22 +396,24 @@ export default function OnboardingPage() {
       </div>
 
       {/* Footer nav */}
-      <div className="px-6 pb-8 max-w-md mx-auto w-full flex gap-3">
-        {step > 0 && (
+      <div className="sticky bottom-0 bg-cream border-t border-border/50 px-6 py-4">
+        <div className="max-w-md mx-auto w-full flex gap-3">
+          {step > 0 && (
+            <button
+              onClick={() => goTo(step - 1)}
+              className="px-5 py-3.5 rounded-[10px] border-[1.5px] border-border text-muted-text font-heading text-[15px] font-medium hover:border-olive hover:text-olive transition-all duration-200"
+            >
+              Back
+            </button>
+          )}
           <button
-            onClick={() => goTo(step - 1)}
-            className="px-5 py-3.5 rounded-[10px] border-[1.5px] border-border text-muted-text font-heading text-[15px] font-medium hover:border-olive hover:text-olive transition-all duration-200"
+            onClick={() => (isLast ? finish() : goTo(step + 1))}
+            disabled={saving}
+            className="flex-1 py-3.5 rounded-[10px] bg-olive text-cream font-heading text-[15px] font-semibold hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(96,108,56,0.25)] active:translate-y-0 transition-all duration-200 disabled:opacity-50"
           >
-            Back
+            {saving ? "Setting up..." : isLast ? "Let's go →" : "Continue"}
           </button>
-        )}
-        <button
-          onClick={() => (isLast ? finish() : goTo(step + 1))}
-          disabled={saving}
-          className="flex-1 py-3.5 rounded-[10px] bg-olive text-cream font-heading text-[15px] font-semibold hover:bg-primary-hover hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(96,108,56,0.25)] active:translate-y-0 transition-all duration-200 disabled:opacity-50"
-        >
-          {saving ? "Setting up..." : isLast ? "Let's go →" : "Continue"}
-        </button>
+        </div>
       </div>
     </div>
   );
@@ -289,9 +427,11 @@ function StepHeader({ title, subtitle }: { title: string; subtitle: string }) {
       <h1 className="font-heading text-[26px] md:text-[30px] font-semibold text-forest">
         {title}
       </h1>
-      <p className="text-sm text-muted-text font-light mt-2 leading-relaxed">
-        {subtitle}
-      </p>
+      {subtitle && (
+        <p className="text-sm text-muted-text font-light mt-2 leading-relaxed">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }
@@ -309,13 +449,14 @@ function Step1({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
           placeholder="e.g. Sarah"
           value={data.name}
           onChange={(v) => update({ name: v })}
+          autoFocus
         />
         <div className="mt-6 p-4 rounded-xl bg-olive-light border-[1.5px] border-border">
           <p className="font-heading text-sm font-semibold text-forest">
             Invite your partner
           </p>
           <p className="text-[13px] text-muted-text font-light mt-0.5 mb-3">
-            Your space is waiting for them.
+            Your space is waiting for them. (Optional — you can do this later)
           </p>
           <input
             type="email"
@@ -462,14 +603,9 @@ function Step5({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
           onChange={(v) => update({ dreamDestination: v })}
         />
       </div>
-      <button
-        onClick={() => {
-          update({ sharedGoal: "", dreamDestination: "" });
-        }}
-        className="mt-4 text-[13px] text-muted-text hover:text-olive hover:underline transition-colors"
-      >
-        Skip for now
-      </button>
+      <p className="mt-4 text-[13px] text-muted-text font-light">
+        Both fields are optional — just hit Continue to skip.
+      </p>
     </>
   );
 }
@@ -562,7 +698,7 @@ function Step7({
         Key dates to remember
       </p>
       <p className="text-[13px] text-muted-text font-light mt-0.5 mb-3">
-        Birthdays, anniversaries, things that matter — never miss them again.
+        Birthdays, anniversaries, things that matter — never miss them again. (Optional)
       </p>
 
       <div className="flex gap-2 mb-3">
@@ -595,8 +731,8 @@ function Step7({
               key={i}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-pill bg-olive-light border-[1.5px] border-border text-[13px]"
             >
-              📅 {kd.label} —{" "}
-              {new Date(kd.date).toLocaleDateString("en-US", {
+              {kd.label} —{" "}
+              {new Date(kd.date + "T00:00:00").toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
               })}
@@ -683,7 +819,6 @@ function Step8({ data, update }: { data: OnboardingData; update: (p: Partial<Onb
                 </svg>
               </div>
             )}
-            {/* Preview */}
             <div
               className="h-[90px] md:h-[100px] p-3 flex flex-col justify-between"
               style={{ backgroundColor: t.bg }}
@@ -725,12 +860,14 @@ function InputField({
   value,
   onChange,
   type = "text",
+  autoFocus = false,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  autoFocus?: boolean;
 }) {
   return (
     <div>
@@ -742,6 +879,7 @@ function InputField({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        autoFocus={autoFocus}
         min={type === "number" ? 1 : undefined}
         max={type === "number" ? 20 : undefined}
         className="w-full px-3.5 py-3 rounded-[10px] border-[1.5px] border-border bg-surface text-forest text-[15px] placeholder:text-[#b8b39a] focus:outline-none focus:border-olive focus:shadow-[0_0_0_3px_rgba(96,108,56,0.12)] transition-all duration-200"
