@@ -415,7 +415,7 @@ export default function OnboardingPage() {
 
   // Completion screen
   if (completed) {
-    return <CompletionScreen name={data.name} data={data} onContinue={() => router.push("/dashboard")} />;
+    return <CompletionScreen name={data.name} data={data} onContinue={() => { window.location.href = "/dashboard"; }} />;
   }
 
   return (
