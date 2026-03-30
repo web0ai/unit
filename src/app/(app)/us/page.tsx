@@ -21,7 +21,7 @@ export default function UsPage() {
   const { profile, updateProfile } = useProfile();
   const { unit, updateUnit } = useUnit();
   const { members, addMember, removeMember } = useMembers();
-  const partners = usePartnerProfiles();
+  const { partners } = usePartnerProfiles();
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [newChip, setNewChip] = useState("");

@@ -19,7 +19,7 @@ function CheckInFlow() {
   const router = useRouter();
   const checkInId = searchParams.get("id");
   const { responses, submitResponse } = useCheckInResponses(checkInId);
-  const partners = usePartnerProfiles();
+  const { partners } = usePartnerProfiles();
   const [checkIn, setCheckIn] = useState<{ cadence: string; depth: string; status: string } | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);

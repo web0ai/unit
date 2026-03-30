@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-interface Profile {
+// Types
+export interface Profile {
   id: string;
   email: string;
   name: string | null;
@@ -17,7 +18,7 @@ interface Profile {
   onboarding_completed: boolean;
 }
 
-interface Unit {
+export interface Unit {
   id: string;
   name: string;
   theme: string;
@@ -27,7 +28,7 @@ interface Unit {
   subscription_status: string;
 }
 
-interface Member {
+export interface Member {
   id: string;
   unit_id: string;
   name: string;
@@ -38,85 +39,103 @@ interface Member {
 export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
+  const load = useCallback(async () => {
+    const supabase = createClient();
+    try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
-      const { data } = await supabase
+      const { data, error: err } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
+      if (err) { setError(err.message); setLoading(false); return; }
       setProfile(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load profile");
+    } finally {
       setLoading(false);
     }
-    load();
-  }, [supabase]);
+  }, []);
 
-  async function updateProfile(patch: Partial<Profile>) {
+  useEffect(() => { load(); }, [load]);
+
+  const updateProfile = useCallback(async (patch: Partial<Profile>) => {
     if (!profile) return;
-    const { data } = await supabase
+    const supabase = createClient();
+    const { data, error: err } = await supabase
       .from("profiles")
       .update(patch)
       .eq("id", profile.id)
       .select()
       .single();
+    if (err) { setError(err.message); return; }
     if (data) setProfile(data);
-  }
+  }, [profile]);
 
-  return { profile, loading, updateProfile };
+  return { profile, loading, error, updateProfile, reload: load };
 }
 
 export function useUnit() {
   const [unit, setUnit] = useState<Unit | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
+  const load = useCallback(async () => {
+    const supabase = createClient();
+    try {
+      const { data, error: err } = await supabase
         .from("units")
         .select("*")
         .limit(1)
-        .single();
+        .maybeSingle();
+      if (err) { setError(err.message); setLoading(false); return; }
       setUnit(data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load unit");
+    } finally {
       setLoading(false);
     }
-    load();
-  }, [supabase]);
+  }, []);
 
-  async function updateUnit(patch: Partial<Unit>) {
+  useEffect(() => { load(); }, [load]);
+
+  const updateUnit = useCallback(async (patch: Partial<Unit>) => {
     if (!unit) return;
-    const { data } = await supabase
+    const supabase = createClient();
+    const { data, error: err } = await supabase
       .from("units")
       .update(patch)
       .eq("id", unit.id)
       .select()
       .single();
+    if (err) { setError(err.message); return; }
     if (data) setUnit(data);
-  }
+  }, [unit]);
 
-  return { unit, loading, updateUnit };
+  return { unit, loading, error, updateUnit, reload: load };
 }
 
 export function useMembers() {
   const [members, setMembers] = useState<Member[]>([]);
-  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from("members")
-        .select("*")
-        .order("created_at");
-      if (data) setMembers(data);
-    }
-    load();
-  }, [supabase]);
+  const load = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("members")
+      .select("*")
+      .order("created_at");
+    if (data) setMembers(data);
+    setLoading(false);
+  }, []);
 
-  async function addMember(name: string, role: string) {
+  useEffect(() => { load(); }, [load]);
+
+  const addMember = useCallback(async (name: string, role: string) => {
+    const supabase = createClient();
     const { data: unit } = await supabase.from("units").select("id").limit(1).single();
     if (!unit) return;
     const { data } = await supabase
@@ -125,30 +144,33 @@ export function useMembers() {
       .select()
       .single();
     if (data) setMembers((m) => [...m, data]);
-  }
+  }, []);
 
-  async function removeMember(id: string) {
+  const removeMember = useCallback(async (id: string) => {
+    const supabase = createClient();
     await supabase.from("members").delete().eq("id", id);
     setMembers((m) => m.filter((x) => x.id !== id));
-  }
+  }, []);
 
-  return { members, addMember, removeMember };
+  return { members, loading, addMember, removeMember };
 }
 
 export function usePartnerProfiles() {
   const [partners, setPartners] = useState<Profile[]>([]);
-  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const supabase = createClient();
     async function load() {
       const { data } = await supabase
         .from("profiles")
         .select("*")
         .not("unit_id", "is", null);
       if (data) setPartners(data);
+      setLoading(false);
     }
     load();
-  }, [supabase]);
+  }, []);
 
-  return partners;
+  return { partners, loading };
 }
