@@ -2,7 +2,7 @@
 
 **Version:** 0.1  
 **Date:** March 2026  
-**Status:** Working Draft  
+**Status:** Superseded by [docs/PRD.md](../docs/PRD.md) (v0.2, July 2026) — kept as the full pillar/interaction reference  
 **Authors:** Ala Haddad, Zein  
 
 ---
